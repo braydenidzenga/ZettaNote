@@ -24,6 +24,10 @@ const PageSchema = new mongoose.Schema({
         required: true,
         default: []
     },
+    publicShareId:{
+        type: String,
+        default: ''
+    },
     createdAt: {
         type: Date,
         required: true,

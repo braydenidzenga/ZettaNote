@@ -18,6 +18,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.18.2",
     "nodemon": "^3.1.10",
+    "uuid": "^13.0.0",
     "zod": "^4.1.11"
   },
   "type": "module"
