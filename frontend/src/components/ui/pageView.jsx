@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { 
     Container, 
     Typography, 
@@ -17,6 +17,7 @@ import ReactMarkdown from "react-markdown";
 import SharePageButton from "./sharePageButton";
 import { FaTrashCan } from "react-icons/fa6";
 import { showToast } from "../../utils/toast";
+import RichMarkdownEditor from "./RichMarkdownEditor";
 
 // Always normalize page id for backend requests
 const normalizePage = (page) => ({
@@ -31,7 +32,6 @@ export default function PageView({ page }) {
     const [editing, setEditing] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const textareaRef = useRef(null);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -256,27 +256,14 @@ export default function PageView({ page }) {
                                 <CircularProgress size={60} thickness={4} />
                             </Box>
                         ) : editing ? (
-                            <textarea
-                                ref={textareaRef}
-                                value={content}
-                                onChange={e => setContent(e.target.value)}
-                                onBlur={() => setEditing(false)}
-                                style={{
-                                    width: "100%",
-                                    minHeight: isMobile ? "70vh" : "75vh",
-                                    border: "none",
-                                    outline: "none",
-                                    background: "transparent",
-                                    fontSize: isMobile ? "16px" : "18px",
-                                    fontFamily: "'Inter', 'Segoe UI', sans-serif",
-                                    resize: "none",
-                                    padding: isMobile ? "20px" : "32px",
-                                    lineHeight: 1.7,
-                                    color: theme.palette.text.primary,
-                                }}
-                                autoFocus
-                                placeholder="Start writing your thoughts..."
-                            />
+                            <Box>
+                                <RichMarkdownEditor
+                                    content={content}
+                                    onChange={setContent}
+                                    placeholder="Start writing your thoughts..."
+                                    onBlur={() => setEditing(false)}
+                                />
+                            </Box>
                         ) : (
                             <Box 
                                 onClick={() => setEditing(true)}
