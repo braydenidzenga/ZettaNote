@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { 
-    Container, 
-    Typography, 
-    IconButton, 
-    Box, 
-    Paper, 
+import {
+    Container,
+    Typography,
+    IconButton,
+    Box,
+    Paper,
     CircularProgress,
     useTheme,
     useMediaQuery,
@@ -17,6 +17,7 @@ import ReactMarkdown from "react-markdown";
 import SharePageButton from "./sharePageButton";
 import { FaTrashCan } from "react-icons/fa6";
 import { showToast } from "../../utils/toast";
+import { useSavePageOnChange } from "../../hooks/useSavePageOnChange";
 
 // Always normalize page id for backend requests
 const normalizePage = (page) => ({
@@ -34,6 +35,7 @@ export default function PageView({ page }) {
     const textareaRef = useRef(null);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const { savePage, saveError, isSaving, isSaved } = useSavePageOnChange(1000);
 
     useEffect(() => {
         if (!normalizedPage.id) return;
@@ -62,10 +64,37 @@ export default function PageView({ page }) {
         fetchPage();
     }, [normalizedPage.id]);
 
+	useEffect(() => {
+		if (isSaved)
+			showToast.success("Page saved successfully!");
+	}, [isSaved]);
+
+	useEffect(() => {
+		let loadingToast;
+		if (isSaving)
+			loadingToast = showToast.loading("Saving page...");
+		else
+			showToast.dismiss(loadingToast);
+	}, [isSaving]);
+
+	useEffect(() => {
+		if (saveError)
+			showToast.error(saveError);
+	}, [saveError]);
+
+	const handleOnChange = async (updatedContent) => {
+		setContent(updatedContent);
+		// Automatically saves 1s after typing stops
+		await savePage({
+			pageId: normalizedPage.id,
+			content: updatedContent,
+		});
+	};
+
     const handleSave = async () => {
         setError("");
         const loadingToast = showToast.loading("Saving page...");
-        
+
         try {
             const token = localStorage.getItem("token");
             const res = await fetch(API_URL + "/api/pages/savepage", {
@@ -78,9 +107,9 @@ export default function PageView({ page }) {
                 }),
             });
             const data = await res.json();
-            
+
             showToast.dismiss(loadingToast);
-            
+
             if (!res.ok) {
                 setError(data.message || "Failed to save page");
                 showToast.error("Failed to save page");
@@ -110,7 +139,6 @@ export default function PageView({ page }) {
             });
 
             const data = await res.json();
-            
             showToast.dismiss(loadingToast);
 
             if (!res.ok) {
@@ -141,8 +169,8 @@ export default function PageView({ page }) {
                     <Paper
                         elevation={0}
                         sx={{
-                            display: "flex", 
-                            alignItems: "center", 
+                            display: "flex",
+                            alignItems: "center",
                             mb: 3,
                             p: { xs: 2, md: 3 },
                             borderRadius: 2,
@@ -153,9 +181,9 @@ export default function PageView({ page }) {
                             border: `1px solid ${theme.palette.divider}`,
                         }}
                     >
-                        <Typography 
-                            variant={isMobile ? "h5" : "h4"} 
-                            sx={{ 
+                        <Typography
+                            variant={isMobile ? "h5" : "h4"}
+                            sx={{
                                 flexGrow: 1,
                                 fontWeight: 600,
                                 background: theme.palette.mode === 'dark'
@@ -168,12 +196,12 @@ export default function PageView({ page }) {
                         >
                             {normalizedPage.name}
                         </Typography>
-                        
+
                         <Box sx={{ display: 'flex', gap: 1 }}>
                             <Tooltip title="Delete Page" arrow>
-                                <IconButton 
-                                    color="error" 
-                                    onClick={handleDelete} 
+                                <IconButton
+                                    color="error"
+                                    onClick={handleDelete}
                                     disabled={loading}
                                     sx={{
                                         '&:hover': {
@@ -185,11 +213,11 @@ export default function PageView({ page }) {
                                     <FaTrashCan />
                                 </IconButton>
                             </Tooltip>
-                            
+
                             <Tooltip title="Save Page" arrow>
-                                <IconButton 
-                                    color="primary" 
-                                    onClick={handleSave} 
+                                <IconButton
+                                    color="primary"
+                                    onClick={handleSave}
                                     disabled={loading}
                                     sx={{
                                         '&:hover': {
@@ -201,7 +229,7 @@ export default function PageView({ page }) {
                                     <SaveIcon />
                                 </IconButton>
                             </Tooltip>
-                            
+
                             <SharePageButton token={token} pageId={normalizedPage.id} />
                         </Box>
                     </Paper>
@@ -247,10 +275,10 @@ export default function PageView({ page }) {
                         onClick={() => setEditing(true)}
                     >
                         {loading ? (
-                            <Box 
-                                display="flex" 
-                                justifyContent="center" 
-                                alignItems="center" 
+                            <Box
+                                display="flex"
+                                justifyContent="center"
+                                alignItems="center"
                                 minHeight="70vh"
                             >
                                 <CircularProgress size={60} thickness={4} />
@@ -259,7 +287,7 @@ export default function PageView({ page }) {
                             <textarea
                                 ref={textareaRef}
                                 value={content}
-                                onChange={e => setContent(e.target.value)}
+                                onChange={e => handleOnChange(e.target.value)}
                                 onBlur={() => setEditing(false)}
                                 style={{
                                     width: "100%",
@@ -278,9 +306,9 @@ export default function PageView({ page }) {
                                 placeholder="Start writing your thoughts..."
                             />
                         ) : (
-                            <Box 
+                            <Box
                                 onClick={() => setEditing(true)}
-                                sx={{ 
+                                sx={{
                                     p: { xs: 2.5, md: 4 },
                                     minHeight: { xs: "70vh", md: "75vh" },
                                     cursor: 'text',
@@ -311,9 +339,9 @@ export default function PageView({ page }) {
                                 {content ? (
                                     <ReactMarkdown>{content}</ReactMarkdown>
                                 ) : (
-                                    <Typography 
-                                        variant="body1" 
-                                        sx={{ 
+                                    <Typography
+                                        variant="body1"
+                                        sx={{
                                             fontStyle: 'italic',
                                             color: theme.palette.text.secondary,
                                             fontSize: { xs: '16px', md: '18px' }
