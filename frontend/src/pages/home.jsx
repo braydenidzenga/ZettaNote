@@ -4,7 +4,7 @@ import Sidebar from "../components/ui/sidebar";
 import Navbar from "../components/ui/Navbar";
 import PageView from "../components/ui/pageView";
 import NewPagePopup from "../components/ui/newPagePopup";
-import { Typography, Box, Paper, Card, CardContent, useTheme, useMediaQuery } from "@mui/material";
+import { Typography, Box, Paper, Card, CardContent, useTheme } from "@mui/material";
 import { useEffect } from "react";
 import { API_URL } from "../config";
 import { showToast } from "../utils/toast";
@@ -20,7 +20,6 @@ export default function Home() {
     const [name, setName] = useState("");
     const [newPagePopupOpen, setNewPagePopupOpen] = useState(false);
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -49,11 +48,7 @@ export default function Home() {
     });
 
 
-    const onLogout = () => {
-        localStorage.removeItem("token");
-        showToast.info("Logged out successfully");
-        navigate("/");
-    };
+    // Logout handled in Navbar; keep function for future use if needed
 
     const onCreatePage = () => {
         setNewPagePopupOpen(true);
