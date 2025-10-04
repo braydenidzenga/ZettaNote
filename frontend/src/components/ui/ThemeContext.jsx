@@ -102,11 +102,6 @@ export function ThemeContextProvider({ children }) {
 export function ThemeToggleButton() {
     const { mode, toggleColorMode } = useThemeContext();
 
-    const theme = createTheme(getDesignTokens(mode));
-    const buttonColor = theme.palette.mode === 'dark' 
-        ? theme.palette.primary.light 
-        : theme.palette.primary.dark;
-
     return (
         <IconButton
             sx={{
