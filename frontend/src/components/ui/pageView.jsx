@@ -62,6 +62,17 @@ export default function PageView({ page }) {
         fetchPage();
     }, [normalizedPage.id]);
 
+    useEffect(()=>{
+        const timer = setTimeout(()=>{
+            if(content){
+                console.log("Firing Auto Save")
+                handleSave()
+            }
+        },2000);
+
+        return ()=> clearTimeout(timer)
+    },[content])
+
     const handleSave = async () => {
         setError("");
         const loadingToast = showToast.loading("Saving page...");
