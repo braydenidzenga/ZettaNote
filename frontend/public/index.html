@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -24,7 +24,7 @@
       property="og:description"
       content="Organize your thoughts, tasks, and projects efficiently with ZettaNote."
     />
-    <meta property="og:image" content="https://zettanote.tech/logo.png" />
+  <meta property="og:image" content="%PUBLIC_URL%/logo.png" />
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://zettanote.tech/" />
@@ -33,15 +33,28 @@
       name="twitter:description"
       content="Organize your thoughts, tasks, and projects efficiently with ZettaNote."
     />
-    <meta name="twitter:image" content="https://zettanote.tech/logo.png" />
+  <meta name="twitter:image" content="%PUBLIC_URL%/logo.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <link rel="icon" href="%PUBLIC_URL%/logo.png" />
-    <link rel="shortcut icon" href="%PUBLIC_URL%/logo.png" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <link rel="icon" href="%PUBLIC_URL%/logo.png" />
+  <link rel="shortcut icon" href="%PUBLIC_URL%/logo.png" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo.png" />
+    <!-- Fonts for headings and body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+      :root { --bg-light: linear-gradient(135deg,#f6f8ff 0%, #eaf8ff 100%); --bg-dark: linear-gradient(180deg,#071019 0%, #0b1220 100%); }
+      html,body,#root{ height:100%; }
+      body{ margin:0; font-family: 'Inter', system-ui, Arial, sans-serif; background: var(--bg-light); }
+      @media (prefers-color-scheme: dark) {
+        body { background: var(--bg-dark); }
+      }
+      h1,h2,h3,h4,h5,h6 { font-family: 'Poppins', 'Inter', sans-serif; }
+    </style>
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -51,7 +64,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <title>ZettaNote</title>
+    <title>ZettaNote — Beautiful Markdown Notes</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

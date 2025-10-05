@@ -1,4 +1,3 @@
-// src/pages/Landing.jsx
 import React, { useEffect, useState } from "react";
 import { 
     Container, 
@@ -12,319 +11,216 @@ import {
     Fade,
     Slide,
     Zoom,
-    Grow
+    Grow,
+    useTheme
 } from "@mui/material";
 import { 
     Edit as EditIcon,
-    Group as GroupIcon,
     Folder as FolderIcon,
     Speed as SpeedIcon,
     Security as SecurityIcon,
     CloudSync as CloudIcon,
-    Star as StarIcon,
     GitHub as GitHubIcon
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/ui/Navbar";
 
-
-export default function Landing() {
+export default function Landingpage() {
     const navigate = useNavigate();
+    const theme = useTheme();
     const [isVisible, setIsVisible] = useState(false);
-    const [featureVisible, setFeatureVisible] = useState(false);
-    const [testimonialVisible, setTestimonialVisible] = useState(false);
-
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    
     useEffect(() => {
-        // Hero section animation
-        const timer1 = setTimeout(() => setIsVisible(true), 300);
-        
-        // Features section animation
-        const timer2 = setTimeout(() => setFeatureVisible(true), 800);
-        
-        // Testimonials section animation
-        const timer3 = setTimeout(() => setTestimonialVisible(true), 1200);
-
-        return () => {
-            clearTimeout(timer1);
-            clearTimeout(timer2);
-            clearTimeout(timer3);
-        };
+        setIsVisible(true);
+        // Check if user is logged in
+        const token = localStorage.getItem("token");
+        setIsAuthenticated(!!token);
     }, []);
 
     const features = [
         {
-            icon: <EditIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
-            title: "Markdown Support",
-            description: "Write beautiful notes with full Markdown support. Format text, add links, images, and code blocks effortlessly."
+            icon: <EditIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
+            title: 'Rich Text Editor',
+            description: 'Create and edit beautiful notes with our intuitive rich text editor'
         },
         {
-            icon: <FolderIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
-            title: "Flexible Organization",
-            description: "Organize your notes with a flexible folder structure. Create, rename, and manage your pages with ease."
+            icon: <FolderIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
+            title: 'Organized Storage',
+            description: 'Keep your notes organized with folders and easy search functionality'
         },
         {
-            icon: <SpeedIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
-            title: "Lightweight & Fast",
-            description: "Built for performance. ZettaNote is lightweight, fast, and doesn't slow you down with unnecessary features."
+            icon: <SpeedIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
+            title: 'Fast & Responsive',
+            description: 'Lightning-fast performance with instant sync across all your devices'
         },
         {
-            icon: <SecurityIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
-            title: "Secure & Private",
-            description: "Your notes are secure and private. We respect your data and provide you with full control over your content."
-        },
-        {
-            icon: <CloudIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
-            title: "Cloud Sync",
-            description: "Access your notes anywhere, anytime. Your data syncs seamlessly across all your devices."
-        }
-    ];
-
-    const testimonials = [
-        {
-            name: "Alex Chen",
-            role: "Software Developer",
-            content: "ZettaNote has transformed how our team collaborates on documentation. Real-time editing are game-changers.",
-            rating: 5
-        },
-        {
-            name: "Sarah Johnson",
-            role: "Product Manager",
-            content: "Finally, a note-taking app that doesn't get in the way. Clean, fast, and exactly what we needed for our project planning.",
-            rating: 5
-        },
-        {
-            name: "Mike Rodriguez",
-            role: "Tech Lead",
-            content: "The open-source nature of ZettaNote gives us confidence in our data. Plus, the collaboration features are top-notch.",
-            rating: 5
+            icon: <SecurityIcon sx={{ fontSize: 40, color: theme.palette.primary.main }} />,
+            title: 'Secure & Private',
+            description: 'Your notes are encrypted and stored securely with enterprise-grade protection'
         }
     ];
 
     return (
-        <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-            {/* Navbar */}
+        <Box sx={{ minHeight: '100vh', bgcolor: theme.palette.background.default }}>
             <Navbar />
+            
             {/* Hero Section */}
             <Container maxWidth="lg" sx={{ pt: 12, pb: 8 }}>
-
-
-                <Box sx={{ textAlign: 'center', mb: 8 }}>
-                        <Box>
-                                <Typography 
-                                    variant="h2" 
-                                    component="h1" 
-                                    sx={{ 
-                                        fontWeight: 'bold', 
-                                        mb: 3,
-                                        background: 'linear-gradient(45deg, #1976d2, #42a5f5)',
-                                        backgroundClip: 'text',
-                                        WebkitBackgroundClip: 'text',
-                                        WebkitTextFillColor: 'transparent',
-                                    
-                                    }}
-                                >
-                                    ZettaNote
-                                </Typography>
-                        </Box>
-                    
-                    <Slide direction="up" in={isVisible} timeout={800} style={{ transitionDelay: '400ms' }}>
-                        <Box>
-                            <Typography 
-                                variant="h4" 
-                                sx={{ 
-                                    mb: 3, 
-                                    color: 'text.secondary',
-                                    fontWeight: 300
-                                }}
-                            >
-                                Markdown-based notes, real-time collaboration, and flexible organization in a lightweight package
-                            </Typography>
-                        </Box>
-                    </Slide>
-                    
-                    <Slide direction="up" in={isVisible} timeout={800} style={{ transitionDelay: '600ms' }}>
-                        <Box>
-                            <Typography 
-                                variant="h6" 
-                                sx={{ 
-                                    mb: 4, 
-                                    color: 'text.secondary',
-                                    maxWidth: '600px',
-                                    mx: 'auto',
-                                    lineHeight: 1.6
-                                }}
-                            >
-                                The open-source note-taking app built for developers and teams who value simplicity, speed, and collaboration.
-                            </Typography>
-                        </Box>
-                    </Slide>
-                    
-                    <Slide direction="up" in={isVisible} timeout={800} style={{ transitionDelay: '800ms' }}>
-                        <Box>
-                            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 4 }}>
-                                <Button
-                                    variant="contained"
+                <Fade in={isVisible} timeout={1000}>
+                    <Box sx={{ textAlign: 'center', mb: 8 }}>
+                        <Typography 
+                            variant="h1" 
+                            sx={{ 
+                                fontSize: { xs: '2.5rem', md: '4rem' },
+                                fontWeight: 800,
+                                mb: 3,
+                                background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent'
+                            }}
+                        >
+                            ZettaNote
+                        </Typography>
+                        <Typography 
+                            variant="h4" 
+                            sx={{ 
+                                mb: 4, 
+                                color: theme.palette.text.primary,
+                                fontWeight: 500,
+                                fontSize: { xs: '1.5rem', md: '2rem' }
+                            }}
+                        >
+                            Your thoughts, organized and accessible anywhere
+                        </Typography>
+                        <Typography 
+                            variant="body1" 
+                            sx={{ 
+                                mb: 6, 
+                                color: theme.palette.text.secondary,
+                                fontSize: '1.2rem',
+                                maxWidth: '600px',
+                                mx: 'auto'
+                            }}
+                        >
+                            A powerful note-taking app that helps you capture ideas, organize thoughts, 
+                            and collaborate seamlessly across all your devices.
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                            {isAuthenticated ? (
+                                // Show Dashboard button when logged in
+                                <Button 
+                                    variant="contained" 
                                     size="large"
-                                    onClick={() => navigate("/signup")}
+                                    onClick={() => navigate('/home')}
                                     sx={{ 
                                         px: 4, 
                                         py: 1.5,
                                         fontSize: '1.1rem',
-                                        fontWeight: 'bold',
-                                        transition: 'all 0.3s ease',
+                                        fontWeight: 600,
+                                        borderRadius: 2,
+                                        boxShadow: `0 8px 25px ${theme.palette.primary.main}40`,
                                         '&:hover': {
                                             transform: 'translateY(-2px)',
-                                            boxShadow: 6
+                                            boxShadow: `0 12px 35px ${theme.palette.primary.main}60`
                                         }
                                     }}
                                 >
-                                    Get Started Free
+                                    Go to Dashboard
                                 </Button>
-                                <Button
-                                    variant="outlined"
-                                    size="large"
-                                    onClick={() => navigate("/login")}
-                                    sx={{ 
-                                        px: 4, 
-                                        py: 1.5,
-                                        fontSize: '1.1rem',
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'translateY(-2px)',
-                                            boxShadow: 4
-                                        }
-                                    }}
-                                >
-                                    Already registered? Login now
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    size="large"
-                                    startIcon={<GitHubIcon />}
-                                    onClick={() => window.open('https://github.com/braydenidzenga/ZettaNote', '_blank')}
-                                    sx={{ 
-                                        px: 4, 
-                                        py: 1.5,
-                                        fontSize: '1.1rem',
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'translateY(-2px)',
-                                            boxShadow: 4
-                                        }
-                                    }}
-                                >
-                                    View on GitHub
-                                </Button>
-                            </Box>
+                            ) : (
+                                // Show Sign Up / Sign In buttons when not logged in
+                                <>
+                                    <Button 
+                                        variant="contained" 
+                                        size="large"
+                                        onClick={() => navigate('/signup')}
+                                        sx={{ 
+                                            px: 4, 
+                                            py: 1.5,
+                                            fontSize: '1.1rem',
+                                            fontWeight: 600,
+                                            borderRadius: 2,
+                                            boxShadow: `0 8px 25px ${theme.palette.primary.main}40`,
+                                            '&:hover': {
+                                                transform: 'translateY(-2px)',
+                                                boxShadow: `0 12px 35px ${theme.palette.primary.main}60`
+                                            }
+                                        }}
+                                    >
+                                        Get Started Free
+                                    </Button>
+                                    <Button 
+                                        variant="outlined" 
+                                        size="large"
+                                        onClick={() => navigate('/login')}
+                                        sx={{ 
+                                            px: 4, 
+                                            py: 1.5,
+                                            fontSize: '1.1rem',
+                                            fontWeight: 600,
+                                            borderRadius: 2,
+                                            borderWidth: 2,
+                                            '&:hover': {
+                                                borderWidth: 2,
+                                                transform: 'translateY(-2px)'
+                                            }
+                                        }}
+                                    >
+                                        Sign In
+                                    </Button>
+                                </>
+                            )}
                         </Box>
-                    </Slide>
-
-                    <Slide direction="up" in={isVisible} timeout={800} style={{ transitionDelay: '1000ms' }}>
-                        <Box>
-                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center', flexWrap: 'wrap' }}>
-                                <Chip 
-                                    label="Open Source" 
-                                    color="primary" 
-                                    variant="outlined" 
-                                    sx={{ 
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'scale(1.05)',
-                                            bgcolor: 'primary.main',
-                                            color: 'white'
-                                        }
-                                    }}
-                                />
-                                <Chip 
-                                    label="Free Forever" 
-                                    color="success" 
-                                    variant="outlined" 
-                                    sx={{ 
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'scale(1.05)',
-                                            bgcolor: 'success.main',
-                                            color: 'white'
-                                        }
-                                    }}
-                                />
-                                <Chip 
-                                    label="Self-hosted" 
-                                    color="info" 
-                                    variant="outlined" 
-                                    sx={{ 
-                                        transition: 'all 0.3s ease',
-                                        '&:hover': {
-                                            transform: 'scale(1.05)',
-                                            bgcolor: 'info.main',
-                                            color: 'white'
-                                        }
-                                    }}
-                                />
-                            </Box>
-                        </Box>
-                    </Slide>
-                </Box>
+                    </Box>
+                </Fade>
             </Container>
 
             {/* Features Section */}
             <Container maxWidth="lg" sx={{ py: 8 }}>
-                <Slide direction="up" in={featureVisible} timeout={800}>
-                    <Box>
-                        <Typography 
-                            variant="h3" 
-                            align="center" 
-                            sx={{ mb: 6, fontWeight: 'bold' }}
-                        >
-                            Why Choose ZettaNote?
-                        </Typography>
-                    </Box>
-                </Slide>
-                <Box 
+                <Typography 
+                    variant="h3" 
                     sx={{ 
-                        display: 'flex',
-                        flexDirection: { xs: 'column', md: 'row' },
-                        gap: 3,
-                        flexWrap: 'wrap',
-                        justifyContent: 'center'
+                        textAlign: 'center', 
+                        mb: 6,
+                        fontWeight: 700,
+                        color: theme.palette.text.primary
                     }}
                 >
+                    Why Choose ZettaNote?
+                </Typography>
+                <Box sx={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                    gap: 4
+                }}>
                     {features.map((feature, index) => (
                         <Grow 
+                            in={isVisible} 
+                            timeout={1000 + index * 200}
                             key={index}
-                            in={featureVisible} 
-                            timeout={600} 
-                            style={{ transitionDelay: `${index * 100}ms` }}
                         >
                             <Card 
-                                elevation={2}
                                 sx={{ 
-                                    flex: { xs: '1 1 100%', md: '1 1 calc(33.333% - 16px)' },
-                                    minWidth: { xs: '100%', md: '300px' },
+                                    p: 3,
+                                    height: '100%',
                                     transition: 'all 0.3s ease',
+                                    border: '1px solid rgba(0,0,0,0.1)',
                                     '&:hover': {
-                                        transform: 'translateY(-8px) scale(1.02)',
-                                        boxShadow: 8,
-                                        '& .feature-icon': {
-                                            transform: 'scale(1.1) rotate(5deg)',
-                                        }
+                                        transform: 'translateY(-8px)',
+                                        boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
                                     }
                                 }}
                             >
-                                <CardContent sx={{ textAlign: 'center', p: 3 }}>
-                                    <Box 
-                                        sx={{ 
-                                            mb: 2,
-                                            transition: 'transform 0.3s ease'
-                                        }}
-                                        className="feature-icon"
-                                    >
+                                <CardContent>
+                                    <Box sx={{ mb: 2 }}>
                                         {feature.icon}
                                     </Box>
-                                    <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+                                    <Typography variant="h5" sx={{ mb: 2, fontWeight: 600 }}>
                                         {feature.title}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body1" sx={{ color: theme.palette.text.secondary }}>
                                         {feature.description}
                                     </Typography>
                                 </CardContent>
@@ -334,101 +230,58 @@ export default function Landing() {
                 </Box>
             </Container>
 
-            {/* Benefits Section */}
-
-            {/* Final CTA Section */}
+            {/* CTA Section */}
             <Container maxWidth="md" sx={{ py: 8 }}>
-                <Fade in={testimonialVisible} timeout={1000} style={{ transitionDelay: '500ms' }}>
+                <Slide in={isVisible} direction="up" timeout={1500}>
                     <Paper 
-                        elevation={4}
                         sx={{ 
                             p: 6, 
                             textAlign: 'center',
-                            background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+                            background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
                             color: 'white',
-                            position: 'relative',
-                            overflow: 'hidden',
-                            '&::before': {
-                                content: '""',
-                                position: 'absolute',
-                                top: 0,
-                                left: '-100%',
-                                width: '100%',
-                                height: '100%',
-                                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
-                                animation: 'shimmer 3s infinite',
-                            },
-                            '@keyframes shimmer': {
-                                '0%': { left: '-100%' },
-                                '100%': { left: '100%' }
-                            }
+                            borderRadius: 3
                         }}
                     >
-                        <Zoom in={testimonialVisible} timeout={800} style={{ transitionDelay: '700ms' }}>
-                            <Box>
-                                <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>
-                                    Ready to Transform Your Note-Taking?
-                                </Typography>
-                            </Box>
-                        </Zoom>
-                        <Slide direction="up" in={testimonialVisible} timeout={800} style={{ transitionDelay: '900ms' }}>
-                            <Box>
-                                <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-                                    Join thousands of developers and teams who have already made the switch to ZettaNote.
-                                </Typography>
-                            </Box>
-                        </Slide>
-                        <Slide direction="up" in={testimonialVisible} timeout={800} style={{ transitionDelay: '1100ms' }}>
-                            <Box>
-                                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-                                    <Button
-                                        variant="contained"
-                                        size="large"
-                                        onClick={() => navigate("/signup")}
-                                        sx={{ 
-                                            px: 4, 
-                                            py: 1.5,
-                                            fontSize: '1.1rem',
-                                            fontWeight: 'bold',
-                                            bgcolor: 'white',
-                                            color: 'primary.main',
-                                            transition: 'all 0.3s ease',
-                                            '&:hover': {
-                                                bgcolor: 'grey.100',
-                                                transform: 'translateY(-2px) scale(1.05)',
-                                                boxShadow: 6
-                                            }
-                                        }}
-                                    >
-                                        Start Your Journey
-                                    </Button>
-                                    <Button
-                                        variant="outlined"
-                                        size="large"
-                                        onClick={() => navigate("/login")}
-                                        sx={{ 
-                                            px: 4, 
-                                            py: 1.5,
-                                            fontSize: '1.1rem',
-                                            borderColor: 'white',
-                                            color: 'white',
-                                            transition: 'all 0.3s ease',
-                                            '&:hover': {
-                                                borderColor: 'white',
-                                                bgcolor: 'rgba(255,255,255,0.1)',
-                                                transform: 'translateY(-2px) scale(1.05)',
-                                                boxShadow: 4
-                                            }
-                                        }}
-                                    >
-                                        Sign In
-                                    </Button>
-                                </Box>
-                            </Box>
-                        </Slide>
+                        <Typography variant="h4" sx={{ mb: 3, fontWeight: 700 }}>
+                            {isAuthenticated ? "Welcome back!" : "Ready to get started?"}
+                        </Typography>
+                        <Typography variant="body1" sx={{ mb: 4, fontSize: '1.2rem', opacity: 0.9 }}>
+                            {isAuthenticated 
+                                ? "Continue organizing your thoughts and ideas with ZettaNote."
+                                : "Join thousands of users who trust ZettaNote with their ideas and thoughts."
+                            }
+                        </Typography>
+                        <Button 
+                            variant="contained" 
+                            size="large"
+                            onClick={() => navigate(isAuthenticated ? '/home' : '/signup')}
+                            sx={{ 
+                                bgcolor: 'white',
+                                color: theme.palette.primary.main,
+                                px: 4,
+                                py: 1.5,
+                                fontSize: '1.1rem',
+                                fontWeight: 600,
+                                '&:hover': {
+                                    bgcolor: theme.palette.grey[100],
+                                    transform: 'translateY(-2px)'
+                                }
+                            }}
+                        >
+                            {isAuthenticated ? "Go to Dashboard" : "Create Your Account"}
+                        </Button>
                     </Paper>
-                </Fade>
+                </Slide>
             </Container>
+
+            {/* Footer */}
+            <Box sx={{ bgcolor: theme.palette.grey[800], color: 'white', py: 4, mt: 8 }}>
+                <Container maxWidth="lg">
+                    <Typography variant="body2" sx={{ textAlign: 'center', opacity: 0.8 }}>
+                        © 2025 ZettaNote. All rights reserved.
+                    </Typography>
+                </Container>
+            </Box>
         </Box>
     );
 }

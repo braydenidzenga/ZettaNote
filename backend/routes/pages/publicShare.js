@@ -48,6 +48,12 @@ export async function getPublicShare(shareId){
         }
     }
 
-    return {resStatus:200, resMessage:page.pageData}
+    return {
+        resStatus: 200, 
+        resMessage: {
+            title: page.pageName,
+            content: page.pageData
+        }
+    }
 
 }

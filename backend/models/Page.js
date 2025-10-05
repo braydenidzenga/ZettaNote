@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const PageSchema = new mongoose.Schema({
     pageName: {
@@ -35,4 +35,4 @@ const PageSchema = new mongoose.Schema({
     }
 });
 
-export default new mongoose.model("Page", PageSchema);
+export default new mongoose.model('Page', PageSchema);

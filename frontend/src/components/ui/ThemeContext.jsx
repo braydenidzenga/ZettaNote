@@ -4,108 +4,103 @@ import { CssBaseline, IconButton } from '@mui/material';
 // import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { WbSunny, Brightness4 } from '@mui/icons-material';
 
-export const ColorModeContext = createContext({ 
-    toggleColorMode: () => {}, 
-    mode: 'light' 
+export const ColorModeContext = createContext({
+  toggleColorMode: () => {},
+  mode: 'light',
 });
 
 export const useThemeContext = () => useContext(ColorModeContext);
 
 const getDesignTokens = (mode) => ({
-    palette: {
-        mode,
-        ...(mode === 'light'
-            ? {
-                // Light Mode Palette
-                primary: {
-                    main: '#1976D2', 
-                    light: '#42a5f5',
-                    dark: '#1565c0',
-                    contrastText: '#fff',
-                },
-                secondary: {
-                    main: '#9c27b0', 
-                },
-                background: {
-                    default: '#F5F7FA', // Consistent light background
-                    paper: '#FFFFFF', // Consistent white card background
-                },
-                text: {
-                    primary: '#1F2937', 
-                    secondary: '#4B5563', 
-                },
-            }
-            : {
-                // Dark Mode Palette
-                primary: {
-                    main: '#90CAF9', 
-                    light: '#e3f2fd',
-                    dark: '#42a5f5',
-                    contrastText: '#000',
-                },
-                secondary: {
-                    main: '#CE93D8', 
-                },
-                background: {
-                    default: '#121212', // Consistent dark background
-                    paper: '#1E1E1E', // Consistent dark card background
-                },
-                text: {
-                    primary: '#FFFFFF', 
-                    secondary: '#B0B0B0', 
-                },
-            }),
-    },
-    shape: {
-        borderRadius: 12, // Inherit from your original theme setting
-    },
-    typography: {
-        fontFamily: 'Inter, sans-serif', 
-    },
+  palette: {
+    mode,
+    ...(mode === 'light'
+      ? {
+          // Light Mode Palette
+          primary: {
+            main: '#1976D2',
+            light: '#42a5f5',
+            dark: '#1565c0',
+            contrastText: '#fff',
+          },
+          secondary: {
+            main: '#9c27b0',
+          },
+          background: {
+            default: '#F5F7FA', // Consistent light background
+            paper: '#FFFFFF', // Consistent white card background
+          },
+          text: {
+            primary: '#1F2937',
+            secondary: '#4B5563',
+          },
+        }
+      : {
+          // Dark Mode Palette
+          primary: {
+            main: '#90CAF9',
+            light: '#e3f2fd',
+            dark: '#42a5f5',
+            contrastText: '#000',
+          },
+          secondary: {
+            main: '#CE93D8',
+          },
+          background: {
+            default: '#121212', // Consistent dark background
+            paper: '#1E1E1E', // Consistent dark card background
+          },
+          text: {
+            primary: '#FFFFFF',
+            secondary: '#B0B0B0',
+          },
+        }),
+  },
+  shape: {
+    borderRadius: 12, // Inherit from your original theme setting
+  },
+  typography: {
+    fontFamily: 'Inter, sans-serif',
+  },
 });
 
 export function ThemeContextProvider({ children }) {
-    const [mode, setMode] = useState(() => {
-        const storedMode = localStorage.getItem('themeMode');
-        if (storedMode) return storedMode;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    });
+  const [mode, setMode] = useState(() => {
+    const storedMode = localStorage.getItem('themeMode');
+    if (storedMode) return storedMode;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
 
-    const colorMode = useMemo(
-        () => ({
-            toggleColorMode: () => {
-                setMode((prevMode) => {
-                    const newMode = prevMode === 'light' ? 'dark' : 'light';
-                    localStorage.setItem('themeMode', newMode);
-                    return newMode;
-                });
-            },
-            mode,
-        }),
-        [mode],
-    );
+  const colorMode = useMemo(
+    () => ({
+      toggleColorMode: () => {
+        setMode((prevMode) => {
+          const newMode = prevMode === 'light' ? 'dark' : 'light';
+          localStorage.setItem('themeMode', newMode);
+          return newMode;
+        });
+      },
+      mode,
+    }),
+    [mode]
+  );
 
-    const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
+  const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 
-    return (
-        <ColorModeContext.Provider value={colorMode}>
-            {/* APPLY MuiThemeProvider HERE to make the dynamic theme available */}
-            <MuiThemeProvider theme={theme}>
-                {/* CssBaseline must be inside the MuiThemeProvider */}
-                <CssBaseline />
-                {children}
-            </MuiThemeProvider>
-        </ColorModeContext.Provider>
-    );
+  return (
+    <ColorModeContext.Provider value={colorMode}>
+      {/* APPLY MuiThemeProvider HERE to make the dynamic theme available */}
+      <MuiThemeProvider theme={theme}>
+        {/* CssBaseline must be inside the MuiThemeProvider */}
+        <CssBaseline />
+        {children}
+      </MuiThemeProvider>
+    </ColorModeContext.Provider>
+  );
 }
 
 export function ThemeToggleButton() {
     const { mode, toggleColorMode } = useThemeContext();
-
-    const theme = createTheme(getDesignTokens(mode));
-    const buttonColor = theme.palette.mode === 'dark' 
-        ? theme.palette.primary.light 
-        : theme.palette.primary.dark;
 
     return (
         <IconButton

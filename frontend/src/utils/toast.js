@@ -79,32 +79,36 @@ export const showToast = {
   },
 
   promise: (promise, messages) => {
-    return toast.promise(promise, {
-      loading: messages.loading || 'Loading...',
-      success: messages.success || 'Success!',
-      error: messages.error || 'Something went wrong!',
-    }, {
-      position: 'top-right',
-      style: {
-        fontSize: '14px',
-        fontWeight: '500',
-        borderRadius: '12px',
-        padding: '12px 16px',
+    return toast.promise(
+      promise,
+      {
+        loading: messages.loading || 'Loading...',
+        success: messages.success || 'Success!',
+        error: messages.error || 'Something went wrong!',
       },
-      success: {
+      {
+        position: 'top-right',
         style: {
-          background: '#10B981',
-          color: 'white',
-          boxShadow: '0 10px 25px rgba(16, 185, 129, 0.2)',
+          fontSize: '14px',
+          fontWeight: '500',
+          borderRadius: '12px',
+          padding: '12px 16px',
         },
-      },
-      error: {
-        style: {
-          background: '#EF4444',
-          color: 'white',
-          boxShadow: '0 10px 25px rgba(239, 68, 68, 0.2)',
+        success: {
+          style: {
+            background: '#10B981',
+            color: 'white',
+            boxShadow: '0 10px 25px rgba(16, 185, 129, 0.2)',
+          },
         },
-      },
-    });
-  }
+        error: {
+          style: {
+            background: '#EF4444',
+            color: 'white',
+            boxShadow: '0 10px 25px rgba(239, 68, 68, 0.2)',
+          },
+        },
+      }
+    );
+  },
 };
