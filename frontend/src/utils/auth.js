@@ -2,54 +2,48 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config';
 
-// Custom hook to check authentication status
+// Custom hook to check authentication status with cookies
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState(
-    localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null
-  );
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (!user) {
-        setIsAuthenticated(false);
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        // Use cookies for authentication - no need to send token
+        // Always check with the server - cookies are sent automatically
         const res = await axios.get(`${API_URL}/api/auth/getuser`, {
-          withCredentials: true
+          withCredentials: true,
         });
 
         if (res.status === 200 && res.data.user) {
           setIsAuthenticated(true);
           setUser(res.data.user);
-          // Update user data in localStorage if it changed
+          // Store user data in localStorage for quick access (optional)
           localStorage.setItem('user', JSON.stringify(res.data.user));
         } else {
           setIsAuthenticated(false);
-          localStorage.removeItem('user');
           setUser(null);
+          localStorage.removeItem('user');
         }
       } catch (error) {
+        // If server returns error (401, 403, etc.), user is not authenticated
         setIsAuthenticated(false);
-        localStorage.removeItem('user');
         setUser(null);
+        localStorage.removeItem('user');
       }
 
       setIsLoading(false);
     };
 
     checkAuth();
-  }, [user]);
+  }, []); // Empty dependency array - only run once on mount
 
   return { isAuthenticated, isLoading, user };
 };
 
 // Utility function to check if user is authenticated
+// Note: This only checks localStorage - for accurate check, use useAuth hook or verify with server
 export const isUserAuthenticated = () => {
   return !!localStorage.getItem('user');
 };
@@ -60,13 +54,37 @@ export const getCurrentUser = () => {
   return user ? JSON.parse(user) : null;
 };
 
+// Utility function to verify authentication with server
+export const verifyAuth = async () => {
+  try {
+    const res = await axios.get(`${API_URL}/api/auth/getuser`, {
+      withCredentials: true,
+    });
+
+    if (res.status === 200 && res.data.user) {
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      return { authenticated: true, user: res.data.user };
+    }
+
+    localStorage.removeItem('user');
+    return { authenticated: false, user: null };
+  } catch (error) {
+    localStorage.removeItem('user');
+    return { authenticated: false, user: null };
+  }
+};
+
 // Utility function to logout user
 export const logoutUser = async () => {
   try {
     // Call logout endpoint to clear the cookie
-    await axios.get(API_URL + '/api/auth/logout', {
-      withCredentials: true
-    });
+    await axios.post(
+      `${API_URL}/api/auth/logout`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
   } catch (error) {
     console.error('Logout error:', error);
   } finally {
