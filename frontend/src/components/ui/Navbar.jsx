@@ -23,7 +23,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ThemeToggleButton } from './ThemeContext';
-import { useAuth } from '../../utils/auth';
+import { useAuth, logoutUser } from '../../utils/auth';
 
 export default function Navbar() {
   const theme = useTheme();
@@ -41,11 +41,18 @@ export default function Navbar() {
     setMobileMenuAnchor(null);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    // setIsAuthenticated(false);
-    navigate('/');
-    handleMobileMenuClose();
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Even if logout API fails, clear localStorage and redirect
+      localStorage.removeItem('user');
+      navigate('/');
+    } finally {
+      handleMobileMenuClose();
+    }
   };
 
   const navItems = isAuthenticated
