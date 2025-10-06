@@ -1,58 +1,98 @@
-name: Format Code
+name: Check Formatting
 
 on:
     pull_request:
         branches:
             - main
-        types: [labeled]
-    push:
-        branches:
-            - main
+    workflow_dispatch:
 
 jobs:
     prettier:
-        if: github.event.action == 'labeled' && github.event.label.name == 'format'
         runs-on: ubuntu-latest
 
         permissions:
-            # Give the default GITHUB_TOKEN write permission to commit and push the
-            # added or changed files to the repository.
-            contents: write
+            contents: read
+            pull-requests: write
 
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-              with:
-                  # Checkout the PR branch with full history
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  ref: ${{ github.head_ref }}
-                  fetch-depth: 0
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
                   node-version: "20"
 
-            - name: Install Prettier
-              run: npm install -g prettier
-
-            - name: Format Frontend
-              run: |
-                  echo "Formatting frontend folder..."
-                  prettier --write "frontend/**/*.{js,jsx,ts,tsx,json,css,scss,md}" --config .prettierrc --ignore-path .prettierignore
-              continue-on-error: true
-
-            - name: Format Backend
-              run: |
-                  echo "Formatting backend folder..."
-                  prettier --write "backend/**/*.{js,jsx,ts,tsx,json,css,scss,md}" --config .prettierrc --ignore-path .prettierignore
-              continue-on-error: true
-
-            - name: commit changes
-              uses: stefanzweifel/git-auto-commit-action@v6
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
               with:
-                  commit_message: "chore: format code with Prettier"
-                  branch: ${{ github.head_ref }}
-                  push_options: "--force-with-lease"
-                  skip_fetch: false
-                  skip_checkout: false
+                  version: 8
+
+            - name: Install Prettier
+              run: pnpm add -g prettier
+
+            - name: Check Formatting
+              id: prettier-check
+              run: |
+                  echo "Checking code formatting with Prettier..."
+
+                  # Run prettier check and capture output
+                  if ! prettier --check "**/*.{js,jsx,json,css,md,yml,yaml}" --ignore-path .prettierignore 2>&1 | tee prettier-output.txt; then
+                    echo "formatting_failed=true" >> $GITHUB_OUTPUT
+                    echo "❌ Formatting check failed!"
+                  else
+                    echo "formatting_failed=false" >> $GITHUB_OUTPUT
+                    echo "✅ All files are properly formatted!"
+                  fi
+              continue-on-error: true
+
+            - name: Comment on PR if formatting failed
+              if: steps.prettier-check.outputs.formatting_failed == 'true' && github.event_name == 'pull_request'
+              uses: actions/github-script@v7
+              with:
+                  script: |
+                      const fs = require('fs');
+                      const output = fs.readFileSync('prettier-output.txt', 'utf8');
+                      const files = output.split('\n').filter(line => 
+                        line.match(/\.(js|jsx|json|css|md|yml|yaml)$/)
+                      );
+
+                      const fileList = files.length > 0 
+                        ? files.map(f => `- \`${f}\``).join('\n')
+                        : 'See the action logs for details.';
+
+                      const comment = `## ❌ Code Formatting Check Failed
+
+                      The following files are not formatted correctly:
+
+                      ${fileList}
+
+                      ### 🔧 How to fix:
+
+                      Run this command locally to fix all formatting issues:
+                      \`\`\`bash
+                      npx prettier --write "**/*.{js,jsx,json,css,md,yml,yaml}" --ignore-path .prettierignore
+                      \`\`\`
+
+                      Or format specific files:
+                      \`\`\`bash
+                      npx prettier --write path/to/your/file.js
+                      \`\`\`
+
+                      Then commit and push your changes to re-run this check.
+
+                      ---
+                      *This check is automated. Please ensure all files are formatted before merging.*`;
+
+                      github.rest.issues.createComment({
+                        issue_number: context.issue.number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: comment
+                      });
+
+            - name: Fail the job if formatting check failed
+              if: steps.prettier-check.outputs.formatting_failed == 'true'
+              run: |
+                  echo "❌ Formatting check failed! Please fix the formatting issues."
+                  exit 1
