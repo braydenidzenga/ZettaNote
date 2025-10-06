@@ -30,6 +30,16 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.get('/logout',async(req,res)=>{
+  try{
+    res.clearCookie('token');
+    res.status(200).json({ success: true, message: 'Logged out successfully.' });
+  }catch(err){
+    console.log('Logout Error: ', err);
+    res.status(500).json({ success: false, message: 'Internal Server error.' });
+  }
+})
+
 router.post('/changepassword', async (req, res) => {
   try {
     const { resStatus, resMessage } = await changePassword(req);
