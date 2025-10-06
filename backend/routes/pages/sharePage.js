@@ -5,9 +5,19 @@ import { z } from 'zod';
 
 export default async function sharePage(req) {
   try {
-    // Zod validation
+    // Get token from cookies
+    const token = req.cookies?.token;
+    if (!token) {
+      return {
+        resStatus: 401,
+        resMessage: {
+          message: 'No token, authorization denied',
+        },
+      };
+    }
+
+    // Zod validation for pageId, userEmail, and giveWritePermission only
     const sharePageSchema = z.object({
-      token: z.string().min(1, 'Token is required'),
       pageId: z.string().min(1, 'Page ID is required'),
       userEmail: z.string().email('Invalid email address'),
       giveWritePermission: z.boolean().optional(),
@@ -17,13 +27,11 @@ export default async function sharePage(req) {
       return {
         resStatus: 400,
         resMessage: {
-          message: JSON.parse(parseResult.error)
-            .map((err) => err.message)
-            .join(', '),
+          message: parseResult.error.errors.map((e) => e.message).join(', '),
         },
       };
     }
-    const { token, pageId, userEmail, giveWritePermission } = parseResult.data;
+    const { pageId, userEmail, giveWritePermission } = parseResult.data;
 
     // verify user is logged in
     const user = await verifyToken(token);

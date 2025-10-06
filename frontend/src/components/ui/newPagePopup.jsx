@@ -14,6 +14,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { useNavigate } from 'react-router-dom';
 import { Add as AddIcon } from '@mui/icons-material';
+import axios from 'axios';
 
 import { API_URL } from '../../config';
 import { showToast } from '../../utils/toast';
@@ -39,37 +40,24 @@ export default function NewPagePopup({ open, onClose, onPageCreated }) {
 
   const handleCreatePage = async (name) => {
     setLoading(true);
-    const token = localStorage.getItem('token');
     const loadingToast = showToast.loading('Creating page...');
 
     try {
-      const res = await fetch(API_URL + '/api/pages/createpage', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          pageName: name,
-          token: token,
-        }),
+      const res = await axios.post(`${API_URL}/api/pages/createpage`, {
+        pageName: name,
+      }, {
+        withCredentials: true
       });
 
       showToast.dismiss(loadingToast);
-
-      if (res.ok) {
-        showToast.success(`Page "${name}" created successfully!`);
-        setName('');
-        onClose();
-        if (onPageCreated) onPageCreated();
-      } else {
-        const data = await res.json();
-        showToast.error(data.message || 'Failed to create page');
-        navigate('/');
-      }
+      showToast.success(`Page "${name}" created successfully!`);
+      setName('');
+      onClose();
+      if (onPageCreated) onPageCreated();
     } catch (error) {
       showToast.dismiss(loadingToast);
-      showToast.error('Failed to create page. Please try again.');
-      navigate('/');
+      const errorMessage = error.response?.data?.message || 'Failed to create page. Please try again.';
+      showToast.error(errorMessage);
     } finally {
       setLoading(false);
     }

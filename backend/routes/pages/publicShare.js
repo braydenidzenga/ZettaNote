@@ -1,11 +1,52 @@
 import { v4 as uuidv4 } from "uuid";
 import Page from "../../models/Page.js";
+import { verifyToken } from '../../util/token.js';
 
 export async function publicShare(req) {
+    // Get token from cookies
+    const token = req.cookies?.token;
+    if (!token) {
+        return {
+            resStatus: 401,
+            resMessage: {
+                message: 'No token, authorization denied',
+            },
+        };
+    }
+
+    // verify user is logged in
+    const user = await verifyToken(token);
+    if (!user) {
+        return {
+            resStatus: 401,
+            resMessage: {
+                message: 'User not logged in',
+            },
+        };
+    }
 
     const {pageId} = req.body
     console.log(pageId)
     const page = await Page.findById(pageId);
+
+    if (!page) {
+        return {
+            resStatus: 404,
+            resMessage: {
+                    "Error": "Page not found"
+            }
+        }
+    }
+
+    // Check if user owns the page
+    if (!page.owner.equals(user._id)) {
+        return {
+            resStatus: 403,
+            resMessage: {
+                "Error": "Not authorized to share this page"
+            }
+        }
+    }
 
     if (!page) {
         return {

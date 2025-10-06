@@ -4,24 +4,32 @@ import { z } from 'zod';
 
 export default async function deletePage(req) {
   try {
-    // Zod validation
+    // Get token from cookies
+    const token = req.cookies?.token;
+    if (!token) {
+      return {
+        resStatus: 401,
+        resMessage: {
+          message: 'No token, authorization denied',
+        },
+      };
+    }
+
+    // Zod validation for pageId only
     const deletePageSchema = z.object({
       pageId: z.string().min(1, 'Page ID is required'),
-      token: z.string().min(1, 'Token is required'),
     });
     const parseResult = deletePageSchema.safeParse(req.body);
     if (!parseResult.success) {
       return {
         resStatus: 400,
         resMessage: {
-          message: JSON.parse(parseResult.error)
-            .map((err) => err.message)
-            .join(', '),
+          message: parseResult.error.errors.map((e) => e.message).join(', '),
         },
       };
     }
 
-    const { pageId, token } = parseResult.data;
+    const { pageId } = parseResult.data;
 
     // verify user is logged in
     const user = await verifyToken(token);

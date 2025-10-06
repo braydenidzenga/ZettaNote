@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import axios from 'axios';
 import { API_URL } from "../config"; // adjust import path as needed
 
 export function useSavePageOnChange(delay = 800) {
@@ -13,32 +14,18 @@ export function useSavePageOnChange(delay = 800) {
     setIsSaved(false);
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/api/pages/savepage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          pageId,
-          newPageData: content,
-        }),
+      const res = await axios.post(`${API_URL}/api/pages/savepage`, {
+        pageId,
+        newPageData: content,
+      }, {
+        withCredentials: true
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        const message = data.message || "Failed to save page";
-        setError(message);
-        setIsSaving(false);
-        setIsSaved(false);
-        return { success: false, error: message };
-      }
 
       setIsSaving(false);
       setIsSaved(true);
       return { success: true };
-    } catch {
-      const message = "Failed to save page";
+    } catch (err) {
+      const message = err.response?.data?.message || "Failed to save page";
       setError(message);
       setIsSaving(false);
       setIsSaved(false);

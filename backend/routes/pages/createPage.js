@@ -4,23 +4,31 @@ import { z } from 'zod';
 
 export default async function createPage(req) {
   try {
-    // Zod validation
+    // Get token from cookies
+    const token = req.cookies?.token;
+    if (!token) {
+      return {
+        resStatus: 401,
+        resMessage: {
+          message: 'No token, authorization denied',
+        },
+      };
+    }
+
+    // Zod validation for pageName only
     const createPageSchema = z.object({
       pageName: z.string().min(1, 'Page name is required'),
-      token: z.string().min(1, 'Token is required'),
     });
     const parseResult = createPageSchema.safeParse(req.body);
     if (!parseResult.success) {
       return {
         resStatus: 400,
         resMessage: {
-          message: JSON.parse(parseResult.error)
-            .map((err) => err.message)
-            .join(', '),
+          message: parseResult.error.errors.map((e) => e.message).join(', '),
         },
       };
     }
-    const { pageName, token } = parseResult.data;
+    const { pageName } = parseResult.data;
 
     // validate user token
     const user = await verifyToken(token);

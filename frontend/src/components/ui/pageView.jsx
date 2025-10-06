@@ -7,6 +7,7 @@ import {
     CircularProgress,
     useTheme
 } from "@mui/material";
+import axios from 'axios';
 import SharePageButton from "./sharePageButton";
 import RichMarkdownEditor from "./RichMarkdownEditor";
 import { API_URL } from "../../config";
@@ -32,20 +33,21 @@ export default function PageView({ page, onPageDeleted }) {
         setError("");
         const fetchPage = async () => {
             try {
-                const token = localStorage.getItem("token");
-                const res = await fetch(API_URL + "/api/pages/getpage", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ token, pageId: normalizedPage.id }),
-                });
-                const data = await res.json();
-                if (res.ok && data.Page) {
-                    setContent(data.Page.pageData || "");
+                const res = await axios.post(`${API_URL}/api/pages/getpage`, 
+                    { pageId: normalizedPage.id }, 
+                    { withCredentials: true }
+                );
+                if (res.data.Page) {
+                    setContent(res.data.Page.pageData || "");
                 } else {
-                    setError(data.message || "Failed to load page");
+                    setError(res.data.message || "Failed to load page");
                 }
             } catch (err) {
-                setError("Failed to load page");
+                if (err.response) {
+                    setError(err.response.data.message || "Failed to load page");
+                } else {
+                    setError("Failed to load page");
+                }
             } finally {
                 setLoading(false);
             }
@@ -58,30 +60,20 @@ export default function PageView({ page, onPageDeleted }) {
         const loadingToast = showToast.loading("Saving page...");
 
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(API_URL + "/api/pages/savepage", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    token,
-                    pageId: normalizedPage.id,
-                    newPageData: content,
-                }),
+            const res = await axios.post(`${API_URL}/api/pages/savepage`, {
+                pageId: normalizedPage.id,
+                newPageData: content,
+            }, {
+                withCredentials: true
             });
-            const data = await res.json();
 
             showToast.dismiss(loadingToast);
-
-            if (!res.ok) {
-                setError(data.message || "Failed to save page");
-                showToast.error("Failed to save page");
-            } else {
-                showToast.success("Page saved successfully!");
-            }
+            showToast.success("Page saved successfully!");
         } catch (err) {
             showToast.dismiss(loadingToast);
-            setError("Failed to save page");
-            showToast.error("Failed to save page");
+            const errorMessage = err.response?.data?.message || "Failed to save page";
+            setError(errorMessage);
+            showToast.error(errorMessage);
         }
     };
 
@@ -112,7 +104,6 @@ export default function PageView({ page, onPageDeleted }) {
                         {normalizedPage.name}
                     </Typography>
                     <SharePageButton 
-                        token={localStorage.getItem("token")} 
                         pageId={normalizedPage.id} 
                     />
                 </Paper>

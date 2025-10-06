@@ -45,8 +45,6 @@ export default function Home() {
         setRefreshTrigger(prev => prev + 1);
     };
 
-    const token = localStorage.getItem("token");
-
     return (
         <Box sx={{ 
             minHeight: "100vh", 
@@ -151,7 +149,6 @@ export default function Home() {
                 open={showNewPagePopup}
                 onClose={handleCloseNewPagePopup}
                 onPageCreated={handlePageCreated}
-                token={token}
             />
         </Box>
     );

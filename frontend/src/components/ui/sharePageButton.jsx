@@ -22,10 +22,11 @@ import ShareIcon from '@mui/icons-material/Share';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LinkIcon from '@mui/icons-material/Link';
 import EmailIcon from '@mui/icons-material/Email';
+import axios from 'axios';
 import { API_URL } from '../../config';
 import { showToast } from '../../utils/toast';
 
-function SharePageButton({ token, pageId }) {
+function SharePageButton({ pageId }) {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [giveWrite, setGiveWrite] = useState(false);
@@ -57,30 +58,22 @@ function SharePageButton({ token, pageId }) {
     const loadingToast = showToast.loading('Sharing page...');
 
     try {
-      const res = await fetch(API_URL + '/api/pages/sharepage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          token,
-          pageId,
-          userEmail: email,
-          giveWritePermission: giveWrite,
-        }),
+      const res = await axios.post(`${API_URL}/api/pages/sharepage`, {
+        pageId,
+        userEmail: email,
+        giveWritePermission: giveWrite,
+      }, {
+        withCredentials: true
       });
 
-      const data = await res.json();
       showToast.dismiss(loadingToast);
-
-      if (res.ok) {
-        showToast.success(`Page shared with ${email} successfully!`);
-        setEmail('');
-        setGiveWrite(false);
-      } else {
-        showToast.error(data.message || 'Failed to share page');
-      }
-    } catch {
+      showToast.success(`Page shared with ${email} successfully!`);
+      setEmail('');
+      setGiveWrite(false);
+    } catch (err) {
       showToast.dismiss(loadingToast);
-      showToast.error('Error sharing page. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Failed to share page';
+      showToast.error(errorMessage);
     }
     setLoading(false);
   };
@@ -90,25 +83,25 @@ function SharePageButton({ token, pageId }) {
     const loadingToast = showToast.loading('Generating public link...');
 
     try {
-      const res = await fetch(`${API_URL}/api/pages/publicshare`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pageId }),
+      const res = await axios.post(`${API_URL}/api/pages/publicshare`, {
+        pageId
+      }, {
+        withCredentials: true
       });
 
-      const data = await res.json();
       showToast.dismiss(loadingToast);
 
-      if (res.ok && data.publicShareId) {
-        const link = `${window.location.origin}/share/${data.publicShareId}`;
+      if (res.data.publicShareId) {
+        const link = `${window.location.origin}/share/${res.data.publicShareId}`;
         setPublicLink(link);
         showToast.success('Public link generated!');
       } else {
-        showToast.error(data.message || 'Failed to generate public link');
+        showToast.error(res.data.message || 'Failed to generate public link');
       }
-    } catch {
+    } catch (err) {
       showToast.dismiss(loadingToast);
-      showToast.error('Error generating public link. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Error generating public link. Please try again.';
+      showToast.error(errorMessage);
     }
     setLoading(false);
   };
