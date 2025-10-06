@@ -23,8 +23,10 @@ router.post('/signup', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { resStatus, resMessage } = await login(req);
-    res.cookie('token', resMessage.token, { httpOnly: true, sameSite: 'strict' });
+    const { resStatus, resMessage, token } = await login(req);
+    if (resStatus === 200 && token) {
+      res.cookie('token', token, { httpOnly: true, sameSite: 'strict' });
+    }
     res.status(resStatus).json(resMessage);
   } catch (err) {
     console.log('Login Error: ', err);
