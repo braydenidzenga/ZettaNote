@@ -62,7 +62,8 @@ export default async function signup(req) {
 
     return {
       resStatus: 200,
-      resMessage: { message: 'Signed up', token },
+      resMessage: { message: 'Signed up', newUser: { name: newUser.name, email: newUser.email, id: newUser._id } },
+      token: token
     };
   } catch (err) {
     console.error(err);

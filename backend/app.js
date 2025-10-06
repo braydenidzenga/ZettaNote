@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import cookieParser from 'cookie-parser';
 import { DB, PORT } from './config.js';
 
 import authRouter from './routes/auth/auth.js';
@@ -11,7 +12,11 @@ const app = express();
 
 // middleware
 app.use(express.json());
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  origin: 'http://localhost:5173', // frontend URL
+  credentials: true,
+}));
 
 // routes
 app.use('/api/auth', authRouter);

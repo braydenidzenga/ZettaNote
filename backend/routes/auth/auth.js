@@ -10,8 +10,10 @@ const router = express.Router();
 
 router.post('/signup', async (req, res) => {
   try {
-    const { resStatus, resMessage } = await signup(req);
-    res.cookie('token', resMessage.token, { httpOnly: true, sameSite: 'strict' });
+    const { resStatus, resMessage, token } = await signup(req);
+    if (resStatus === 200 && token) {
+      res.cookie('token', token, { httpOnly: true, sameSite: 'strict' });
+    }
     res.status(resStatus).json(resMessage);
   } catch (err) {
     console.log('Signup Error: ', err);
@@ -50,7 +52,7 @@ router.post('/changepassword', async (req, res) => {
   }
 });
 
-router.post('/getuser', async (req, res) => {
+router.get('/getuser', async (req, res) => {
   try {
     const { resStatus, resMessage } = await getUser(req);
     res.status(resStatus).json(resMessage);

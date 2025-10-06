@@ -14,6 +14,7 @@ import {
 import { Visibility, VisibilityOff, Person, Email, Lock } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 import { API_URL } from '../config';
 
@@ -32,20 +33,23 @@ export default function Signup() {
     setLoading(true);
     setErrors("");
     try {
-      const res = await fetch(API_URL + "/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-      const data = await res.json();
-      if (res.status !== 200) {
-        setErrors(data.message || 'Signup failed');
-      } else {
-        localStorage.setItem("token", data.token);
-        navigate("/home");
-      }
+      const res = await axios.post(`${API_URL}/api/auth/signup`, 
+        { name, email, password }, 
+        { withCredentials: true }
+      );
+      
+      // Store user data in localStorage (no token needed as it's in cookies)
+      localStorage.setItem("user", JSON.stringify(res.data.newUser));
+      navigate("/home");
     } catch (err) {
-      setErrors(err?.message || "Network error");
+      // Handle axios errors properly
+      if (err.response) {
+        setErrors(err.response.data.message || 'Signup failed');
+      } else if (err.request) {
+        setErrors("Network error - please check your connection");
+      } else {
+        setErrors(err.message || "An error occurred");
+      }
     } finally {
       setLoading(false);
     }

@@ -3,7 +3,8 @@ import { verifyToken } from '../../util/token.js';
 
 export default async function getUser(req) {
   try {
-    const { token } = req.body;
+    const token = req.cookies?.token;
+    console.log("Token in getUser:", token);
     if (!token) {
       return {
         resStatus: 401,

@@ -19,10 +19,11 @@ import {
   Person as PersonIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
+import axios from 'axios';
 import { API_URL } from '../../config';
 import { showToast } from '../../utils/toast';
 
-export default function Sidebar({ token, onSelectPage, refreshTrigger, onNewPage }) {
+export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
   const [ownedPages, setOwnedPages] = useState([]);
   const [sharedPages, setSharedPages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -32,15 +33,12 @@ export default function Sidebar({ token, onSelectPage, refreshTrigger, onNewPage
     const fetchPages = async () => {
       setLoading(true);
       try {
-        const res = await fetch(API_URL + '/api/pages/getpages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
+        const res = await axios.post(`${API_URL}/api/pages/getpages`, {}, {
+          withCredentials: true
         });
 
-        const data = await res.json();
-        setOwnedPages(data.OwnedPages || []);
-        setSharedPages(data.SharedPages || []);
+        setOwnedPages(res.data.OwnedPages || []);
+        setSharedPages(res.data.SharedPages || []);
       } catch (err) {
         console.error('Failed to fetch pages:', err.message);
         showToast.error('Failed to load pages');
@@ -50,7 +48,7 @@ export default function Sidebar({ token, onSelectPage, refreshTrigger, onNewPage
     };
 
     fetchPages();
-  }, [token, refreshTrigger]);
+  }, [refreshTrigger]);
 
   // Normalize page object for frontend
   const normalizePage = (page) => ({

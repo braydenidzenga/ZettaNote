@@ -17,8 +17,8 @@ export default function Home() {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
+        const user = localStorage.getItem("user");
+        if (!user) {
             navigate("/login");
         }
     }, [navigate]);
@@ -73,7 +73,6 @@ export default function Home() {
                         zIndex: theme.zIndex.drawer
                     }}>
                         <Sidebar 
-                            token={token}
                             onSelectPage={handleSelectPage}
                             refreshTrigger={refreshTrigger}
                             onNewPage={handleNewPage}
@@ -135,7 +134,6 @@ export default function Home() {
                                     zIndex: theme.zIndex.fab
                                 }}>
                                     <Sidebar 
-                                        token={token}
                                         onSelectPage={handleSelectPage}
                                         refreshTrigger={refreshTrigger}
                                         onNewPage={handleNewPage}

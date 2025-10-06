@@ -4,9 +4,19 @@ import { z } from 'zod';
 
 export async function getPage(req) {
   try {
-    // Zod validation
+    // Get token from cookies and pageId from request body
+    const token = req.cookies?.token;
+    if (!token) {
+      return {
+        resStatus: 401,
+        resMessage: {
+          message: 'No token, authorization denied',
+        },
+      };
+    }
+
+    // Zod validation for pageId only
     const getPageSchema = z.object({
-      token: z.string().min(1, 'Token is required'),
       pageId: z.string().min(1, 'Page ID is required'),
     });
     const parseResult = getPageSchema.safeParse(req.body);
@@ -14,13 +24,11 @@ export async function getPage(req) {
       return {
         resStatus: 400,
         resMessage: {
-          message: JSON.parse(parseResult.error)
-            .map((err) => err.message)
-            .join(', '),
+          message: parseResult.error.errors.map((e) => e.message).join(', '),
         },
       };
     }
-    const { token, pageId } = parseResult.data;
+    const { pageId } = parseResult.data;
 
     // verify user token
     const user = await verifyToken(token);
@@ -87,20 +95,16 @@ export async function getPage(req) {
 // returns a list of the users page names and ids
 export async function getPages(req) {
   try {
-    // Zod validation
-    const getPagesSchema = z.object({
-      token: z.string().min(1, 'Token is required'),
-    });
-    const parseResult = getPagesSchema.safeParse(req.body);
-    if (!parseResult.success) {
+    // Get token from cookies instead of request body
+    const token = req.cookies?.token;
+    if (!token) {
       return {
-        resStatus: 400,
+        resStatus: 401,
         resMessage: {
-          message: parseResult.error.errors.map((e) => e.message).join(', '),
+          message: 'No token, authorization denied',
         },
       };
     }
-    const { token } = parseResult.data;
 
     // verify user is logged in
     const user = await verifyToken(token);
