@@ -2,7 +2,7 @@ import express from 'express';
 
 import signup from './signup.js';
 import login from './login.js';
-import changePassword from './changePassword.js';
+import changePassword from './changePassword.js'; 
 import getUser from './getUser.js';
 import deleteUser from './deleteUser.js';
 
@@ -11,6 +11,7 @@ const router = express.Router();
 router.post('/signup', async (req, res) => {
   try {
     const { resStatus, resMessage } = await signup(req);
+    res.cookie('token', resMessage.token, { httpOnly: true, sameSite: 'strict' });
     res.status(resStatus).json(resMessage);
   } catch (err) {
     console.log('Signup Error: ', err);
@@ -21,6 +22,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { resStatus, resMessage } = await login(req);
+    res.cookie('token', resMessage.token, { httpOnly: true, sameSite: 'strict' });
     res.status(resStatus).json(resMessage);
   } catch (err) {
     console.log('Login Error: ', err);
