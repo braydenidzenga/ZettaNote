@@ -11,13 +11,7 @@ import {
   Alert,
   CssBaseline,
 } from '@mui/material';
-import {
-  Visibility,
-  VisibilityOff,
-  AdminPanelSettings,
-  Email,
-  Lock,
-} from '@mui/icons-material';
+import { Visibility, VisibilityOff, AdminPanelSettings, Email, Lock } from '@mui/icons-material';
 import { LoadingButton } from '@mui/lab';
 import { useNavigate } from 'react-router-dom';
 import { adminAuth } from '../utils/adminAuth';
@@ -200,10 +194,7 @@ export default function AdminLogin() {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>

@@ -40,37 +40,37 @@ export default function ChangeFirstPassword({ tempToken, adminData }) {
   // Password validation rules
   const validatePassword = (password) => {
     const rules = [
-      { 
-        test: password.length >= 8, 
+      {
+        test: password.length >= 8,
         label: 'At least 8 characters long',
-        key: 'length'
+        key: 'length',
       },
-      { 
-        test: /[A-Z]/.test(password), 
+      {
+        test: /[A-Z]/.test(password),
         label: 'Contains uppercase letter',
-        key: 'uppercase'
+        key: 'uppercase',
       },
-      { 
-        test: /[a-z]/.test(password), 
+      {
+        test: /[a-z]/.test(password),
         label: 'Contains lowercase letter',
-        key: 'lowercase'
+        key: 'lowercase',
       },
-      { 
-        test: /\d/.test(password), 
+      {
+        test: /\d/.test(password),
         label: 'Contains number',
-        key: 'number'
+        key: 'number',
       },
-      { 
-        test: /[!@#$%^&*(),.?":{}|<>]/.test(password), 
+      {
+        test: /[!@#$%^&*(),.?":{}|<>]/.test(password),
         label: 'Contains special character',
-        key: 'special'
+        key: 'special',
       },
     ];
     return rules;
   };
 
   const passwordRules = validatePassword(newPassword);
-  const isPasswordValid = passwordRules.every(rule => rule.test);
+  const isPasswordValid = passwordRules.every((rule) => rule.test);
   const passwordsMatch = newPassword && confirmPassword && newPassword === confirmPassword;
 
   const handleSubmit = async (e) => {
@@ -214,10 +214,7 @@ export default function ChangeFirstPassword({ tempToken, adminData }) {
                   ),
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        edge="end"
-                      >
+                      <IconButton onClick={() => setShowNewPassword(!showNewPassword)} edge="end">
                         {showNewPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
@@ -253,14 +250,14 @@ export default function ChangeFirstPassword({ tempToken, adminData }) {
                             <Cancel sx={{ color: 'red', fontSize: 20 }} />
                           )}
                         </ListItemIcon>
-                        <ListItemText 
-                          primary={rule.label} 
-                          sx={{ 
-                            '& .MuiTypography-root': { 
+                        <ListItemText
+                          primary={rule.label}
+                          sx={{
+                            '& .MuiTypography-root': {
                               fontSize: '0.875rem',
-                              color: rule.test ? 'green' : 'red'
-                            } 
-                          }} 
+                              color: rule.test ? 'green' : 'red',
+                            },
+                          }}
                         />
                       </ListItem>
                     ))}
@@ -334,7 +331,8 @@ export default function ChangeFirstPassword({ tempToken, adminData }) {
 
             <Box sx={{ mt: 4, textAlign: 'center' }}>
               <Typography variant="caption" sx={{ color: '#999' }}>
-                🔒 After changing your password, you'll be redirected to login with your new credentials.
+                🔒 After changing your password, you'll be redirected to login with your new
+                credentials.
               </Typography>
             </Box>
           </Paper>

@@ -70,21 +70,25 @@ export default function AdminManagement() {
 
   const rolePermissions = {
     super_admin: [
-      'read_users', 'write_users', 'delete_users', 'ban_users',
-      'read_pages', 'delete_pages',
+      'read_users',
+      'write_users',
+      'delete_users',
+      'ban_users',
+      'read_pages',
+      'delete_pages',
       'read_analytics',
       'manage_admins',
-      'system_config'
+      'system_config',
     ],
     admin: [
-      'read_users', 'write_users', 'ban_users',
-      'read_pages', 'delete_pages',
-      'read_analytics'
+      'read_users',
+      'write_users',
+      'ban_users',
+      'read_pages',
+      'delete_pages',
+      'read_analytics',
     ],
-    moderator: [
-      'read_users', 'ban_users',
-      'read_pages', 'delete_pages'
-    ],
+    moderator: ['read_users', 'ban_users', 'read_pages', 'delete_pages'],
   };
 
   useEffect(() => {
@@ -244,19 +248,27 @@ export default function AdminManagement() {
 
   const getRoleColor = (role) => {
     switch (role) {
-      case 'super_admin': return 'error';
-      case 'admin': return 'warning';
-      case 'moderator': return 'info';
-      default: return 'default';
+      case 'super_admin':
+        return 'error';
+      case 'admin':
+        return 'warning';
+      case 'moderator':
+        return 'info';
+      default:
+        return 'default';
     }
   };
 
   const getRoleLabel = (role) => {
     switch (role) {
-      case 'super_admin': return 'Super Admin';
-      case 'admin': return 'Admin';
-      case 'moderator': return 'Moderator';
-      default: return role;
+      case 'super_admin':
+        return 'Super Admin';
+      case 'admin':
+        return 'Admin';
+      case 'moderator':
+        return 'Moderator';
+      default:
+        return role;
     }
   };
 
@@ -317,7 +329,9 @@ export default function AdminManagement() {
           <Grid item xs={12} md={4}>
             <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                >
                   <Box>
                     <Typography variant="h4" sx={{ fontWeight: 700, color: '#d32f2f' }}>
                       {admins.length}
@@ -335,10 +349,12 @@ export default function AdminManagement() {
           <Grid item xs={12} md={4}>
             <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                >
                   <Box>
                     <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff9800' }}>
-                      {admins.filter(a => a.role === 'super_admin').length}
+                      {admins.filter((a) => a.role === 'super_admin').length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Super Admins
@@ -353,10 +369,12 @@ export default function AdminManagement() {
           <Grid item xs={12} md={4}>
             <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
               <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                >
                   <Box>
                     <Typography variant="h4" sx={{ fontWeight: 700, color: '#4caf50' }}>
-                      {admins.filter(a => a.active).length}
+                      {admins.filter((a) => a.active).length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Active Admins
@@ -408,10 +426,7 @@ export default function AdminManagement() {
                         />
                       </TableCell>
                       <TableCell>
-                        {admin.lastLogin 
-                          ? new Date(admin.lastLogin).toLocaleDateString()
-                          : 'Never'
-                        }
+                        {admin.lastLogin ? new Date(admin.lastLogin).toLocaleDateString() : 'Never'}
                       </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -429,7 +444,9 @@ export default function AdminManagement() {
                               size="small"
                               color="error"
                               onClick={() => handleDeleteAdmin(admin._id)}
-                              disabled={admin._id === currentAdmin.id || admin.role === 'super_admin'}
+                              disabled={
+                                admin._id === currentAdmin.id || admin.role === 'super_admin'
+                              }
                             >
                               <Delete />
                             </IconButton>
@@ -444,17 +461,22 @@ export default function AdminManagement() {
 
             {admins.length === 0 && !loading && (
               <Box sx={{ textAlign: 'center', py: 4 }}>
-                <Typography color="text.secondary">
-                  No admin users found.
-                </Typography>
+                <Typography color="text.secondary">No admin users found.</Typography>
               </Box>
             )}
           </CardContent>
         </Card>
 
         {/* Create Admin Dialog */}
-        <Dialog open={createDialogOpen} onClose={() => setCreateDialogOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Dialog
+          open={createDialogOpen}
+          onClose={() => setCreateDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
             Create New Admin User
             <IconButton onClick={() => setCreateDialogOpen(false)}>
               <Close />
@@ -488,7 +510,8 @@ export default function AdminManagement() {
               />
 
               <Alert severity="info" sx={{ my: 2 }}>
-                A secure password will be automatically generated for this admin account. They will be required to change it on their first login.
+                A secure password will be automatically generated for this admin account. They will
+                be required to change it on their first login.
               </Alert>
 
               <FormControl fullWidth error={!!formErrors.role}>
@@ -525,19 +548,22 @@ export default function AdminManagement() {
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
             <Button onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-            <LoadingButton
-              variant="contained"
-              onClick={handleCreateAdmin}
-              loading={actionLoading}
-            >
+            <LoadingButton variant="contained" onClick={handleCreateAdmin} loading={actionLoading}>
               Create Admin
             </LoadingButton>
           </DialogActions>
         </Dialog>
 
         {/* Edit Admin Dialog */}
-        <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Dialog
+          open={editDialogOpen}
+          onClose={() => setEditDialogOpen(false)}
+          maxWidth="sm"
+          fullWidth
+        >
+          <DialogTitle
+            sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+          >
             Edit Admin User
             <IconButton onClick={() => setEditDialogOpen(false)}>
               <Close />
@@ -617,21 +643,17 @@ export default function AdminManagement() {
           </DialogContent>
           <DialogActions sx={{ p: 3 }}>
             <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-            <LoadingButton
-              variant="contained"
-              onClick={handleUpdateAdmin}
-              loading={actionLoading}
-            >
+            <LoadingButton variant="contained" onClick={handleUpdateAdmin} loading={actionLoading}>
               Update Admin
             </LoadingButton>
           </DialogActions>
         </Dialog>
 
         {/* Generated Password Dialog */}
-        <Dialog 
-          open={showPasswordDialog} 
-          onClose={() => setShowPasswordDialog(false)} 
-          maxWidth="sm" 
+        <Dialog
+          open={showPasswordDialog}
+          onClose={() => setShowPasswordDialog(false)}
+          maxWidth="sm"
           fullWidth
         >
           <DialogTitle>
@@ -644,32 +666,32 @@ export default function AdminManagement() {
             <Alert severity="success" sx={{ mb: 2 }}>
               The admin account has been created with the following temporary password:
             </Alert>
-            
-            <Paper 
-              sx={{ 
-                p: 2, 
-                bgcolor: '#f5f5f5', 
+
+            <Paper
+              sx={{
+                p: 2,
+                bgcolor: '#f5f5f5',
                 border: '2px solid #4caf50',
                 fontFamily: 'monospace',
                 fontSize: '1.2rem',
                 textAlign: 'center',
-                letterSpacing: '0.1em'
+                letterSpacing: '0.1em',
               }}
             >
               {generatedPassword}
             </Paper>
-            
+
             <Alert severity="warning" sx={{ mt: 2 }}>
-              <strong>Important:</strong> Please share this password securely with the new admin. 
+              <strong>Important:</strong> Please share this password securely with the new admin.
               They will be required to change it on their first login for security purposes.
             </Alert>
-            
+
             <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
               📋 Click to copy the password to clipboard, then share it through a secure channel.
             </Typography>
           </DialogContent>
           <DialogActions>
-            <Button 
+            <Button
               onClick={() => {
                 navigator.clipboard.writeText(generatedPassword);
                 // You could add a toast notification here
@@ -678,7 +700,7 @@ export default function AdminManagement() {
             >
               Copy Password
             </Button>
-            <Button 
+            <Button
               onClick={() => setShowPasswordDialog(false)}
               variant="contained"
               color="primary"

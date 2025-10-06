@@ -33,9 +33,13 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
     const fetchPages = async () => {
       setLoading(true);
       try {
-        const res = await axios.post(`${API_URL}/api/pages/getpages`, {}, {
-          withCredentials: true
-        });
+        const res = await axios.post(
+          `${API_URL}/api/pages/getpages`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
 
         setOwnedPages(res.data.OwnedPages || []);
         setSharedPages(res.data.SharedPages || []);

@@ -100,35 +100,37 @@ export function ThemeContextProvider({ children }) {
 }
 
 export function ThemeToggleButton() {
-    const { mode, toggleColorMode } = useThemeContext();
+  const { mode, toggleColorMode } = useThemeContext();
 
-    return (
-        <IconButton
-            sx={{
-                ml: 1,
-                bgcolor: mode === 'dark' ? 'rgba(40,40,40,0.85)' : 'rgba(230,240,255,0.9)', // soft blue/gray for light, subtle dark for dark
-                color: mode === 'dark' ? '#fff' : '#1976d2', // white icon in dark mode, primary blue in light
-                border: '1.5px solid',
-                borderColor: mode === 'dark' ? '#444' : '#e0e0e0',
-                boxShadow: mode === 'dark' ? 0 : 2,
-                backdropFilter: 'blur(2px)',
-                transition: 'background 0.2s, color 0.2s',
-                '&:hover': {
-                    bgcolor: mode === 'dark'
-                        ? 'rgba(70,70,70,1)'
-                        : 'rgba(180,210,255,0.4)',
-                    color: mode === 'dark'
-                        ? '#ffe082' // pale yellow accent on hover for dark
-                        : '#135ca3', // darker blue accent for light
-                }
-            }}
-            onClick={toggleColorMode}
-            aria-label={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}
-        >
-            {mode === 'light'
-                ? <Brightness4 fontSize="medium" /> // moon icon for dark
-                : <WbSunny fontSize="medium" /> // sun icon for light
-            }
-        </IconButton>
-    );
+  return (
+    <IconButton
+      sx={{
+        ml: 1,
+        bgcolor: mode === 'dark' ? 'rgba(40,40,40,0.85)' : 'rgba(230,240,255,0.9)', // soft blue/gray for light, subtle dark for dark
+        color: mode === 'dark' ? '#fff' : '#1976d2', // white icon in dark mode, primary blue in light
+        border: '1.5px solid',
+        borderColor: mode === 'dark' ? '#444' : '#e0e0e0',
+        boxShadow: mode === 'dark' ? 0 : 2,
+        backdropFilter: 'blur(2px)',
+        transition: 'background 0.2s, color 0.2s',
+        '&:hover': {
+          bgcolor: mode === 'dark' ? 'rgba(70,70,70,1)' : 'rgba(180,210,255,0.4)',
+          color:
+            mode === 'dark'
+              ? '#ffe082' // pale yellow accent on hover for dark
+              : '#135ca3', // darker blue accent for light
+        },
+      }}
+      onClick={toggleColorMode}
+      aria-label={`Switch to ${mode === 'dark' ? 'light' : 'dark'} mode`}
+    >
+      {
+        mode === 'light' ? (
+          <Brightness4 fontSize="medium" /> // moon icon for dark
+        ) : (
+          <WbSunny fontSize="medium" />
+        ) // sun icon for light
+      }
+    </IconButton>
+  );
 }

@@ -59,10 +59,12 @@ Core features are being built and contributions are welcome.
    ```
 
 3. **Setup .env file**
+
    ```bash
     save a copy of .env.example as ".env" and fill in the variables
 
    ```
+
 4. **Run the backend**
    ```bash
     npm run dev
@@ -79,27 +81,32 @@ Core features are being built and contributions are welcome.
    ```
 
 2. **Edit config.js**
+
    ```bash
     update the API_URL to point to your backend instance
 
    ```
+
 3. **Run the frontend**
    ```bash
     npm start
    ```
 
 ## Admin portal setup (Not required)
+
 1. **Install dependencies**
+
    ```bash
       cd admin-portal
       npm i
    ```
 
 2. **Create the .env**
-   * copy the .env.example as .env
-   * edit the variables inside
+   - copy the .env.example as .env
+   - edit the variables inside
 
 3. **Run the admin portal**
+
    ```bash
       npm start
    ```
@@ -109,6 +116,7 @@ Core features are being built and contributions are welcome.
       cd ZettaNote/backend
       node createFirstAdmin.js
    ```
+
 ## Running with Docker
 
 ### Requirements

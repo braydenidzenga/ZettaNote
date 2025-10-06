@@ -119,9 +119,7 @@ export default function AdminNavbar() {
                 sx={{
                   textTransform: 'none',
                   borderRadius: 2,
-                  backgroundColor: isActive(item.path)
-                    ? 'rgba(255, 255, 255, 0.2)'
-                    : 'transparent',
+                  backgroundColor: isActive(item.path) ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
                   '&:hover': {
                     backgroundColor: 'rgba(255, 255, 255, 0.1)',
                   },

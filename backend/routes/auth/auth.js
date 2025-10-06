@@ -2,7 +2,7 @@ import express from 'express';
 
 import signup from './signup.js';
 import login from './login.js';
-import changePassword from './changePassword.js'; 
+import changePassword from './changePassword.js';
 import getUser from './getUser.js';
 import deleteUser from './deleteUser.js';
 
@@ -34,15 +34,15 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.get('/logout',async(req,res)=>{
-  try{
+router.get('/logout', async (req, res) => {
+  try {
     res.clearCookie('token');
     res.status(200).json({ success: true, message: 'Logged out successfully.' });
-  }catch(err){
+  } catch (err) {
     console.log('Logout Error: ', err);
     res.status(500).json({ success: false, message: 'Internal Server error.' });
   }
-})
+});
 
 router.post('/changepassword', async (req, res) => {
   try {

@@ -36,7 +36,7 @@ function App() {
           <Routes>
             {/* Redirect root to dashboard */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            
+
             {/* Public routes */}
             <Route
               path="/login"
@@ -46,7 +46,7 @@ function App() {
                 </PublicRoute>
               }
             />
-            
+
             {/* Protected routes */}
             <Route
               path="/dashboard"
@@ -56,7 +56,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             <Route
               path="/admin-management"
               element={
@@ -65,11 +65,11 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            
+
             {/* Fallback route */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
-          
+
           {/* Toast notifications */}
           <Toaster
             position="top-right"

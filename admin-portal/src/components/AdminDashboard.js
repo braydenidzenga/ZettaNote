@@ -31,7 +31,15 @@ import {
   CheckCircle,
   Refresh,
 } from '@mui/icons-material';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
 import AdminNavbar from '../components/AdminNavbar';
 import { adminAuth } from '../utils/adminAuth';
 
@@ -102,9 +110,7 @@ export default function AdminDashboard() {
       if (data.success) {
         // Update user in local state
         setUsers((prev) =>
-          prev.map((user) =>
-            user._id === userId ? { ...user, banned: !currentlyBanned } : user
-          )
+          prev.map((user) => (user._id === userId ? { ...user, banned: !currentlyBanned } : user))
         );
         // Refresh analytics to update counts
         fetchAnalytics();
@@ -126,7 +132,9 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}
+      >
         <CircularProgress size={60} />
       </Box>
     );
@@ -158,7 +166,9 @@ export default function AdminDashboard() {
             <Grid item xs={12} sm={6} md={3}>
               <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
                 <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                  >
                     <Box>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#1976d2' }}>
                         {analytics.users.total.toLocaleString()}
@@ -179,7 +189,9 @@ export default function AdminDashboard() {
             <Grid item xs={12} sm={6} md={3}>
               <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
                 <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                  >
                     <Box>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#4caf50' }}>
                         {analytics.users.active.toLocaleString()}
@@ -197,7 +209,9 @@ export default function AdminDashboard() {
             <Grid item xs={12} sm={6} md={3}>
               <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
                 <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                  >
                     <Box>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#f44336' }}>
                         {analytics.users.banned.toLocaleString()}
@@ -215,7 +229,9 @@ export default function AdminDashboard() {
             <Grid item xs={12} sm={6} md={3}>
               <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
                 <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+                  >
                     <Box>
                       <Typography variant="h4" sx={{ fontWeight: 700, color: '#ff9800' }}>
                         {analytics.pages.total.toLocaleString()}
@@ -281,7 +297,9 @@ export default function AdminDashboard() {
         {/* Recent Users Table */}
         <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
           <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}
+            >
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Recent Users
               </Typography>

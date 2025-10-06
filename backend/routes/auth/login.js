@@ -65,9 +65,9 @@ export default async function login(req) {
       resStatus: 200,
       resMessage: {
         message: 'Logged in',
-        user: { name: user.name, email: user.email, id: user._id }
+        user: { name: user.name, email: user.email, id: user._id },
       },
-      token: token
+      token: token,
     };
   } catch (err) {
     console.log(err);

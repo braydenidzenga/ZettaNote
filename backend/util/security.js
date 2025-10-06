@@ -7,7 +7,7 @@ export const adminLoginLimiter = rateLimit({
   max: 5, // Limit each IP to 5 requests per windowMs
   message: {
     success: false,
-    message: 'Too many login attempts, please try again in 15 minutes.'
+    message: 'Too many login attempts, please try again in 15 minutes.',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -30,7 +30,7 @@ export const adminApiLimiter = rateLimit({
   max: 100, // Limit each IP to 100 requests per windowMs
   message: {
     success: false,
-    message: 'Too many API requests, please try again later.'
+    message: 'Too many API requests, please try again later.',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -42,7 +42,7 @@ export const adminCreationLimiter = rateLimit({
   max: 3, // Limit each IP to 3 admin creation attempts per hour
   message: {
     success: false,
-    message: 'Too many admin creation attempts, please try again in an hour.'
+    message: 'Too many admin creation attempts, please try again in an hour.',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -57,15 +57,15 @@ export const logSuspiciousActivity = (req, res, next) => {
     /union.*select/i,
     /drop.*table/i,
   ];
-  
+
   const userAgent = req.get('User-Agent') || '';
   const url = req.originalUrl;
   const body = JSON.stringify(req.body);
-  
-  const isSuspicious = suspiciousPatterns.some(pattern => 
-    pattern.test(url) || pattern.test(body) || pattern.test(userAgent)
+
+  const isSuspicious = suspiciousPatterns.some(
+    (pattern) => pattern.test(url) || pattern.test(body) || pattern.test(userAgent)
   );
-  
+
   if (isSuspicious) {
     console.warn('🚨 SUSPICIOUS ACTIVITY DETECTED:', {
       ip: req.ip,
@@ -74,25 +74,27 @@ export const logSuspiciousActivity = (req, res, next) => {
       body: req.body,
       timestamp: new Date().toISOString(),
     });
-    
+
     // Log to admin if available
     if (req.admin) {
-      req.admin.addAuditLog(
-        'SUSPICIOUS_ACTIVITY_DETECTED',
-        req.ip,
-        userAgent,
-        { url, body: req.body }
-      );
+      req.admin.addAuditLog('SUSPICIOUS_ACTIVITY_DETECTED', req.ip, userAgent, {
+        url,
+        body: req.body,
+      });
       req.admin.save().catch(console.error);
     }
   }
-  
+
   next();
 };
 
 // Middleware to enforce HTTPS in production
 export const enforceHTTPS = (req, res, next) => {
-  if (process.env.NODE_ENV === 'production' && !req.secure && req.get('x-forwarded-proto') !== 'https') {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    !req.secure &&
+    req.get('x-forwarded-proto') !== 'https'
+  ) {
     return res.redirect(301, `https://${req.get('host')}${req.url}`);
   }
   next();
@@ -102,22 +104,25 @@ export const enforceHTTPS = (req, res, next) => {
 export const securityHeaders = (req, res, next) => {
   // Prevent clickjacking
   res.setHeader('X-Frame-Options', 'DENY');
-  
+
   // Prevent MIME type sniffing
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  
+
   // Enable XSS protection
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  
+
   // Strict transport security (HTTPS only)
   if (req.secure) {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
-  
+
   // Content Security Policy for admin panel
   if (req.originalUrl.startsWith('/api/admin')) {
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'");
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
+    );
   }
-  
+
   next();
 };

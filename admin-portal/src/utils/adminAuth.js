@@ -34,14 +34,14 @@ export const adminAuth = {
       if (response.ok && data.success) {
         // Check if password change is required
         if (data.requirePasswordChange) {
-          return { 
-            success: true, 
+          return {
+            success: true,
             requirePasswordChange: true,
             tempToken: data.tempToken,
-            admin: data.admin 
+            admin: data.admin,
           };
         }
-        
+
         // Normal login
         localStorage.setItem('adminToken', data.token);
         localStorage.setItem('adminUser', JSON.stringify(data.admin));
@@ -70,7 +70,11 @@ export const adminAuth = {
       if (response.ok && data.success) {
         return { success: true, message: data.message };
       } else {
-        return { success: false, message: data.message || 'Password change failed', errors: data.errors };
+        return {
+          success: false,
+          message: data.message || 'Password change failed',
+          errors: data.errors,
+        };
       }
     } catch (error) {
       return { success: false, message: 'Network error' };
@@ -85,7 +89,7 @@ export const adminAuth = {
         await fetch(`${API_URL}/api/admin/logout`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
       }
@@ -108,11 +112,11 @@ export const adminAuth = {
   // Make authenticated API request
   apiRequest: async (endpoint, options = {}) => {
     const token = adminAuth.getToken();
-    
+
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
         ...(options.headers || {}),
       },
       ...options,

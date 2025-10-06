@@ -22,7 +22,7 @@ async function createFirstAdmin() {
     const readline = require('readline');
     const rl = readline.createInterface({
       input: process.stdin,
-      output: process.stdout
+      output: process.stdout,
     });
 
     const askQuestion = (question) => {
@@ -37,7 +37,7 @@ async function createFirstAdmin() {
 
     const name = await askQuestion('Enter admin name: ');
     const email = await askQuestion('Enter admin email: ');
-    
+
     let password = '';
     while (password.length < 8) {
       password = await askQuestion('Enter admin password (min 8 characters): ');
@@ -50,11 +50,15 @@ async function createFirstAdmin() {
 
     // Create the first admin with super_admin role
     const superAdminPermissions = [
-      'read_users', 'write_users', 'delete_users', 'ban_users',
-      'read_pages', 'delete_pages',
+      'read_users',
+      'write_users',
+      'delete_users',
+      'ban_users',
+      'read_pages',
+      'delete_pages',
       'read_analytics',
       'manage_admins',
-      'system_config'
+      'system_config',
     ];
 
     const firstAdmin = new AdminAccount({
@@ -67,16 +71,11 @@ async function createFirstAdmin() {
     });
 
     // Add creation audit log
-    firstAdmin.addAuditLog(
-      'FIRST_ADMIN_CREATED',
-      '127.0.0.1',
-      'create-admin-script',
-      { 
-        email: email.toLowerCase(),
-        role: 'super_admin',
-        createdBy: 'system' 
-      }
-    );
+    firstAdmin.addAuditLog('FIRST_ADMIN_CREATED', '127.0.0.1', 'create-admin-script', {
+      email: email.toLowerCase(),
+      role: 'super_admin',
+      createdBy: 'system',
+    });
 
     await firstAdmin.save();
 
@@ -85,7 +84,6 @@ async function createFirstAdmin() {
     console.log(`👤 Name: ${name}`);
     console.log(`🔑 Role: Super Admin`);
     console.log(`\n🌐 You can now login at: http://localhost:3000/admin/login`);
-
   } catch (error) {
     console.error('❌ Error creating first admin:', error.message);
   } finally {

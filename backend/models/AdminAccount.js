@@ -81,30 +81,32 @@ const AdminAccountSchema = new mongoose.Schema({
     ref: 'AdminAccount',
     default: null,
   },
-  auditLog: [{
-    action: {
-      type: String,
-      required: true,
+  auditLog: [
+    {
+      action: {
+        type: String,
+        required: true,
+      },
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+      ip: String,
+      userAgent: String,
+      details: mongoose.Schema.Types.Mixed,
     },
-    timestamp: {
-      type: Date,
-      default: Date.now,
-    },
-    ip: String,
-    userAgent: String,
-    details: mongoose.Schema.Types.Mixed,
-  }],
+  ],
 });
 
 // Virtual for checking if account is locked
-AdminAccountSchema.virtual('isLocked').get(function() {
+AdminAccountSchema.virtual('isLocked').get(function () {
   return !!(this.lockUntil && this.lockUntil > Date.now());
 });
 
 // Pre-save middleware to hash password
-AdminAccountSchema.pre('save', async function(next) {
+AdminAccountSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const saltRounds = 12; // Higher than normal user passwords
     this.password = await bcrypt.hash(this.password, saltRounds);
@@ -115,14 +117,14 @@ AdminAccountSchema.pre('save', async function(next) {
 });
 
 // Method to compare password
-AdminAccountSchema.methods.comparePassword = async function(candidatePassword) {
+AdminAccountSchema.methods.comparePassword = async function (candidatePassword) {
   if (this.isLocked) {
     throw new Error('Account is temporarily locked');
   }
-  
+
   try {
     const isMatch = await bcrypt.compare(candidatePassword, this.password);
-    
+
     if (isMatch) {
       // Reset login attempts on successful login
       if (this.loginAttempts > 0) {
@@ -134,12 +136,12 @@ AdminAccountSchema.methods.comparePassword = async function(candidatePassword) {
     } else {
       // Increment login attempts
       this.loginAttempts += 1;
-      
+
       // Lock account after 5 failed attempts for 30 minutes
       if (this.loginAttempts >= 5) {
-        this.lockUntil = Date.now() + (30 * 60 * 1000); // 30 minutes
+        this.lockUntil = Date.now() + 30 * 60 * 1000; // 30 minutes
       }
-      
+
       await this.save();
       return false;
     }
@@ -149,14 +151,14 @@ AdminAccountSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 // Method to add audit log entry
-AdminAccountSchema.methods.addAuditLog = function(action, ip, userAgent, details = {}) {
+AdminAccountSchema.methods.addAuditLog = function (action, ip, userAgent, details = {}) {
   this.auditLog.push({
     action,
     ip,
     userAgent,
     details,
   });
-  
+
   // Keep only last 1000 audit log entries per admin
   if (this.auditLog.length > 1000) {
     this.auditLog = this.auditLog.slice(-1000);
@@ -164,7 +166,7 @@ AdminAccountSchema.methods.addAuditLog = function(action, ip, userAgent, details
 };
 
 // Static method to check permissions
-AdminAccountSchema.statics.hasPermission = function(admin, permission) {
+AdminAccountSchema.statics.hasPermission = function (admin, permission) {
   if (admin.role === 'super_admin') return true;
   return admin.permissions.includes(permission);
 };
@@ -185,15 +187,8 @@ AdminAccountSchema.statics.PERMISSIONS = {
 // Define role-based default permissions
 AdminAccountSchema.statics.ROLE_PERMISSIONS = {
   super_admin: Object.values(AdminAccountSchema.statics.PERMISSIONS),
-  admin: [
-    'read_users', 'write_users', 'ban_users',
-    'read_pages', 'delete_pages',
-    'read_analytics'
-  ],
-  moderator: [
-    'read_users', 'ban_users',
-    'read_pages', 'delete_pages'
-  ],
+  admin: ['read_users', 'write_users', 'ban_users', 'read_pages', 'delete_pages', 'read_analytics'],
+  moderator: ['read_users', 'ban_users', 'read_pages', 'delete_pages'],
 };
 
 export default mongoose.model('AdminAccount', AdminAccountSchema);

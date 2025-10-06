@@ -6,32 +6,28 @@ export default async function getAllAdmins(req) {
     const admins = await AdminAccount.find()
       .select('-password -auditLog -twoFactorSecret')
       .sort({ createdAt: -1 });
-    
+
     // Log admin activity
-    req.admin.addAuditLog(
-      'VIEW_ALL_ADMINS',
-      req.ip,
-      req.get('User-Agent'),
-      { totalAdmins: admins.length }
-    );
+    req.admin.addAuditLog('VIEW_ALL_ADMINS', req.ip, req.get('User-Agent'), {
+      totalAdmins: admins.length,
+    });
     await req.admin.save();
-    
+
     return {
       resStatus: 200,
       resMessage: {
         success: true,
-        admins
-      }
+        admins,
+      },
     };
-    
   } catch (error) {
     console.error('Get all admins error:', error);
     return {
       resStatus: 500,
-      resMessage: { 
-        success: false, 
-        message: 'Internal server error.' 
-      }
+      resMessage: {
+        success: false,
+        message: 'Internal server error.',
+      },
     };
   }
 }

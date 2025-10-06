@@ -1,11 +1,11 @@
 import express from 'express';
 import { requireAdminAuth, requireSuperAdmin, requirePermission } from '../../util/adminAuth.js';
-import { 
-  adminLoginLimiter, 
-  adminApiLimiter, 
+import {
+  adminLoginLimiter,
+  adminApiLimiter,
   adminCreationLimiter,
   logSuspiciousActivity,
-  securityHeaders 
+  securityHeaders,
 } from '../../util/security.js';
 import adminLogin from './adminLogin.js';
 import adminLogout from './adminLogout.js';
@@ -72,8 +72,8 @@ router.get('/me', requireAdminAuth, async (req, res) => {
         role: req.admin.role,
         permissions: req.admin.permissions,
         lastLogin: req.admin.lastLogin,
-        twoFactorEnabled: req.admin.twoFactorEnabled
-      }
+        twoFactorEnabled: req.admin.twoFactorEnabled,
+      },
     });
   } catch (err) {
     console.log('Get Admin Info Error: ', err);
@@ -82,38 +82,54 @@ router.get('/me', requireAdminAuth, async (req, res) => {
 });
 
 // Super admin only routes
-router.post('/create', adminCreationLimiter, requireAdminAuth, requireSuperAdmin, async (req, res) => {
-  try {
-    // Add the creating admin's ID to the request
-    req.body.createdBy = req.admin._id;
-    const { resStatus, resMessage } = await createAdmin(req);
-    res.status(resStatus).json(resMessage);
-  } catch (err) {
-    console.log('Create Admin Error: ', err);
-    res.status(500).json({ success: false, message: 'Internal Server error.' });
+router.post(
+  '/create',
+  adminCreationLimiter,
+  requireAdminAuth,
+  requireSuperAdmin,
+  async (req, res) => {
+    try {
+      // Add the creating admin's ID to the request
+      req.body.createdBy = req.admin._id;
+      const { resStatus, resMessage } = await createAdmin(req);
+      res.status(resStatus).json(resMessage);
+    } catch (err) {
+      console.log('Create Admin Error: ', err);
+      res.status(500).json({ success: false, message: 'Internal Server error.' });
+    }
   }
-});
+);
 
 // Analytics routes (require specific permissions)
-router.get('/analytics/total-users', requireAdminAuth, requirePermission('read_analytics'), async (req, res) => {
-  try {
-    const { resStatus, resMessage } = await getTotalUsers(req);
-    res.status(resStatus).json(resMessage);
-  } catch (err) {
-    console.log('Get Total Users Error: ', err);
-    res.status(500).json({ success: false, message: 'Internal Server error.' });
+router.get(
+  '/analytics/total-users',
+  requireAdminAuth,
+  requirePermission('read_analytics'),
+  async (req, res) => {
+    try {
+      const { resStatus, resMessage } = await getTotalUsers(req);
+      res.status(resStatus).json(resMessage);
+    } catch (err) {
+      console.log('Get Total Users Error: ', err);
+      res.status(500).json({ success: false, message: 'Internal Server error.' });
+    }
   }
-});
+);
 
-router.get('/analytics', requireAdminAuth, requirePermission('read_analytics'), async (req, res) => {
-  try {
-    const { resStatus, resMessage } = await getAnalytics(req);
-    res.status(resStatus).json(resMessage);
-  } catch (err) {
-    console.log('Get Analytics Error: ', err);
-    res.status(500).json({ success: false, message: 'Internal Server error.' });
+router.get(
+  '/analytics',
+  requireAdminAuth,
+  requirePermission('read_analytics'),
+  async (req, res) => {
+    try {
+      const { resStatus, resMessage } = await getAnalytics(req);
+      res.status(resStatus).json(resMessage);
+    } catch (err) {
+      console.log('Get Analytics Error: ', err);
+      res.status(500).json({ success: false, message: 'Internal Server error.' });
+    }
   }
-});
+);
 
 // User management routes
 router.get('/users', requireAdminAuth, requirePermission('read_users'), async (req, res) => {
@@ -126,25 +142,35 @@ router.get('/users', requireAdminAuth, requirePermission('read_users'), async (r
   }
 });
 
-router.post('/users/:userId/ban', requireAdminAuth, requirePermission('ban_users'), async (req, res) => {
-  try {
-    const { resStatus, resMessage } = await banUser(req);
-    res.status(resStatus).json(resMessage);
-  } catch (err) {
-    console.log('Ban User Error: ', err);
-    res.status(500).json({ success: false, message: 'Internal Server error.' });
+router.post(
+  '/users/:userId/ban',
+  requireAdminAuth,
+  requirePermission('ban_users'),
+  async (req, res) => {
+    try {
+      const { resStatus, resMessage } = await banUser(req);
+      res.status(resStatus).json(resMessage);
+    } catch (err) {
+      console.log('Ban User Error: ', err);
+      res.status(500).json({ success: false, message: 'Internal Server error.' });
+    }
   }
-});
+);
 
-router.post('/users/:userId/unban', requireAdminAuth, requirePermission('ban_users'), async (req, res) => {
-  try {
-    const { resStatus, resMessage } = await unbanUser(req);
-    res.status(resStatus).json(resMessage);
-  } catch (err) {
-    console.log('Unban User Error: ', err);
-    res.status(500).json({ success: false, message: 'Internal Server error.' });
+router.post(
+  '/users/:userId/unban',
+  requireAdminAuth,
+  requirePermission('ban_users'),
+  async (req, res) => {
+    try {
+      const { resStatus, resMessage } = await unbanUser(req);
+      res.status(resStatus).json(resMessage);
+    } catch (err) {
+      console.log('Unban User Error: ', err);
+      res.status(500).json({ success: false, message: 'Internal Server error.' });
+    }
   }
-});
+);
 
 // Admin management routes (Super Admin only)
 router.get('/admins', requireAdminAuth, requireSuperAdmin, async (req, res) => {
