@@ -15,7 +15,7 @@ import {
   Button,
   Tabs,
   Tab,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import ShareIcon from '@mui/icons-material/Share';
@@ -58,13 +58,17 @@ function SharePageButton({ pageId }) {
     const loadingToast = showToast.loading('Sharing page...');
 
     try {
-      const res = await axios.post(`${API_URL}/api/pages/sharepage`, {
-        pageId,
-        userEmail: email,
-        giveWritePermission: giveWrite,
-      }, {
-        withCredentials: true
-      });
+      await axios.post(
+        `${API_URL}/api/pages/sharepage`,
+        {
+          pageId,
+          userEmail: email,
+          giveWritePermission: giveWrite,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       showToast.dismiss(loadingToast);
       showToast.success(`Page shared with ${email} successfully!`);
@@ -83,11 +87,15 @@ function SharePageButton({ pageId }) {
     const loadingToast = showToast.loading('Generating public link...');
 
     try {
-      const res = await axios.post(`${API_URL}/api/pages/publicshare`, {
-        pageId
-      }, {
-        withCredentials: true
-      });
+      const res = await axios.post(
+        `${API_URL}/api/pages/publicshare`,
+        {
+          pageId,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       showToast.dismiss(loadingToast);
 
@@ -100,7 +108,8 @@ function SharePageButton({ pageId }) {
       }
     } catch (err) {
       showToast.dismiss(loadingToast);
-      const errorMessage = err.response?.data?.message || 'Error generating public link. Please try again.';
+      const errorMessage =
+        err.response?.data?.message || 'Error generating public link. Please try again.';
       showToast.error(errorMessage);
     }
     setLoading(false);
@@ -173,10 +182,7 @@ function SharePageButton({ pageId }) {
 
               <FormControlLabel
                 control={
-                  <Checkbox
-                    checked={giveWrite}
-                    onChange={(e) => setGiveWrite(e.target.checked)}
-                  />
+                  <Checkbox checked={giveWrite} onChange={(e) => setGiveWrite(e.target.checked)} />
                 }
                 label="Give edit permission"
                 sx={{ mt: 2 }}
@@ -221,7 +227,7 @@ function SharePageButton({ pageId }) {
                       ),
                     }}
                   />
-                  
+
                   <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
                     <Button
                       variant="outlined"
@@ -255,13 +261,9 @@ function SharePageButton({ pageId }) {
           <Button onClick={handleClose} disabled={loading}>
             Cancel
           </Button>
-          
+
           {tabValue === 0 && (
-            <LoadingButton
-              variant="contained"
-              loading={loading}
-              onClick={handleShareEmail}
-            >
+            <LoadingButton variant="contained" loading={loading} onClick={handleShareEmail}>
               Share Page
             </LoadingButton>
           )}

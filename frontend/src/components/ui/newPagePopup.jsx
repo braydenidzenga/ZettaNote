@@ -12,7 +12,7 @@ import {
   alpha,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { Add as AddIcon } from '@mui/icons-material';
 import axios from 'axios';
 
@@ -22,7 +22,7 @@ import { showToast } from '../../utils/toast';
 export default function NewPagePopup({ open, onClose, onPageCreated }) {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const theme = useTheme();
 
   const handleSubmit = () => {
@@ -43,11 +43,15 @@ export default function NewPagePopup({ open, onClose, onPageCreated }) {
     const loadingToast = showToast.loading('Creating page...');
 
     try {
-      const res = await axios.post(`${API_URL}/api/pages/createpage`, {
-        pageName: name,
-      }, {
-        withCredentials: true
-      });
+      await axios.post(
+        `${API_URL}/api/pages/createpage`,
+        {
+          pageName: name,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
       showToast.dismiss(loadingToast);
       showToast.success(`Page "${name}" created successfully!`);
@@ -56,7 +60,8 @@ export default function NewPagePopup({ open, onClose, onPageCreated }) {
       if (onPageCreated) onPageCreated();
     } catch (error) {
       showToast.dismiss(loadingToast);
-      const errorMessage = error.response?.data?.message || 'Failed to create page. Please try again.';
+      const errorMessage =
+        error.response?.data?.message || 'Failed to create page. Please try again.';
       showToast.error(errorMessage);
     } finally {
       setLoading(false);
