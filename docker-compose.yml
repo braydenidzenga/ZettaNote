@@ -34,7 +34,7 @@ services:
     image: ghcr.io/mannuvilasara/zettanote-frontend:latest
     container_name: zettanote-frontend
     ports:
-      - "80:80"
+      - "3000:3000"
     depends_on:
       - backend
     restart: unless-stopped
