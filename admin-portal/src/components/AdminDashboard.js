@@ -12,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   Chip,
   Button,
   TextField,
@@ -51,10 +50,6 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState({});
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -65,6 +60,11 @@ export default function AdminDashboard() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchAnalytics = async () => {
     try {

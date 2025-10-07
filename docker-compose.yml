@@ -63,6 +63,10 @@ services:
     container_name: zettanote-admin
     ports:
       - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
     depends_on:
       - backend
     restart: unless-stopped

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Box, CircularProgress } from '@mui/material';
 import { adminAuth } from '../utils/adminAuth';
 
 // Component to protect admin routes
