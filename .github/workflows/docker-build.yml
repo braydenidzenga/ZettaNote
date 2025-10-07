@@ -83,6 +83,8 @@ jobs:
 
             - name: Build frontend
               working-directory: ./frontend
+              env:
+                  REACT_APP_API_URL: ${{ secrets.BACKEND_API_URL || 'http://localhost:4000' }}
               run: pnpm run build
 
             - name: Log in to GitHub Container Registry
@@ -138,10 +140,12 @@ jobs:
 
             - name: Install admin-portal dependencies
               working-directory: ./admin-portal
-              run: pnpm install --frozen-lockfile
+              run: pnpm install
 
             - name: Build admin-portal
               working-directory: ./admin-portal
+              env:
+                  REACT_APP_API_URL: ${{ secrets.BACKEND_API_URL || 'http://localhost:4000' }}
               run: pnpm run build
 
             - name: Log in to GitHub Container Registry
@@ -169,20 +173,3 @@ jobs:
                   push: true
                   tags: ${{ steps.meta-admin.outputs.tags }}
                   labels: ${{ steps.meta-admin.outputs.labels }}
-
-    trigger-coolify-deployment:
-        runs-on: ubuntu-latest
-        needs:
-            - build-and-push-backend
-            - build-and-push-frontend
-            - build-and-push-admin
-        if: github.ref == 'refs/heads/main'
-        steps:
-            - name: Trigger Coolify Webhook
-              run: |
-                  if [ -n "${{ secrets.COOLIFY_WEBHOOK_URL }}" ]; then
-                    curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}"
-                    echo "✅ Coolify deployment triggered successfully"
-                  else
-                    echo "⚠️  COOLIFY_WEBHOOK_URL not set, skipping deployment trigger"
-                  fi
