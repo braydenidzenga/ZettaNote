@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Paper, CircularProgress, useTheme } from '@mui/material';
+import { Container, Typography, Box, Paper, useTheme } from '@mui/material';
+import Skeleton from 'react-loading-skeleton';
 import axios from 'axios';
 import SharePageButton from './sharePageButton';
 import RichMarkdownEditor from './RichMarkdownEditor';
@@ -124,20 +125,28 @@ export default function PageView({ page, onPageDeleted }) {
 
         {/* Content Section */}
         {loading ? (
-          <Paper
-            elevation={0}
-            sx={{
-              minHeight: '70vh',
-              border: `1px solid ${theme.palette.divider}`,
-              borderRadius: 2,
-              background: theme.palette.background.paper,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <CircularProgress size={60} thickness={4} />
-          </Paper>
+          <>
+            <Paper elevation={0} sx={{ display: 'flex', alignItems: 'center', mb: 3, p: 3, borderRadius: 2, background: theme.palette.background.paper, border: `1px solid ${theme.palette.divider}` }}>
+              <Skeleton width={240} height={40} />
+            </Paper>
+            <Paper elevation={0} sx={{ minHeight: '70vh', border: `1px solid ${theme.palette.divider}`, borderRadius: 2, background: theme.palette.background.paper, p: 2 }}>
+              <div style={{ marginBottom: 8 }}>
+                <Skeleton height={48} borderRadius={8} />
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <Skeleton height={24} width={'80%'} />
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <Skeleton height={24} width={'90%'} />
+              </div>
+              <div style={{ marginBottom: 8 }}>
+                <Skeleton height={24} width={'70%'} />
+              </div>
+              <div style={{ marginTop: 16 }}>
+                <Skeleton height={300} borderRadius={8} />
+              </div>
+            </Paper>
+          </>
         ) : (
           <RichMarkdownEditor
             content={content}

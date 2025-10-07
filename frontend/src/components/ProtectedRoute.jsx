@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../utils/auth';
-import { Box, CircularProgress } from '@mui/material';
+import { Box } from '@mui/material';
+import Skeleton from 'react-loading-skeleton';
 
 // Component to protect routes that require authentication
 export const ProtectedRoute = ({ children }) => {
@@ -10,15 +11,21 @@ export const ProtectedRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <div style={{ marginBottom: 16 }}>
+          <Skeleton height={64} borderRadius={8} />
+        </div>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+            <Skeleton width={280} height={500} borderRadius={8} />
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Skeleton height={48} width={'60%'} />
+            <div style={{ marginTop: 16 }}>
+              <Skeleton height={400} borderRadius={8} />
+            </div>
+          </Box>
+        </Box>
       </Box>
     );
   }
@@ -37,15 +44,11 @@ export const AuthRoute = ({ children }) => {
 
   if (isLoading) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <div style={{ marginBottom: 16 }}>
+          <Skeleton height={64} borderRadius={8} />
+        </div>
+        <Skeleton height={400} borderRadius={8} />
       </Box>
     );
   }
