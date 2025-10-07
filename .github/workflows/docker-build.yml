@@ -198,10 +198,10 @@ jobs:
             cd ${{ secrets.DEPLOY_PATH || '~/prod' }}
 
             echo "📥 Pulling latest Docker images..."
-            docker-compose pull
+            docker compose pull
 
             echo "🔄 Restarting services..."
-            docker-compose up -d
+            docker compose up -d
 
             echo "🧹 Cleaning up old images..."
             docker image prune -f
@@ -211,4 +211,4 @@ jobs:
             # Show status
             echo ""
             echo "📊 Container Status:"
-            docker-compose ps
+            docker compose ps
