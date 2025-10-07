@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Container, Typography, Paper, CircularProgress, Button } from '@mui/material';
+import { Box, Container, Typography, Paper, Button, useTheme } from '@mui/material';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import ReactMarkdown from 'react-markdown';
 import { API_URL } from '../config';
 
 function PublicShare() {
   const { shareId } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [pageData, setPageData] = useState(null);
   const [error, setError] = useState(null);
@@ -41,11 +43,22 @@ function PublicShare() {
 
   if (loading) {
     return (
-      <Box
-        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}
+      <SkeletonTheme
+        baseColor={theme.palette.mode === 'dark' ? '#2a2a2a' : '#ebebeb'}
+        highlightColor={theme.palette.mode === 'dark' ? '#3a3a3a' : '#f5f5f5'}
       >
-        <CircularProgress />
-      </Box>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
+          <Paper sx={{ p: 4 }}>
+            <div style={{ marginBottom: 8 }}>
+              <Skeleton width={240} height={40} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <Skeleton width={320} height={24} />
+            </div>
+            <Skeleton height={400} borderRadius={8} />
+          </Paper>
+        </Container>
+      </SkeletonTheme>
     );
   }
 
