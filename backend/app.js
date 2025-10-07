@@ -67,6 +67,7 @@ app.get('/', (req, res) => {
       changePassword_auth: 'api/auth.changePassword',
       getuser: 'api/auth/getuser',
       pages: '/api/pages',
+      admin: '/api/admin',
     },
     instructions: 'Use Postman or curl to test the above endpoints.',
   });
