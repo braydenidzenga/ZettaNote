@@ -12,12 +12,17 @@ import {
   ListItemIcon,
   Skeleton,
   Button,
+  IconButton, // New: for the edit/save/cancel buttons
+  TextField, // New: for the input field
 } from '@mui/material';
 import {
   Description as PageIcon,
   Share as SharedIcon,
   Person as PersonIcon,
   Add as AddIcon,
+  Edit as EditIcon, // New: Edit icon
+  Check as CheckIcon, // New: Save icon
+  Close as CancelIcon, // New: Cancel icon
 } from '@mui/icons-material';
 import axios from 'axios';
 import { API_URL } from '../../config';
@@ -28,6 +33,10 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
   const [sharedPages, setSharedPages] = useState([]);
   const [loading, setLoading] = useState(true);
   const theme = useTheme();
+
+  // New states for renaming functionality
+  const [renamingPageId, setRenamingPageId] = useState(null);
+  const [newPageName, setNewPageName] = useState('');
 
   useEffect(() => {
     const fetchPages = async () => {
@@ -57,9 +66,69 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
   // Normalize page object for frontend
   const normalizePage = (page) => ({
     id: String(page.id || page._id),
-    name: page.name,
+    name: page.pageName || page.name,
     content: page.pageData,
   });
+
+  // Handler to start the renaming process
+  const startRename = (page) => {
+    setRenamingPageId(page.id);
+    setNewPageName(page.name);
+  };
+
+  // Handler to cancel the renaming process
+  const cancelRename = () => {
+    setRenamingPageId(null);
+    setNewPageName('');
+  };
+
+  // Handler for API call to rename the page
+  const handleRenamePage = async (pageId) => {
+    const trimmedName = newPageName.trim();
+    if (!trimmedName) {
+      showToast.error('Page name cannot be empty');
+      return;
+    }
+
+    try {
+      const res = await axios.post(
+        `${API_URL}/api/pages/renamepage`,
+        {
+          pageId: pageId,
+          newPageName: trimmedName,
+        },
+        { withCredentials: true }
+      );
+
+      if (res.status === 200) {
+        showToast.success('Page renamed successfully!');
+
+        setOwnedPages((prevPages) =>
+          prevPages.map((page) =>
+            String(page.id || page._id) === pageId
+              ? { ...page, pageName: trimmedName, name: trimmedName }
+              : page
+          )
+        );
+      }
+    } catch (err) {
+      console.error('Failed to rename page:', err);
+      showToast.error(err.response?.data?.resMessage?.message || 'Failed to rename page');
+    } finally {
+      setRenamingPageId(null);
+      setNewPageName('');
+    }
+  };
+
+  // Handler for key presses (Enter to save, Escape to cancel)
+  const handleKeyPress = (e, pageId) => {
+    if (e.key === 'Enter') {
+      handleRenamePage(pageId);
+    }
+    if (e.key === 'Escape') {
+      cancelRename();
+    }
+  };
 
   return (
     <Drawer
@@ -155,10 +224,12 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
             ) : (
               ownedPages.map((page) => {
                 const normalized = normalizePage(page);
+                const isRenaming = normalized.id === renamingPageId;
+
                 return (
                   <ListItemButton
                     key={normalized.id}
-                    onClick={() => onSelectPage(normalized)}
+                    onClick={() => !isRenaming && onSelectPage(normalized)}
                     sx={{
                       borderRadius: 1,
                       mb: 0.5,
@@ -166,6 +237,9 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
                       '&:hover': {
                         background: theme.palette.action.hover,
                         transform: 'translateX(4px)',
+                      },
+                      '&:hover .rename-icon': {
+                        visibility: isRenaming ? 'hidden' : 'visible',
                       },
                     }}
                   >
@@ -177,13 +251,78 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
                         }}
                       />
                     </ListItemIcon>
-                    <ListItemText
-                      primary={normalized.name}
-                      primaryTypographyProps={{
-                        fontSize: '0.9rem',
-                        fontWeight: 500,
-                      }}
-                    />
+
+                    {isRenaming ? (
+                      <>
+                        <TextField
+                          value={newPageName}
+                          onChange={(e) => setNewPageName(e.target.value)}
+                          onKeyDown={(e) => handleKeyPress(e, normalized.id)}
+                          size="small"
+                          variant="standard"
+                          autoFocus
+                          fullWidth
+                          inputProps={{
+                            style: { fontSize: '0.9rem', fontWeight: 500, padding: 0 },
+                          }}
+                          sx={{ mr: 1 }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRenamePage(normalized.id);
+                          }}
+                          color="primary"
+                          sx={{ p: 0.5 }}
+                        >
+                          <CheckIcon fontSize="inherit" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cancelRename();
+                          }}
+                          color="default"
+                          sx={{ p: 0.5 }}
+                        >
+                          <CancelIcon fontSize="inherit" />
+                        </IconButton>
+                      </>
+                    ) : (
+                      <>
+                        <ListItemText
+                          primary={normalized.name}
+                          primaryTypographyProps={{
+                            fontSize: '0.9rem',
+                            fontWeight: 500,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        />
+                        {/* Edit button - only for owned pages */}
+                        <IconButton
+                          className="rename-icon"
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent onSelectPage from firing
+                            startRename(normalized);
+                          }}
+                          sx={{
+                            visibility: 'hidden',
+                            // Show on hover of ListItemButton
+                            '*:hover > &': { visibility: 'visible' },
+                            mr: -0.5, // Pull the icon closer to the edge
+                            p: 0.5,
+                          }}
+                        >
+                          <EditIcon sx={{ fontSize: 18 }} />
+                        </IconButton>
+                      </>
+                    )}
                   </ListItemButton>
                 );
               })
@@ -266,6 +405,9 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
                       primaryTypographyProps={{
                         fontSize: '0.9rem',
                         fontWeight: 500,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
                       }}
                     />
                   </ListItemButton>
