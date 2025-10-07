@@ -1,0 +1,171 @@
+name: Build and Push Docker Images
+
+on:
+    push:
+        branches:
+            - main
+            - v2-CI
+    workflow_dispatch:
+
+env:
+    REGISTRY: ghcr.io
+    IMAGE_PREFIX: ${{ github.repository_owner }}/zettanote
+
+jobs:
+    build-and-push-backend:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract metadata for backend
+              id: meta-backend
+              uses: docker/metadata-action@v5
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend
+                  tags: |
+                      type=ref,event=branch
+                      type=sha,prefix={{branch}}-
+                      type=raw,value=latest,enable={{is_default_branch}}
+
+            - name: Build and push backend image
+              uses: docker/build-push-action@v5
+              with:
+                  context: ./backend
+                  file: ./backend/Dockerfile
+                  push: true
+                  tags: ${{ steps.meta-backend.outputs.tags }}
+                  labels: ${{ steps.meta-backend.outputs.labels }}
+
+    build-and-push-frontend:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 8
+
+            - name: Install frontend dependencies
+              working-directory: ./frontend
+              run: pnpm install --frozen-lockfile
+
+            - name: Build frontend
+              working-directory: ./frontend
+              run: pnpm run build
+
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract metadata for frontend
+              id: meta-frontend
+              uses: docker/metadata-action@v5
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend
+                  tags: |
+                      type=ref,event=branch
+                      type=sha,prefix={{branch}}-
+                      type=raw,value=latest,enable={{is_default_branch}}
+
+            - name: Build and push frontend image
+              uses: docker/build-push-action@v5
+              with:
+                  context: ./frontend
+                  file: ./frontend/Dockerfile.prod
+                  push: true
+                  tags: ${{ steps.meta-frontend.outputs.tags }}
+                  labels: ${{ steps.meta-frontend.outputs.labels }}
+
+    build-and-push-admin:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            packages: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 8
+
+            - name: Install admin-portal dependencies
+              working-directory: ./admin-portal
+              run: pnpm install --frozen-lockfile
+
+            - name: Build admin-portal
+              working-directory: ./admin-portal
+              run: pnpm run build
+
+            - name: Log in to GitHub Container Registry
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ env.REGISTRY }}
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Extract metadata for admin-portal
+              id: meta-admin
+              uses: docker/metadata-action@v5
+              with:
+                  images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-admin
+                  tags: |
+                      type=ref,event=branch
+                      type=sha,prefix={{branch}}-
+                      type=raw,value=latest,enable={{is_default_branch}}
+
+            - name: Build and push admin-portal image
+              uses: docker/build-push-action@v5
+              with:
+                  context: ./admin-portal
+                  file: ./admin-portal/Dockerfile.prod
+                  push: true
+                  tags: ${{ steps.meta-admin.outputs.tags }}
+                  labels: ${{ steps.meta-admin.outputs.labels }}
+
+    trigger-coolify-deployment:
+        runs-on: ubuntu-latest
+        needs:
+            - build-and-push-backend
+            - build-and-push-frontend
+            - build-and-push-admin
+        if: github.ref == 'refs/heads/main'
+        steps:
+            - name: Trigger Coolify Webhook
+              run: |
+                  if [ -n "${{ secrets.COOLIFY_WEBHOOK_URL }}" ]; then
+                    curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}"
+                    echo "✅ Coolify deployment triggered successfully"
+                  else
+                    echo "⚠️  COOLIFY_WEBHOOK_URL not set, skipping deployment trigger"
+                  fi

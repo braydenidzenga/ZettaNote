@@ -1,14 +1,28 @@
-FROM node:24
-WORKDIR .
+FROM node:20-alpine
 
-COPY package*.json ./
-RUN npm install
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy package files
+COPY package.json pnpm-lock.yaml* ./
+
+# Install dependencies (production only)
+RUN pnpm install --prod --frozen-lockfile
+
+# Copy application code
 COPY . .
 
-ENV PORT=BACKEND_PORT
-ENV DB=MONGODB_URL
-ENV JWT_SECRET=RANDOM_SECRET_KEY
+# Environment variables (these will be overridden by Coolify)
+ENV NODE_ENV=production
+ENV PORT=5000
 
-EXPOSE [SAME AS BACKEND_PORT]
+EXPOSE 5000
 
-CMD ["npm", "run", "prod"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:5000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Start the application
+CMD ["node", "app.js"]
