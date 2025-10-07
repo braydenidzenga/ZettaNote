@@ -66,7 +66,7 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
   // Normalize page object for frontend
   const normalizePage = (page) => ({
     id: String(page.id || page._id),
-    name: page.pageName || page.name, 
+    name: page.pageName || page.name,
     content: page.pageData,
   });
 
@@ -90,11 +90,9 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
       return;
     }
 
-  
-    
     try {
       const res = await axios.post(
-        `${API_URL}/api/pages/renamepage`, 
+        `${API_URL}/api/pages/renamepage`,
         {
           pageId: pageId,
           newPageName: trimmedName,
@@ -104,7 +102,7 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
 
       if (res.status === 200) {
         showToast.success('Page renamed successfully!');
-        
+
         setOwnedPages((prevPages) =>
           prevPages.map((page) =>
             String(page.id || page._id) === pageId
@@ -115,9 +113,7 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
       }
     } catch (err) {
       console.error('Failed to rename page:', err);
-      showToast.error(
-        err.response?.data?.resMessage?.message || 'Failed to rename page'
-      );
+      showToast.error(err.response?.data?.resMessage?.message || 'Failed to rename page');
     } finally {
       setRenamingPageId(null);
       setNewPageName('');
@@ -255,7 +251,7 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
                         }}
                       />
                     </ListItemIcon>
-                    
+
                     {isRenaming ? (
                       <>
                         <TextField
@@ -266,14 +262,16 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
                           variant="standard"
                           autoFocus
                           fullWidth
-                          inputProps={{ style: { fontSize: '0.9rem', fontWeight: 500, padding: 0 } }}
+                          inputProps={{
+                            style: { fontSize: '0.9rem', fontWeight: 500, padding: 0 },
+                          }}
                           sx={{ mr: 1 }}
-                          onClick={(e) => e.stopPropagation()} 
+                          onClick={(e) => e.stopPropagation()}
                         />
                         <IconButton
                           size="small"
                           onClick={(e) => {
-                            e.stopPropagation(); 
+                            e.stopPropagation();
                             handleRenamePage(normalized.id);
                           }}
                           color="primary"
@@ -284,7 +282,7 @@ export default function Sidebar({ onSelectPage, refreshTrigger, onNewPage }) {
                         <IconButton
                           size="small"
                           onClick={(e) => {
-                            e.stopPropagation(); 
+                            e.stopPropagation();
                             cancelRename();
                           }}
                           color="default"
