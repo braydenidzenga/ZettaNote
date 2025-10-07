@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { genToken } from '../../util/token.js';
-import User from '../../models/User.js';
+import User from '../../models/User.model.js';
 import validatePass from '../../util/validatePass.js';
 import { z } from 'zod';
 

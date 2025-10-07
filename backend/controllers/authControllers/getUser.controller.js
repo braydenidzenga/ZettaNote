@@ -1,4 +1,4 @@
-import User from '../../models/User.js';
+import User from '../../models/User.model.js';
 import { verifyToken } from '../../util/token.js';
 
 export default async function getUser(req) {

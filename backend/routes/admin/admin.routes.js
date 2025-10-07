@@ -7,18 +7,18 @@ import {
   logSuspiciousActivity,
   securityHeaders,
 } from '../../util/security.js';
-import adminLogin from './adminLogin.js';
-import adminLogout from './adminLogout.js';
-import changeFirstPassword from './changeFirstPassword.js';
-import createAdmin from './createAdmin.js';
-import getTotalUsers from './getTotalUsers.js';
-import getAllUsers from './getAllUsers.js';
-import banUser from './banUser.js';
-import unbanUser from './unbanUser.js';
-import getAnalytics from './getAnalytics.js';
-import getAllAdmins from './getAllAdmins.js';
-import updateAdmin from './updateAdmin.js';
-import deleteAdmin from './deleteAdmin.js';
+import adminLogin from '../../controllers/adminControllers/adminLogin.controller.js';
+import adminLogout from '../../controllers/adminControllers/adminLogout.controller.js';
+import changeFirstPassword from '../../controllers/adminControllers/changeFirstPassword.controller.js';
+import createAdmin from '../../controllers/adminControllers/createAdmin.controller.js';
+import getTotalUsers from '../../controllers/adminControllers/getTotalUsers.controller.js';
+import getAllUsers from '../../controllers/adminControllers/getAllUsers.controller.js';
+import banUser from '../../controllers/adminControllers/banUser.controller.js';
+import unbanUser from '../../controllers/adminControllers/unbanUser.controller.js';
+import getAnalytics from '../../controllers/adminControllers/getAnalytics.controller.js';
+import getAllAdmins from '../../controllers/adminControllers/getAllAdmins.controller.js';
+import updateAdmin from '../../controllers/adminControllers/updateAdmin.controller.js';
+import deleteAdmin from '../../controllers/adminControllers/deleteAdmin.controller.js';
 
 const router = express.Router();
 

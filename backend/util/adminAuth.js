@@ -1,6 +1,6 @@
 import jsonwebtoken from 'jsonwebtoken';
 import { JWT_SECRET } from '../config.js';
-import AdminAccount from '../models/AdminAccount.js';
+import AdminAccount from '../models/AdminAccount.model.js';
 
 // Generate JWT token for admin users
 export const genAdminToken = (admin, options = {}) => {

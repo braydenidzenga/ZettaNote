@@ -1,8 +1,8 @@
-import Page from '../../models/Page.js';
+import Page from '../../models/Page.model.js';
 import { verifyToken } from '../../util/token.js';
 import { z } from 'zod';
 
-export default async function deletePage(req) {
+export default async function savePage(req) {
   try {
     // Get token from cookies
     const token = req.cookies?.token;
@@ -15,11 +15,12 @@ export default async function deletePage(req) {
       };
     }
 
-    // Zod validation for pageId only
-    const deletePageSchema = z.object({
+    // Zod validation for pageId and newPageData only
+    const savePageSchema = z.object({
       pageId: z.string().min(1, 'Page ID is required'),
+      newPageData: z.string().min(0, 'Page data is required'),
     });
-    const parseResult = deletePageSchema.safeParse(req.body);
+    const parseResult = savePageSchema.safeParse(req.body);
     if (!parseResult.success) {
       return {
         resStatus: 400,
@@ -28,10 +29,9 @@ export default async function deletePage(req) {
         },
       };
     }
+    const { pageId, newPageData } = parseResult.data;
 
-    const { pageId } = parseResult.data;
-
-    // verify user is logged in
+    // verify user and find page in DB
     const user = await verifyToken(token);
     if (!user) {
       return {
@@ -42,7 +42,6 @@ export default async function deletePage(req) {
       };
     }
 
-    // find page in db
     const page = await Page.findById(pageId);
     if (!page) {
       return {
@@ -53,7 +52,7 @@ export default async function deletePage(req) {
       };
     }
 
-    // verify user owns the page
+    // checks if user is the owner of the page
     if (!page.owner.equals(user._id)) {
       return {
         resStatus: 403,
@@ -63,25 +62,15 @@ export default async function deletePage(req) {
       };
     }
 
-    // delete the page
-    const pageDeleted = await Page.findByIdAndDelete(pageId);
-    if (!pageDeleted) {
-      return {
-        resStatus: 500,
-        resMessage: {
-          message: 'Failed to delete page',
-        },
-      };
-    }
+    // change the page data and save to DB
+    page.pageData = newPageData;
+    await page.save();
 
-    // remove the pageid from the user page array
-    user.pages.pull(page._id);
-    await user.save();
-
+    // return new page to user
     return {
       resStatus: 200,
       resMessage: {
-        message: 'Page deleted',
+        'Updated Page': page,
       },
     };
   } catch (err) {

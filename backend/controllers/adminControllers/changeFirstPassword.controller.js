@@ -1,4 +1,4 @@
-import AdminAccount from '../../models/AdminAccount.js';
+import AdminAccount from '../../models/AdminAccount.model.js';
 import jwt from 'jsonwebtoken';
 import { validatePasswordStrength } from '../../util/passwordGenerator.js';
 

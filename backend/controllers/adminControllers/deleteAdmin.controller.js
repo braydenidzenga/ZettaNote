@@ -1,4 +1,4 @@
-import AdminAccount from '../../models/AdminAccount.js';
+import AdminAccount from '../../models/AdminAccount.model.js';
 
 export default async function deleteAdmin(req) {
   const { adminId } = req.params;

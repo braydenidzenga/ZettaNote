@@ -1,5 +1,5 @@
-import User from '../../models/User.js';
-import Page from '../../models/Page.js';
+import User from '../../models/User.model.js';
+import Page from '../../models/Page.model.js';
 
 export default async function getAdminAnalytics(req) {
   try {

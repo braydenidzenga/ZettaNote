@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import Page from '../../models/Page.js';
+import Page from '../../models/Page.model.js';
 import { verifyToken } from '../../util/token.js';
 
 export async function publicShare(req) {

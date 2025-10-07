@@ -1,4 +1,4 @@
-import Page from '../../models/Page.js';
+import Page from '../../models/Page.model.js';
 import { verifyToken } from '../../util/token.js';
 import { z } from 'zod';
 

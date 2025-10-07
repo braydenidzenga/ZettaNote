@@ -4,9 +4,9 @@ import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
 import { DB, PORT } from './config.js';
 
-import authRouter from './routes/auth/auth.js';
-import pageRouter from './routes/pages/pages.js';
-import adminRouter from './routes/admin/admin.js';
+import authRouter from './routes/auth/auth.routes.js';
+import pageRouter from './routes/pages/pages.routes.js';
+import adminRouter from './routes/admin/admin.routes.js';
 
 const app = express();
 

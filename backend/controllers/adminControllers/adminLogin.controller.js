@@ -1,4 +1,4 @@
-import AdminAccount from '../../models/AdminAccount.js';
+import AdminAccount from '../../models/AdminAccount.model.js';
 import { genAdminToken } from '../../util/adminAuth.js';
 
 export default async function adminLogin(req) {

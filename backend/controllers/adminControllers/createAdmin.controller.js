@@ -1,4 +1,4 @@
-import AdminAccount from '../../models/AdminAccount.js';
+import AdminAccount from '../../models/AdminAccount.model.js';
 import { generateMemorablePassword } from '../../util/passwordGenerator.js';
 
 export default async function createAdmin(req) {

@@ -1,6 +1,6 @@
 import jsonwebtoken from 'jsonwebtoken';
 import { JWT_SECRET } from '../config.js';
-import User from '../models/User.js';
+import User from '../models/User.model.js';
 
 export const genToken = (user) => {
   const token = jsonwebtoken.sign({ id: user._id }, JWT_SECRET, { expiresIn: '8h' });

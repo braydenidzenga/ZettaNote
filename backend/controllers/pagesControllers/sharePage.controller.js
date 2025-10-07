@@ -1,5 +1,5 @@
-import Page from '../../models/Page.js';
-import User from '../../models/User.js';
+import Page from '../../models/Page.model.js';
+import User from '../../models/User.model.js';
 import { verifyToken } from '../../util/token.js';
 import { z } from 'zod';
 

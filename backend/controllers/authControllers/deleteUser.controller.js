@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
-import User from '../../models/User.js';
+import User from '../../models/User.model.js';
 
 export default async function deleteUser(req) {
   try {

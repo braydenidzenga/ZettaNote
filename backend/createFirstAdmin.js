@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { createRequire } from 'module';
-import AdminAccount from './models/AdminAccount.js';
+import AdminAccount from './models/AdminAccount.model.js';
 import { DB } from './config.js';
 
 const require = createRequire(import.meta.url);
