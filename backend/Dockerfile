@@ -16,9 +16,9 @@ COPY . .
 
 # Environment variables (these will be overridden by Coolify)
 ENV NODE_ENV=production
-ENV PORT=5000
+ENV PORT=4000
 
-EXPOSE 5000
+EXPOSE 4000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
