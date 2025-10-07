@@ -1,12 +1,16 @@
 import express from 'express';
 
-import createPage from '../../controllers/pagesControllers/createPage.controller.js';
-import savePage from '../../controllers/pagesControllers/savePage.controller.js';
-import renamePage from '../../controllers/pagesControllers/renamePage.controller.js';
-import { getPage, getPages } from '../../controllers/pagesControllers/getPages.controller.js';
-import deletePage from '../../controllers/pagesControllers/deletePage.controller.js';
-import sharePage from '../../controllers/pagesControllers/sharePage.controller.js';
-import { publicShare, getPublicShare } from '../../controllers/pagesControllers/publicShare.controller.js';
+import {
+  createPage,
+  savePage,
+  renamePage,
+  getPage,
+  getPages,
+  deletePage,
+  sharePage,
+  publicShare,
+  getPublicShare,
+} from '../../controllers/pagesControllers/index.js';
 
 const router = express.Router();
 

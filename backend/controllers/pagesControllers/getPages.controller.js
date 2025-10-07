@@ -154,7 +154,7 @@ export async function getPages(req) {
 }
 
 // returns the name and the id of the page as a object
-async function getPageNameAndId(pageId) {
+export async function getPageNameAndId(pageId) {
   const page = await Page.findById(pageId);
 
   if (!page) {
