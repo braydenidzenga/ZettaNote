@@ -40,13 +40,6 @@ Core features are being built and contributions are welcome.
 
 ### Backend Setup
 
-## Test API with Postman
- You can test backend APIs using the provided postman collection:
- 1. open **Postman**
- 2. click **Import**
- 3. select the file : 'backend/docs/postman_collection.json'
- 4. Start testing endpoints (make sure your backend server is running at 'https://localhost:5000')
-
 1. **Clone the repo**
 
    ```bash
