@@ -79,7 +79,7 @@ jobs:
 
             - name: Install frontend dependencies
               working-directory: ./frontend
-              run: pnpm install --frozen-lockfile
+              run: pnpm install
 
             - name: Build frontend
               working-directory: ./frontend
@@ -106,7 +106,7 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   context: ./frontend
-                  file: ./frontend/Dockerfile.prod
+                  file: ./frontend/Dockerfile
                   push: true
                   tags: ${{ steps.meta-frontend.outputs.tags }}
                   labels: ${{ steps.meta-frontend.outputs.labels }}
@@ -165,7 +165,7 @@ jobs:
               uses: docker/build-push-action@v5
               with:
                   context: ./admin-portal
-                  file: ./admin-portal/Dockerfile.prod
+                  file: ./admin-portal/Dockerfile
                   push: true
                   tags: ${{ steps.meta-admin.outputs.tags }}
                   labels: ${{ steps.meta-admin.outputs.labels }}

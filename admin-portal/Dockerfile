@@ -1,23 +1,20 @@
-# Production Dockerfile - uses pre-built artifacts from GitHub Actions
-FROM nginx:alpine
+# Production Dockerfile - serves pre-built React app with serve
+FROM node:20-alpine
 
-# Copy pre-built files
-COPY build /usr/share/nginx/html
+WORKDIR /app
 
-# Create nginx config for SPA
-RUN echo 'server { \
-    listen 3001; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html index.htm; \
-        try_files $uri $uri/ /index.html; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+# Install serve globally
+RUN npm install -g serve
 
+# Copy pre-built files (built by GitHub Actions)
+COPY build ./build
+
+# Expose port 3001
 EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3001/ || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the app on port 3001
+CMD ["serve", "-s", "build", "-l", "3001"]
