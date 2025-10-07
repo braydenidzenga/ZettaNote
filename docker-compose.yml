@@ -35,6 +35,10 @@ services:
     container_name: zettanote-frontend
     ports:
       - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - REACT_APP_API_URL=${REACT_APP_API_URL}
     depends_on:
       - backend
     restart: unless-stopped
