@@ -69,7 +69,7 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:4000/api/auth/user",
+              "raw": "http://localhost:4000/api/auth/getuser",
               "protocol": "http",
               "host": ["localhost"],
               "port": "4000",
