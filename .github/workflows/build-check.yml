@@ -25,7 +25,14 @@ jobs:
       - name: Build project
         run: npm run build
         working-directory: ./frontend
-
+      - name: Check for console.log statements
+        run: |
+          if grep -R --include=\*.{js,jsx,ts,tsx} "console.log" ./frontend; then
+            echo "❌ console.log statements found in frontend code!"
+            exit 1
+          else
+            echo "✅ No console.log statements found in frontend."
+          fi
       - name: check if build folder exists
         run: |
           if [ -d "frontend/dist" ]; then
@@ -62,6 +69,14 @@ jobs:
       - name: Build project
         run: npm run build
         working-directory: ./admin-portal
+      - name: Check for Debug statements
+        run: |
+          if grep -R --include=\*.{js,jsx,ts,tsx} "console.log" ./admin-portal; then
+            echo "❌ console.log statements found in admin-portal code!"
+            exit 1
+          else
+            echo "✅ No console.log statements found in admin-portal."
+          fi
       - name: check if build folder exists
         run: |
           if [ -d "admin-portal/build" ]; then

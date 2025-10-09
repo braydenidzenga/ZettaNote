@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   FiFile, 
@@ -6,7 +6,6 @@ import {
   FiDownload, 
   FiExternalLink,
   FiClock,
-  FiUser,
   FiEye
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
@@ -31,7 +30,6 @@ const PublicShare = () => {
       try {
         const response = await axios.get(`${VITE_API_URL}/api/pages/share/${shareId}`);
         
-
         if (response.status === 200 && response.data) {
           setPageData(response.data);
         } else {
