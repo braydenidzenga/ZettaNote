@@ -24,10 +24,10 @@
               "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"test123\"\n}"
             },
             "url": {
-              "raw": "http://localhost:5000/api/auth/register",
+              "raw": "http://localhost:4000/api/auth/register",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "5000",
+              "port": "4000",
               "path": ["api", "auth", "register"]
             }
           },
@@ -48,10 +48,10 @@
               "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"test123\"\n}"
             },
             "url": {
-              "raw": "http://localhost:5000/api/auth/login",
+              "raw": "http://localhost:4000/api/auth/login",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "5000",
+              "port": "4000",
               "path": ["api", "auth", "login"]
             }
           },
@@ -69,10 +69,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/auth/user",
+              "raw": "http://localhost:4000/api/auth/user",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "5000",
+              "port": "4000",
               "path": ["api", "auth", "user"]
             }
           },
@@ -90,10 +90,10 @@
               }
             ],
             "url": {
-              "raw": "http://localhost:5000/api/auth/logout",
+              "raw": "http://localhost:4000/api/auth/logout",
               "protocol": "http",
               "host": ["localhost"],
-              "port": "5000",
+              "port": "4000",
               "path": ["api", "auth", "logout"]
             }
           },
@@ -107,10 +107,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/users",
+          "raw": "http://localhost:4000/api/users",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "4000",
           "path": ["api", "users"]
         }
       },
@@ -122,10 +122,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/users/1",
+          "raw": "http://localhost:4000/api/users/1",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "4000",
           "path": ["api", "users", "1"]
         }
       },
@@ -146,10 +146,10 @@
           "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/users",
+          "raw": "http://localhost:4000/api/users",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "4000",
           "path": ["api", "users"]
         }
       },
