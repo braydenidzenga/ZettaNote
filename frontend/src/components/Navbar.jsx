@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import themeContext from '../context/ThemeProvider';
 import {
@@ -9,6 +9,7 @@ import {
   FaUser,
   FaSignOutAlt,
   FaTachometerAlt,
+  FaSpinner,
 } from 'react-icons/fa';
 import authContext from '../context/AuthProvider';
 import axios from 'axios';
@@ -19,12 +20,16 @@ const Navbar = () => {
   const { theme, settheme } = useContext(themeContext);
   const { user, setuser } = useContext(authContext);
   const navigate = useNavigate();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const themeHandler = (e) => {
     settheme(e.target.checked ? 'dark' : 'light');
   };
 
   const handleLogout = async () => {
+    if (isLoggingOut) return; // Prevent double-click
+
+    setIsLoggingOut(true);
     try {
       await axios.post(
         `${VITE_API_URL}/api/auth/logout`,
@@ -40,10 +45,18 @@ const Navbar = () => {
       navigate('/');
     } catch (error) {
       console.error('Logout error:', error);
+      localStorage.removeItem('zetta_user');
       setuser(null);
       toast.error('Logout failed, but you have been signed out locally');
       navigate('/');
+    } finally {
+      setIsLoggingOut(false);
     }
+  };
+
+  const closeMobileMenu = () => {
+    // Close dropdown by removing focus
+    document.activeElement?.blur();
   };
 
   const getNavigationItems = () => {
@@ -80,10 +93,10 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="navbar fixed top-0 bg-base-100 shadow-md px-6 lg:px-10 border-b border-base-300 z-100">
+    <nav className="navbar fixed top-0 bg-base-100 shadow-md px-6 lg:px-10 border-b border-base-300 z-50">
       {/* Mobile menu */}
       <div className="navbar-start">
-        <div className=" dropdown lg:hidden">
+        <div className="dropdown lg:hidden">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -102,28 +115,28 @@ const Navbar = () => {
           </div>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-100 p-3 shadow-lg bg-base-100 rounded-xl w-56 border border-base-300 space-y-1"
+            className="menu menu-sm dropdown-content mt-3 z-50 p-3 shadow-lg bg-base-100 rounded-xl w-56 border border-base-300 space-y-1"
           >
             {navigationItems.map((item) => (
               <li key={item.name}>
                 {item.action === 'logout' ? (
                   <button
                     onClick={handleLogout}
-                    className="flex items-center text-sm font-medium rounded-lg px-3 py-2 transition hover:bg-base-200 text-error w-full text-left"
+                    disabled={isLoggingOut}
+                    className="flex items-center text-sm font-medium rounded-lg px-3 py-2 transition hover:bg-base-200 text-error w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {item.icon}
+                    {isLoggingOut ? <FaSpinner className="text-xl mr-1 animate-spin" /> : item.icon}
                     {item.name}
                   </button>
                 ) : (
                   <NavLink
                     to={item.to}
+                    onClick={closeMobileMenu}
                     target={item.name === 'GitHub' ? '_blank' : '_self'}
                     rel={item.name === 'GitHub' ? 'noopener noreferrer' : ''}
                     className={({ isActive }) =>
                       `flex items-center text-sm font-medium rounded-lg px-3 py-2 transition ${
-                        isActive
-                          ? 'text-primary underline underline-offset-4'
-                          : 'hover:bg-base-200'
+                        isActive ? 'text-primary underline underline-offset-4' : 'hover:bg-base-200'
                       }`
                     }
                   >
@@ -138,18 +151,9 @@ const Navbar = () => {
                 <div className="divider my-2"></div>
                 <li>
                   <div className="flex items-center px-3 py-2 text-sm text-base-content/70">
-                    <FaUser className="text-xl mr-1" />
-                    {user?.name || user?.email}
+                    <FaUser className="text-lg mr-2" />
+                    <span className="truncate">{user?.name || user?.email}</span>
                   </div>
-                </li>
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center text-sm font-medium rounded-lg px-13 py-2 transition hover:bg-base-200 text-error w-full text-left"
-                  >
-                    <FaSignOutAlt className="text-xl mr-1" />
-                    Logout
-                  </button>
                 </li>
               </>
             )}
@@ -192,7 +196,7 @@ const Navbar = () => {
                 rel={item.name === 'GitHub' ? 'noopener noreferrer' : ''}
                 className={({ isActive }) =>
                   `px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center ${
-                    isActive
+                    isActive && item.name !== 'GitHub'
                       ? 'text-primary underline underline-offset-4'
                       : 'text-base-content hover:bg-base-200'
                   }`
@@ -208,16 +212,27 @@ const Navbar = () => {
 
       {/* User Actions & Theme Toggle */}
       <div className="navbar-end">
-        <div className="hidden lg:flex items-center">
+        <div className="hidden lg:flex items-center gap-3">
+          {/* User Info - Desktop */}
+          {user && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-base-200 rounded-lg">
+              <FaUser className="text-base text-base-content/70" />
+              <span className="text-sm font-medium text-base-content max-w-[120px] truncate">
+                {user?.name || user?.email}
+              </span>
+            </div>
+          )}
+
           <ul className="menu menu-horizontal gap-2">
             {authNavItems.map((item) => (
               <li key={item.name}>
                 {item.action === 'logout' ? (
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center text-error hover:bg-base-200"
+                    disabled={isLoggingOut}
+                    className="px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center text-error hover:bg-base-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {item.icon}
+                    {isLoggingOut ? <FaSpinner className="text-xl mr-1 animate-spin" /> : item.icon}
                     {item.name}
                   </button>
                 ) : (
@@ -228,7 +243,7 @@ const Navbar = () => {
                     className={({ isActive }) =>
                       `px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center ${
                         isActive
-                          ? 'text-secondary underline underline-offset-4'
+                          ? 'text-primary underline underline-offset-4'
                           : 'text-base-content hover:bg-base-200'
                       }`
                     }
