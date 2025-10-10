@@ -154,3 +154,21 @@
 .nav-link-desktop.active-link::after {
   width: 100%;
 }
+
+/* Fallback class for editor container scroll behavior */
+.note-container-scrollable {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* smoother scrolling on mobile */
+}
+
+/* Hide scrollbar for inner textarea but keep it scrollable */
+.note-editor-textarea {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.note-editor-textarea::-webkit-scrollbar {
+  height: 0;
+  width: 0;
+}

@@ -10,3 +10,6 @@ frontend/src/env.js
 admin-portal/node_modules
 admin-portal/build
 admin-portal/.env
+
+
+**/package-lock.json

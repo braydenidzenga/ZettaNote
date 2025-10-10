@@ -30,6 +30,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isUpdatingFromHistory, setIsUpdatingFromHistory] = useState(false);
   const editorRef = useRef(null);
+  const lineNumbersRef = useRef(null);
+  const [lineCount, setLineCount] = useState(20);
 
   useEffect(() => {
     if (content !== editorContent) {
@@ -38,6 +40,25 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       setHistoryIndex(0);
     }
   }, [content, activePage?.id]);
+
+  // Auto-resize textarea to match content so the outer container remains the single scroller
+  useEffect(() => {
+    const ta = editorRef.current;
+    if (!ta) return;
+    // Reset height to allow shrink when content is reduced
+    ta.style.height = 'auto';
+    // Set height to the scrollHeight so the textarea grows with content
+    ta.style.height = `${ta.scrollHeight}px`;
+    // Also sync the line numbers container height to match textarea for visual alignment
+    const ln = lineNumbersRef.current;
+    if (ln) {
+      ln.style.minHeight = `${ta.scrollHeight}px`;
+    }
+    // Compute how many line number rows are needed based on textarea's rendered height
+    const approxLineHeight = 24; // px - matches the visual line height (h-6 ~ 24px)
+    const requiredLines = Math.max(1, Math.floor(ta.scrollHeight / approxLineHeight));
+    setLineCount(requiredLines);
+  }, [editorContent, activePage?.id]);
 
   const addToHistory = useCallback(
     (newContent) => {
@@ -58,6 +79,30 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     [historyIndex, isUpdatingFromHistory]
   );
 
+    // Clicking the outer editor container's empty space should move the cursor there.
+    const handleContainerClick = (e) => {
+      // Only handle clicks directly on the container (not children like textarea)
+      if (e.target !== e.currentTarget) return;
+
+      const ta = editorRef.current;
+      if (!ta) return;
+
+      // Append a couple of newlines to create an empty area and place cursor at end
+      const appended = '\n\n';
+      const newContent = `${editorContent}${appended}`;
+      setEditorContent(newContent);
+      addToHistory(newContent);
+      if (onContentChange) onContentChange(newContent);
+
+      // Focus and move caret to end after DOM updates
+      setTimeout(() => {
+        ta.focus();
+        ta.setSelectionRange(newContent.length, newContent.length);
+      }, 0);
+    };
+
+
+    
   const handleKeyDown = (e) => {
     if (e.ctrlKey || e.metaKey) {
       switch (e.key.toLowerCase()) {
@@ -631,21 +676,18 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
               </div>
 
               {/* Enhanced Editor */}
-              <div className="bg-base-100 rounded-2xl border border-base-300 shadow-lg overflow-hidden relative flex">
+              <div onClick={handleContainerClick} className="bg-base-100 rounded-2xl border border-base-300 shadow-lg overflow-x-hidden overflow-y-auto max-h-[70vh] min-h-[70vh] relative flex note-container-scrollable">
                 {/* Line Numbers */}
-                <div className="hidden lg:flex flex-col w-16 bg-base-200/30 border-r border-base-300/50 py-4 text-xs text-base-content/40 font-mono flex-shrink-0">
-                  {Array.from(
-                    { length: Math.max(20, editorContent.split('\n').length) },
-                    (_, i) => (
-                      <div
-                        key={i + 1}
-                        className="px-2 h-6 flex items-center justify-end"
-                        style={{ lineHeight: '1.6' }}
-                      >
-                        {i + 1}
-                      </div>
-                    )
-                  )}
+                <div ref={lineNumbersRef} className="hidden lg:flex flex-col w-16 bg-base-200/30 border-r border-base-300/50 py-4 text-xs text-base-content/40 font-mono flex-shrink-0">
+                  {Array.from({ length: lineCount }, (_, i) => (
+                    <div
+                      key={i + 1}
+                      className="px-2 h-6 flex items-center justify-end"
+                      style={{ lineHeight: '1.6' }}
+                    >
+                      {i + 1}
+                    </div>
+                  ))}
                 </div>
 
                 <textarea
@@ -668,7 +710,7 @@ Start writing here... You can use Markdown for rich formatting:
 
 Press Ctrl+B for bold, Ctrl+I for italic, Ctrl+Z for undo!
 Happy writing! 🚀"
-                  className="flex-1 h-[24rem] lg:h-[32rem] px-4 lg:px-6 py-4 lg:py-6 bg-transparent border-none resize-none focus:outline-none text-sm lg:text-base leading-relaxed placeholder:text-base-content/40 placeholder:leading-relaxed"
+                  className="flex-1 px-4 lg:px-6 py-4 lg:py-6 bg-transparent border-none resize-none focus:outline-none text-sm lg:text-base leading-relaxed placeholder:text-base-content/40 placeholder:leading-relaxed note-editor-textarea"
                   style={{
                     fontFamily:
                       'ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
