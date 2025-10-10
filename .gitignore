@@ -5,6 +5,7 @@ backend/.env
 
 frontend/node_modules
 frontend/build
+frontend/src/env.js
 
 admin-portal/node_modules
 admin-portal/build
