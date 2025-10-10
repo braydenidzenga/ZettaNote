@@ -122,7 +122,7 @@ const Navbar = () => {
                     className={({ isActive }) =>
                       `flex items-center text-sm font-medium rounded-lg px-3 py-2 transition ${
                         isActive
-                          ? 'text-secondary underline underline-offset-4'
+                          ? 'text-primary underline underline-offset-4'
                           : 'hover:bg-base-200'
                       }`
                     }
