@@ -48,30 +48,36 @@ const Navbar = () => {
 
   const getNavigationItems = () => {
     const commonItems = [
-      { name: 'Home', to: '/', icon: <FaHome className="mr-2" /> },
+      { name: 'Home', to: '/', icon: <FaHome className="text-xl mr-1" /> },
       {
         name: 'GitHub',
         to: 'https://github.com/braydenidzenga/ZettaNote',
-        icon: <FaGithub className="mr-2" />,
+        icon: <FaGithub className="mr-1 text-xl" />,
       },
     ];
 
     if (user) {
       return [
         ...commonItems,
-        { name: 'Dashboard', to: '/dashboard', icon: <FaTachometerAlt className="mr-2" /> },
-        { name: 'Logout', action: 'logout', icon: <FaSignOutAlt className="mr-2" /> },
+        { name: 'Dashboard', to: '/dashboard', icon: <FaTachometerAlt className="text-xl mr-1" /> },
+        { name: 'Logout', action: 'logout', icon: <FaSignOutAlt className="text-xl mr-1" /> },
       ];
     } else {
       return [
         ...commonItems,
-        { name: 'Login', to: '/login', icon: <FaSignInAlt className="mr-2" /> },
-        { name: 'Sign Up', to: '/signup', icon: <FaUserPlus className="mr-2" /> },
+        { name: 'Sign Up', to: '/signup', icon: <FaUserPlus className="text-lg mr-1" /> },
+        { name: 'Login', to: '/login', icon: <FaSignInAlt className="text-lg mr-1" /> },
       ];
     }
   };
 
   const navigationItems = getNavigationItems();
+  const mainNavItems = navigationItems.filter(
+    (item) => item.name !== 'Login' && item.name !== 'Sign Up' && item.name !== 'Logout'
+  );
+  const authNavItems = navigationItems.filter(
+    (item) => item.name === 'Login' || item.name === 'Sign Up' || item.name === 'Logout'
+  );
 
   return (
     <nav className="navbar fixed top-0 bg-base-100 shadow-md px-6 lg:px-10 border-b border-base-300 z-100">
@@ -132,16 +138,16 @@ const Navbar = () => {
                 <div className="divider my-2"></div>
                 <li>
                   <div className="flex items-center px-3 py-2 text-sm text-base-content/70">
-                    <FaUser className="mr-2" />
+                    <FaUser className="text-xl mr-1" />
                     {user?.name || user?.email}
                   </div>
                 </li>
                 <li>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center text-sm font-medium rounded-lg px-3 py-2 transition hover:bg-base-200 text-error w-full text-left"
+                    className="flex items-center text-sm font-medium rounded-lg px-13 py-2 transition hover:bg-base-200 text-error w-full text-left"
                   >
-                    <FaSignOutAlt className="mr-2" />
+                    <FaSignOutAlt className="text-xl mr-1" />
                     Logout
                   </button>
                 </li>
@@ -153,7 +159,7 @@ const Navbar = () => {
         {/* Brand Logo */}
         <Link
           to="/"
-          className="btn btn-ghost normal-case text-xl font-bold flex items-center gap-3"
+          className="py-6 px-2 btn btn-ghost normal-case text-xl font-bold flex items-center gap-3 rounded-2xl"
         >
           <div className="w-9 h-9 bg-gradient-to-r from-primary to-secondary rounded-xl flex items-center justify-center">
             <svg
@@ -178,33 +184,23 @@ const Navbar = () => {
       {/* Desktop Navigation */}
       <div className="navbar-center hidden lg:flex">
         <ul className="menu menu-horizontal gap-2">
-          {navigationItems.map((item) => (
+          {mainNavItems.map((item) => (
             <li key={item.name}>
-              {item.action === 'logout' ? (
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center text-error hover:bg-base-200"
-                >
-                  {item.icon}
-                  {item.name}
-                </button>
-              ) : (
-                <NavLink
-                  to={item.to}
-                  target={item.name === 'GitHub' ? '_blank' : '_self'}
-                  rel={item.name === 'GitHub' ? 'noopener noreferrer' : ''}
-                  className={({ isActive }) =>
-                    `px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center ${
-                      isActive
-                        ? 'text-secondary underline underline-offset-4'
-                        : 'text-base-content hover:bg-base-200'
-                    }`
-                  }
-                >
-                  {item.icon}
-                  {item.name}
-                </NavLink>
-              )}
+              <NavLink
+                to={item.to}
+                target={item.name === 'GitHub' ? '_blank' : '_self'}
+                rel={item.name === 'GitHub' ? 'noopener noreferrer' : ''}
+                className={({ isActive }) =>
+                  `px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center ${
+                    isActive
+                      ? 'text-primary underline underline-offset-4'
+                      : 'text-base-content hover:bg-base-200'
+                  }`
+                }
+              >
+                {item.icon}
+                {item.name}
+              </NavLink>
             </li>
           ))}
         </ul>
@@ -212,6 +208,39 @@ const Navbar = () => {
 
       {/* User Actions & Theme Toggle */}
       <div className="navbar-end">
+        <div className="hidden lg:flex items-center">
+          <ul className="menu menu-horizontal gap-2">
+            {authNavItems.map((item) => (
+              <li key={item.name}>
+                {item.action === 'logout' ? (
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center text-error hover:bg-base-200"
+                  >
+                    {item.icon}
+                    {item.name}
+                  </button>
+                ) : (
+                  <NavLink
+                    to={item.to}
+                    target={item.name === 'GitHub' ? '_blank' : '_self'}
+                    rel={item.name === 'GitHub' ? 'noopener noreferrer' : ''}
+                    className={({ isActive }) =>
+                      `px-3 py-2 rounded-lg text-base font-medium transition-all duration-200 flex items-center ${
+                        isActive
+                          ? 'text-secondary underline underline-offset-4'
+                          : 'text-base-content hover:bg-base-200'
+                      }`
+                    }
+                  >
+                    {item.icon}
+                    {item.name}
+                  </NavLink>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
         <div className="flex items-center gap-2">
           {/* Theme Toggle */}
           <label className="swap swap-rotate btn btn-ghost btn-circle">
