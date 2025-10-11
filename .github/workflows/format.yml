@@ -1,7 +1,7 @@
 name: Check Formatting
 
 on:
-  pull_request:
+  pull_request_target:
     branches:
       - main
   workflow_dispatch:
@@ -12,11 +12,14 @@ jobs:
 
     permissions:
       contents: read
+      issues: write
       pull-requests: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,41 +36,17 @@ jobs:
 
       - name: Check Formatting
         id: prettier-check
-        run: |
-          echo "Checking code formatting with Prettier..."
-          set -o pipefail
-          prettier --check "**/*.{js,jsx,json,css,md,yml,yaml}" --ignore-path .prettierignore 2>&1 | tee prettier-output.txt
-          prettier_exit=${PIPESTATUS[0]}
-
-          if [ "$prettier_exit" -ne 0 ]; then
-            echo "formatting_failed=true" >> $GITHUB_OUTPUT
-            echo "❌ Formatting check failed!"
-          else
-            echo "formatting_failed=false" >> $GITHUB_OUTPUT
-            echo "✅ All files are properly formatted!"
-          fi
         continue-on-error: true
+        run: prettier --check "**/*.{js,jsx,json,css,md,yml,yaml}" --ignore-path .prettierignore
 
       - name: Comment on PR if formatting failed
-        if: steps.prettier-check.outputs.formatting_failed == 'true' && github.event_name == 'pull_request'
+        if: steps.prettier-check.outcome == 'failure' && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const output = fs.readFileSync('prettier-output.txt', 'utf8');
-            const files = output.split('\n').filter(line => 
-              line.match(/\.(js|jsx|json|css|md|yml|yaml)$/)
-            );
-
-            const fileList = files.length > 0 
-              ? files.map(f => `- \`${f}\``).join('\n')
-              : 'See the action logs for details.';
-
             const comment = `## ❌ Code Formatting Check Failed
 
-            The following files are not formatted correctly:
-
-            ${fileList}
+            Your code has formatting issues that need to be fixed.
 
             ### 🔧 How to fix:
 
@@ -76,12 +55,14 @@ jobs:
             npx prettier --write "**/*.{js,jsx,json,css,md,yml,yaml}" --ignore-path .prettierignore
             \`\`\`
 
-            Or format specific files:
+            Or use pnpm:
             \`\`\`bash
-            npx prettier --write path/to/your/file.js
+            pnpm prettier --write "**/*.{js,jsx,json,css,md,yml,yaml}" --ignore-path .prettierignore
             \`\`\`
 
             Then commit and push your changes to re-run this check.
+
+            **Tip:** Check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) to see which files need formatting.
 
             ---
             *This check is automated. Please ensure all files are formatted before merging.*`;
@@ -94,7 +75,7 @@ jobs:
             });
 
       - name: Fail the job if formatting check failed
-        if: steps.prettier-check.outputs.formatting_failed == 'true'
+        if: steps.prettier-check.outcome == 'failure'
         run: |
           echo "❌ Formatting check failed! Please fix the formatting issues."
           exit 1
