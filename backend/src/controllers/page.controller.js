@@ -657,6 +657,85 @@ export const getPublicShare = async (shareId) => {
   }
 };
 
+/**
+ * Post Unshare Page Controller
+ * Removes a shared page from user
+ * @param {object} req - Express request object
+ * @param {string} id - Active page id
+ * @param {string} gmail - Email of the user to unshare the page with
+ */
+export const removeUserFromSharedPage = async (req,id, gmail) => {
+  try {
+     const token = req.cookies?.token;
+    if (!token) {
+      return {
+        resStatus: STATUS_CODES.UNAUTHORIZED,
+        resMessage: { message: MESSAGES.AUTH.UNAUTHORIZED },
+      };
+    }
+
+    // Verify user
+    const verifiedUser = await verifyToken(token);
+    if (!verifiedUser) {
+      return {
+        resStatus: STATUS_CODES.UNAUTHORIZED,
+        resMessage: { message: MESSAGES.AUTH.INVALID_TOKEN },
+      };
+    }
+
+    // Find page
+    const page = await Page.findById(id);
+    if (!page) {
+      return {
+        resStatus: STATUS_CODES.NOT_FOUND,
+        resMessage: { Error: MESSAGES.PAGE.NOT_FOUND },
+      };
+    }
+
+    //only owner can unshare the page
+    if (!page.owner.equals(verifiedUser._id)) {
+      return {
+        resStatus: STATUS_CODES.FORBIDDEN,
+        resMessage: { Error: 'Not authorized to unshare this page' },
+      };
+    }
+
+    // Find user to unshare with
+    const user = await User.findOne({ email: gmail });
+    if (!user) {
+      return {
+        resStatus: STATUS_CODES.NOT_FOUND,
+        resMessage: { Error: 'User not found' },
+      };
+    }
+
+    // Check if page is actually shared with the user
+    const isShared = page.sharedTo.some((uid) => uid.equals(user._id));
+    if (!isShared) {
+      return {
+        resStatus: STATUS_CODES.BAD_REQUEST,
+        resMessage: { Error: 'Page not shared with this user' },
+      };
+    }
+
+    page.sharedTo.pull(user._id);
+    await page.save();
+    user.sharedPages.pull(page._id);
+    await user.save();
+
+    return {
+      resStatus: STATUS_CODES.OK,
+      resMessage: { message: 'Successfully unshared the page with the user' },
+    };
+  } catch (err) {
+    logger.error(`Error occured while unsharing page`, err);
+    return {
+      resStatus: STATUS_CODES.INTERNAL_SERVER_ERROR,
+      resMessage: { Error: MESSAGES.GENERAL.SERVER_ERROR },
+    };
+  }
+};
+
 export default {
   createPage,
   getPage,
@@ -667,4 +746,5 @@ export default {
   sharePage,
   publicShare,
   getPublicShare,
+  removeUserFromSharedPage,
 };

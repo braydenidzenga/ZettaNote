@@ -258,8 +258,16 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading, onToggleSidebar, isS
   };
 
   const removeSharedUser = async (userEmail) => {
-    // TODO: Implement delete user functionality when backend endpoint is available
     try {
+      const response=await axios.post(`${VITE_API_URL}/api/pages/sharepage/remove-user`, {
+        gmail: userEmail,
+        id: activePage.id
+      }, {
+        withCredentials: true,
+      });
+      if (response.status !== 200) {
+        throw new Error(response.data?.message || 'Failed to remove user access');
+      }
       setSharedUsers((prev) =>
         Array.isArray(prev) ? prev.filter((user) => user.email !== userEmail) : []
       );
@@ -283,6 +291,7 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading, onToggleSidebar, isS
     return `Saved ${saved.toLocaleDateString()}`;
   };
 
+  
   return (
     <>
       <div className="h-16 lg:h-20 bg-base-100 border-b border-base-300 flex items-center justify-between px-4 lg:px-8 sticky top-16 z-30 shadow-sm">
