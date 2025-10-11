@@ -21,19 +21,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Run Prettier
+        uses: creyD/prettier_action@v4.6
         with:
-          node-version: "20"
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-
-      - name: Install Prettier
-        run: pnpm add -g prettier
-
-      - name: Check Formatting
-        id: prettier-check
-        run: prettier --check "**/*.{js,jsx,json,css,md,yml,yaml}" --ignore-path .prettierignore
+          # This part is also where you can pass other options, for example:
+          prettier_options: --check .
