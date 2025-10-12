@@ -22,6 +22,10 @@ import { BiCodeBlock, BiMath } from 'react-icons/bi';
 import toast from 'react-hot-toast';
 import propTypes from 'prop-types';
 
+// Importing highlight.js for code syntax highlighting
+import hljs from "highlight.js";
+import "highlight.js/styles/atom-one-dark.css";
+
 const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const [editorContent, setEditorContent] = useState(content);
   const [isPreview, setIsPreview] = useState(false);
@@ -212,15 +216,15 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     if (onContentChange) {
       const finalContent = selectedText
         ? currentContent.substring(0, start) +
-          prefix +
-          selectedText +
-          suffix +
-          currentContent.substring(end)
+        prefix +
+        selectedText +
+        suffix +
+        currentContent.substring(end)
         : currentContent.substring(0, start) +
-          prefix +
-          placeholder +
-          suffix +
-          currentContent.substring(end);
+        prefix +
+        placeholder +
+        suffix +
+        currentContent.substring(end);
       onContentChange(finalContent);
     }
   };
@@ -440,14 +444,24 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       .replace(/~~(.*?)~~/g, '<del class="line-through opacity-75">$1</del>')
       .replace(/==(.*?)==/g, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>')
       .replace(/<u>(.*?)<\/u>/g, '<u class="underline">$1</u>')
-      .replace(
-        /```(\w+)?\n([\s\S]*?)```/g,
-        '<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono">$2</code></pre>'
-      )
-      .replace(
-        /`([^`]+)`/g,
-        '<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">$1</code>'
-      )
+      // Code
+      // Multiline code block with syntax highlighting
+      .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+        const highlighted = lang
+          ? hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
+          : hljs.highlightAuto(code).value;
+
+        console.log("Code block language:", lang || hljs.highlightAuto(code).language);
+
+        return `<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono language-${lang || 'auto'}">${highlighted}</code></pre>`;
+      })
+      // Single line code block with syntax highlighting
+      //tbh idk why adding highlighting just to multiline code block adds it to single line too, but i will add it again just to be safe.
+      .replace(/`([^`]+)`/g, (match, code) => {
+        const highlighted = hljs.highlightAuto(code).value;
+        console.log("Inline code language:", hljs.highlightAuto(code).language);
+        return `<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">${highlighted}</code>`;
+      })
 
       .replace(
         /^> (.*$)/gm,
@@ -545,8 +559,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                       window.innerWidth < 1024 && groupIndex > 2
                         ? 1
                         : window.innerWidth < 768 && groupIndex > 1
-                        ? 2
-                        : group.buttons.length
+                          ? 2
+                          : group.buttons.length
                     )
                     .map((button, buttonIndex) => {
                       const Icon = button.icon;
@@ -557,19 +571,17 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                           key={buttonIndex}
                           onClick={button.onClick}
                           disabled={button.disabled}
-                          className={`btn btn-ghost btn-xs lg:btn-sm btn-square ${colorClass} hover:scale-105 transition-all duration-200 relative group min-h-0 h-7 lg:h-8 w-7 lg:w-8 ${
-                            button.disabled ? 'opacity-40 cursor-not-allowed' : ''
-                          }`}
+                          className={`btn btn-ghost btn-xs lg:btn-sm btn-square ${colorClass} hover:scale-105 transition-all duration-200 relative group min-h-0 h-7 lg:h-8 w-7 lg:w-8 ${button.disabled ? 'opacity-40 cursor-not-allowed' : ''
+                            }`}
                           title={button.title}
                         >
                           <Icon
-                            className={`w-2.5 h-2.5 lg:w-3.5 lg:h-3.5 ${
-                              button.variant === 'h2'
+                            className={`w-2.5 h-2.5 lg:w-3.5 lg:h-3.5 ${button.variant === 'h2'
                                 ? 'scale-90'
                                 : button.variant === 'h3'
-                                ? 'scale-75'
-                                : ''
-                            }`}
+                                  ? 'scale-75'
+                                  : ''
+                              }`}
                           />
 
                           {/* Tooltip with shortcut */}
@@ -589,22 +601,20 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
             <div className="flex items-center gap-5 bg-base-200/30 rounded-md lg:rounded-lg p-0.5 border border-base-300/20 flex-shrink-0">
               <button
                 onClick={() => setIsPreview(false)}
-                className={`btn btn-xs lg:btn-sm gap-1 transition-all duration-300 min-h-0 h-7 lg:h-8 ${
-                  !isPreview
+                className={`btn btn-xs lg:btn-sm gap-1 transition-all duration-300 min-h-0 h-7 lg:h-8 ${!isPreview
                     ? 'btn-primary shadow-md shadow-primary/20'
                     : 'btn-ghost hover:btn-primary/20'
-                }`}
+                  }`}
               >
                 <FiEdit className="w-2.5 h-2.5 lg:w-3.5 lg:h-3.5" />
                 <span className="hidden md:inline text-xs lg:text-sm">Edit</span>
               </button>
               <button
                 onClick={() => setIsPreview(true)}
-                className={`btn btn-xs lg:btn-sm gap-1 transition-all duration-300 min-h-0 h-7 lg:h-8 ${
-                  isPreview
+                className={`btn btn-xs lg:btn-sm gap-1 transition-all duration-300 min-h-0 h-7 lg:h-8 ${isPreview
                     ? 'btn-primary shadow-md shadow-primary/20'
                     : 'btn-ghost hover:btn-primary/20'
-                }`}
+                  }`}
               >
                 <FiEye className="w-2.5 h-2.5 lg:w-3.5 lg:h-3.5" />
                 <span className="hidden md:inline text-xs lg:text-sm">Preview</span>

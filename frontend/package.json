@@ -15,6 +15,7 @@
     "axios": "^1.12.2",
     "framer-motion": "^12.23.22",
     "gsap": "^3.13.0",
+    "highlight.js": "^11.11.1",
     "lucide-react": "^0.545.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
