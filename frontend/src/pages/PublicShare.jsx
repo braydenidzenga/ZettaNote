@@ -84,7 +84,6 @@ const PublicShare = () => {
             ? hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
             : hljs.highlightAuto(code).value;
 
-          console.log("Code block language:", lang || hljs.highlightAuto(code).language);
 
           return `<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono language-${lang || 'auto'}">${highlighted}</code></pre>`;
         })
@@ -92,7 +91,6 @@ const PublicShare = () => {
          //tbh idk why adding highlighting just to multiline code block adds it to single line too, but i will add it again just to be safe.
         .replace(/`([^`]+)`/g, (match, code) => {
           const highlighted = hljs.highlightAuto(code).value;
-          console.log("Inline code language:", hljs.highlightAuto(code).language);
           return `<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">${highlighted}</code>`;
         })
 
