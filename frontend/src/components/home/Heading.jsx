@@ -1,9 +1,9 @@
 import { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import authContext from '../../context/AuthProvider';
-import { IoDocumentTextOutline } from "react-icons/io5";
-import { BiPen } from "react-icons/bi";
-import { motion, AnimatePresence } from 'framer-motion';
+import { IoDocumentTextOutline } from 'react-icons/io5';
+import { BiPen } from 'react-icons/bi';
+import { motion } from 'framer-motion';
 
 const Heading = () => {
   const { user } = useContext(authContext);
@@ -17,9 +17,7 @@ const Heading = () => {
         <div className="heading-container mb-8">
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-base-content mb-4 tracking-tighter leading-none">
             <span className="inline-block heading-word-1">Zetta</span>
-            <span className="inline-block heading-word-2 text-primary ml-2">
-              Note
-            </span>
+            <span className="inline-block heading-word-2 text-primary ml-2">Note</span>
           </h1>
 
           {/* Subtle Tagline */}
@@ -35,44 +33,42 @@ const Heading = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link to={user ? '/dashboard' : '/login'}>
               <button
-                className="btn btn-primary btn-lg px-6 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center"
+                className="btn btn-primary btn-lg px-6 py-3 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex items-center gap-2"
                 onMouseEnter={() => setIsWritingHovered(true)}
                 onMouseLeave={() => setIsWritingHovered(false)}
               >
-                <AnimatePresence>
-                  {isWritingHovered && (
-                    <motion.div
-                      initial={{ opacity: 0, width: 0, x: 10 }}
-                      animate={{ opacity: 1, width: 'auto', x: 0 }}
-                      exit={{ opacity: 0, width: 0, x: 10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <BiPen className='text-xl' />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                Start Writing
+                <motion.div
+                  className="overflow-hidden flex items-center"
+                  initial={false}
+                  animate={{
+                    width: isWritingHovered ? 24 : 0,
+                    opacity: isWritingHovered ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                  <BiPen className="text-xl min-w-[24px]" />
+                </motion.div>
+                <span>Start Writing</span>
               </button>
             </Link>
             <Link to="https://github.com/braydenidzenga/ZettaNote">
               <button
-                className="btn btn-ghost btn-lg px-6 py-3 bg-secondary rounded-full text-lg font-semibold text-base-content/70 hover:text-base-content shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center"
+                className="btn btn-ghost btn-lg px-6 py-3 bg-secondary rounded-full text-lg font-semibold text-base-content/70 hover:text-base-content shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center gap-2"
                 onMouseEnter={() => setIsLearnHovered(true)}
                 onMouseLeave={() => setIsLearnHovered(false)}
               >
-                <AnimatePresence>
-                  {isLearnHovered && (
-                    <motion.div
-                      initial={{ opacity: 0, width: 0, x: 10 }}
-                      animate={{ opacity: 1, width: 'auto', x: 0 }}
-                      exit={{ opacity: 0, width: 0, x: 10 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <IoDocumentTextOutline className='text-xl' />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-                Learn More
+                <motion.div
+                  className="overflow-hidden flex items-center"
+                  initial={false}
+                  animate={{
+                    width: isLearnHovered ? 24 : 0,
+                    opacity: isLearnHovered ? 1 : 0,
+                  }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                >
+                  <IoDocumentTextOutline className="text-xl min-w-[24px]" />
+                </motion.div>
+                <span>Learn More</span>
               </button>
             </Link>
           </div>
