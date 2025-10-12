@@ -76,13 +76,14 @@ const PublicShare = () => {
 
         // Code
         .replace(
+          /```(\w+)?\n([\s\S]*?)```/g,
+          '<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono">$2</code></pre>'
+        )
+        .replace(
           /`([^`]+)`/g,
           '<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">$1</code>'
         )
-        .replace(
-          /```(\w+)?\n([\s\S]*?)```/g,
-          '<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4 border"><code class="text-sm font-mono">$2</code></pre>'
-        )
+
 
         // Blockquotes
         .replace(
@@ -101,7 +102,7 @@ const PublicShare = () => {
         )
         .replace(
           /^- (.*$)/gm,
-          '<li class="flex items-start gap-2 my-1"><span class="text-primary mt-1">•</span> $1</li>'
+          '<li class="flex items-start gap-2 my-1"><span class="text-primary">•</span> $1</li>'
         )
         .replace(/^\d+\. (.*$)/gm, '<li class="flex items-start gap-2 my-1 ml-4">$1</li>')
 

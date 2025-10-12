@@ -441,12 +441,12 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       .replace(/==(.*?)==/g, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>')
       .replace(/<u>(.*?)<\/u>/g, '<u class="underline">$1</u>')
       .replace(
-        /`([^`]+)`/g,
-        '<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">$1</code>'
-      )
-      .replace(
         /```(\w+)?\n([\s\S]*?)```/g,
         '<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono">$2</code></pre>'
+      )
+      .replace(
+        /`([^`]+)`/g,
+        '<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">$1</code>'
       )
 
       .replace(
