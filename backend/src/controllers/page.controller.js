@@ -471,7 +471,7 @@ export const sharePage = async (req) => {
     // Validate input
     const sharePageSchema = z.object({
       pageId: z.string().min(1, 'Page ID is required'),
-      email: z.string().email('Invalid email address'),
+      email: z.email('Invalid email address'),
     });
     const parseResult = sharePageSchema.safeParse(req.body);
     if (!parseResult.success) {
@@ -507,6 +507,14 @@ export const sharePage = async (req) => {
       return {
         resStatus: STATUS_CODES.FORBIDDEN,
         resMessage: { message: MESSAGES.PAGE.ACCESS_DENIED },
+      };
+    }
+
+    // Check if user shares page to self
+    if (user.email === userEmail.toLowerCase()) {
+      return {
+        resStatus: STATUS_CODES.BAD_REQUEST,
+        resMessage: { message: MESSAGES.PAGE.SHARE_SELF_NOT_ALLOWED },
       };
     }
 

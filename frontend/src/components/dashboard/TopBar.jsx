@@ -33,8 +33,8 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading, onToggleSidebar, isS
   const [lastFailedEmail, setLastFailedEmail] = useState('');
   const [isFetchingSharedUsers, setIsFetchingSharedUsers] = useState(false);
   const navigate = useNavigate();
-  const { setuser } = useContext(authContext);
-
+  const { user, setuser } = useContext(authContext);
+  
   const handleUnauthorized = (error) => {
     if (error.response && error.response.status === 401) {
       setuser(null);
@@ -193,6 +193,11 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading, onToggleSidebar, isS
   const inviteUser = async () => {
     if (!newUserEmail.trim() || !activePage?.id) {
       toast.error('Please select a page and enter an email address');
+      return;
+    }
+
+    if (newUserEmail.trim().toLowerCase() === user?.email) {
+      toast.error('You cannot invite yourself');
       return;
     }
 
