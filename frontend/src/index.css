@@ -1,6 +1,5 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "daisyui";
-
 
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -10,8 +9,7 @@
   display: none;
 }
 
-
-[data-theme="light"] {
+[data-theme='light'] {
   color-scheme: light;
 
   /* Base background & surfaces */
@@ -29,7 +27,7 @@
   --color-secondary-content: oklch(28% 0.015 80);
 
   /* Accent (soft desaturated turquoise-ish) */
-  --color-accent: oklch(82% 0.09 190); 
+  --color-accent: oklch(82% 0.09 190);
   --color-accent-content: oklch(25% 0.05 190);
 
   /* Feedback colors */
@@ -51,8 +49,7 @@
   --noise: 0.1;
 }
 
-
-[data-theme="dark"] {
+[data-theme='dark'] {
   color-scheme: dark;
 
   /* Background layers */
@@ -92,7 +89,6 @@
   --noise: 0.2;
 }
 
-
 /* Custom navbar enhancements */
 .navbar {
   backdrop-filter: blur(10px);
@@ -127,7 +123,10 @@
 
 /* Smooth transitions */
 * {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 /* NavLink smooth underline animation */

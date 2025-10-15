@@ -29,7 +29,7 @@ export const MESSAGES = {
     ACCESS_DENIED: 'You do not have access to this page',
     SHARED: 'Page shared successfully',
     UNSHARED: 'Page unshared successfully',
-    SHARE_SELF_NOT_ALLOWED:'You cannot share page with yourself'
+    SHARE_SELF_NOT_ALLOWED: 'You cannot share page with yourself',
   },
 
   // Admin Messages

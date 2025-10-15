@@ -196,7 +196,6 @@ src/
    ```
 
 3. **Test Your Endpoints**
-
    - Use Postman, Insomnia, or curl
    - Test all success cases
    - Test all error cases

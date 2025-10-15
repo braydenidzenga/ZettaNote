@@ -2,17 +2,17 @@
 
 🎉 ZettaNote is an open-source note-taking app in active development, and we welcome contributions from everyone! By participating in this project, you agree to abide by its Code of Conduct.
 
-***
+---
 
 ### 💡 How to Contribute
 
 We appreciate all forms of contribution, including:
 
-* **Code Contributions:** Implementing new features, fixing bugs, refactoring, and improving performance.
-* **Documentation:** Improving existing documentation or adding new guides.
-* **Testing:** Writing unit, integration, or end-to-end tests.
-* **Feedback & Ideas:** Sharing suggestions for new features or improvements.
-* **Reporting Bugs:** Identifying and reporting issues.
+- **Code Contributions:** Implementing new features, fixing bugs, refactoring, and improving performance.
+- **Documentation:** Improving existing documentation or adding new guides.
+- **Testing:** Writing unit, integration, or end-to-end tests.
+- **Feedback & Ideas:** Sharing suggestions for new features or improvements.
+- **Reporting Bugs:** Identifying and reporting issues.
 
 #### Reporting Bugs
 
@@ -30,7 +30,7 @@ If you have an idea for a new feature or improvement:
 2.  If it's new, open a new **Issue** and use the "Feature Request" template.
 3.  Describe the feature, why it would be useful, and any potential implementation details you've considered.
 
-***
+---
 
 ## 🚀 Getting Started
 
@@ -124,17 +124,15 @@ When you're ready to contribute code:
 
 **In your Pull Request:**
 
-* Provide a clear title and description of your changes.
-* Reference the relevant issue number (e.g., `Fixes #123`).
-* Ensure all tests pass (if applicable).
-* Be ready to address feedback and make further changes!
-
-
+- Provide a clear title and description of your changes.
+- Reference the relevant issue number (e.g., `Fixes #123`).
+- Ensure all tests pass (if applicable).
+- Be ready to address feedback and make further changes!
 
 ## Need Help?
 
--   Check the [README](./README.md) for setup instructions.
--   Ask questions or suggest ideas in the Discussions or Issues tab.
+- Check the [README](./README.md) for setup instructions.
+- Ask questions or suggest ideas in the Discussions or Issues tab.
 
 ---
 

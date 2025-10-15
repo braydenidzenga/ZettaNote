@@ -29,14 +29,14 @@ const config = {
     allowedOrigins: process.env.CORS_ORIGIN
       ? process.env.CORS_ORIGIN.split(',')
       : process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(',')
-      : [
-          'http://localhost:3000',
-          'http://localhost:3001',
-          'http://localhost:3002',
-          'http://localhost:80',
-          'http://localhost:5173',
-        ],
+        ? process.env.ALLOWED_ORIGINS.split(',')
+        : [
+            'http://localhost:3000',
+            'http://localhost:3001',
+            'http://localhost:3002',
+            'http://localhost:80',
+            'http://localhost:5173',
+          ],
   },
 
   // Cookie Configuration

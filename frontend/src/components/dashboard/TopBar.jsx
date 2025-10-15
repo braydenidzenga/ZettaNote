@@ -32,7 +32,7 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
   const [isFetchingSharedUsers, setIsFetchingSharedUsers] = useState(false);
   const navigate = useNavigate();
   const { user, setuser } = useContext(authContext);
-  
+
   const handleUnauthorized = (error) => {
     if (error.response && error.response.status === 401) {
       setuser(null);
@@ -262,12 +262,16 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
 
   const removeSharedUser = async (userEmail) => {
     try {
-      const response=await axios.post(`${VITE_API_URL}/api/pages/sharepage/remove-user`, {
-        gmail: userEmail,
-        id: activePage.id
-      }, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        `${VITE_API_URL}/api/pages/sharepage/remove-user`,
+        {
+          gmail: userEmail,
+          id: activePage.id,
+        },
+        {
+          withCredentials: true,
+        }
+      );
       if (response.status !== 200) {
         throw new Error(response.data?.message || 'Failed to remove user access');
       }
@@ -294,7 +298,6 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
     return `Saved ${saved.toLocaleDateString()}`;
   };
 
-  
   return (
     <>
       <div className="h-16 lg:h-20 bg-base-100 border-b border-base-300 hidden md:flex items-center justify-between px-4 lg:px-8 sticky top-16 z-30 shadow-sm">
@@ -647,10 +650,10 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
                   {shareableLink && Array.isArray(sharedUsers) && sharedUsers.length > 0
                     ? 'Public & private sharing active'
                     : shareableLink
-                    ? 'Public sharing active'
-                    : Array.isArray(sharedUsers) && sharedUsers.length > 0
-                    ? 'Private sharing active'
-                    : 'No active sharing'}
+                      ? 'Public sharing active'
+                      : Array.isArray(sharedUsers) && sharedUsers.length > 0
+                        ? 'Private sharing active'
+                        : 'No active sharing'}
                 </span>
               </div>
               <div className="flex gap-3">

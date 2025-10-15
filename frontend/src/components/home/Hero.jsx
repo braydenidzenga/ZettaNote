@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import ExampleNote from './ExampleNote';
 
@@ -6,7 +5,7 @@ const Hero = () => {
   return (
     <div>
       <section className="first max-w-6xl mx-auto grid gap-20 lg:grid-cols-2 items-center">
-        <div className='space-y-8'>
+        <div className="space-y-8">
           <div className="flex items-center gap-3 mb-4 ">
             <div className="hero-avatars  flex -space-x-2 ">
               <div className="pulse w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-white flex items-center justify-center text-white text-sm font-semibold">

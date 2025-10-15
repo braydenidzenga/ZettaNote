@@ -5,8 +5,8 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 import { VITE_API_URL } from '../env';
 // Importing highlight.js for code syntax highlighting
-import hljs from "highlight.js";
-import "highlight.js/styles/atom-one-dark.css";
+import hljs from 'highlight.js';
+import 'highlight.js/styles/atom-one-dark.css';
 
 const PublicShare = () => {
   const { shareId } = useParams();
@@ -84,16 +84,14 @@ const PublicShare = () => {
             ? hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
             : hljs.highlightAuto(code).value;
 
-
           return `<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono language-${lang || 'auto'}">${highlighted}</code></pre>`;
         })
-         // Single line code block with syntax highlighting
-         //tbh idk why adding highlighting just to multiline code block adds it to single line too, but i will add it again just to be safe.
+        // Single line code block with syntax highlighting
+        //tbh idk why adding highlighting just to multiline code block adds it to single line too, but i will add it again just to be safe.
         .replace(/`([^`]+)`/g, (match, code) => {
           const highlighted = hljs.highlightAuto(code).value;
           return `<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">${highlighted}</code>`;
         })
-
 
         // Blockquotes
         .replace(

@@ -41,7 +41,7 @@
 
 - ✅ **Modern Markdown Editor** with syntax highlighting
 - ✅ **Auto-save Functionality** - Never lose your work
-- ✅ **Responsive Dashboard** - Mobile-friendly design  
+- ✅ **Responsive Dashboard** - Mobile-friendly design
 - ✅ **Page Management** - Create, rename, delete pages
 - ✅ **Public Sharing** - Share pages with secure links
 - ✅ **Dark/Light Theme** - Switch between themes
@@ -180,6 +180,7 @@ Ensure you have the following installed:
    ```
 
 The frontend is built with:
+
 - ⚡ **Vite** - Fast build tool and development server
 - 🎨 **Tailwind CSS** - Utility-first CSS framework
 - 🧩 **DaisyUI** - Component library for Tailwind CSS
@@ -248,6 +249,7 @@ The frontend is built with:
    ```
 
 4. **Run containers**
+
    ```bash
    docker run -d -p 5000:5000 --name zettanote-backend zettanote-backend
    docker run -d -p 3000:3000 --name zettanote-frontend zettanote-frontend
