@@ -13,7 +13,7 @@ import {
   FiUsers,
   FiMail,
   FiPlus,
-  FiX
+  FiX,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import axios from 'axios';
