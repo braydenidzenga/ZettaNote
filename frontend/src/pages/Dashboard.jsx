@@ -189,7 +189,7 @@ const Dashboard = () => {
         }}
         selectedPageId={activePage?.id}
         isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+        onClose={() => setIsSidebarOpen(!isSidebarOpen)}
       />
 
       {/* Main Content Area */}
@@ -202,8 +202,6 @@ const Dashboard = () => {
           onRename={handleRenamePage}
           lastSaved={lastSaved}
           isLoading={isLoading}
-          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-          isSidebarOpen={isSidebarOpen}
         />
 
         {/* Enhanced Note Editor */}

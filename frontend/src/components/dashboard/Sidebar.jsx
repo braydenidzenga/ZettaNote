@@ -259,25 +259,27 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   );
 
   return (
-    <div
-      className={`w-72 h-screen bg-base-100 border-r border-base-300 fixed left-0 top-16 z-50 flex flex-col shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-        isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}
-    >
-      {/* Enhanced Header */}
-      <div className="p-6 border-b border-base-300/60 bg-base-100/80 backdrop-blur-xl sticky top-0 z-10">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/10">
-              <FiFolder className="w-5 h-5 text-primary" />
+    <>
+      {/* Sidebar Container */}
+      <div
+        className={`w-72 h-screen bg-base-100 border-r border-base-300 fixed left-0 top-16 z-50 flex flex-col shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* Enhanced Header */}
+        <div className="p-6 border-b border-base-300/60 bg-base-100/80 backdrop-blur-xl sticky top-0 z-10">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/20 rounded-2xl flex items-center justify-center border border-primary/10">
+                <FiFolder className="w-5 h-5 text-primary" />
+              </div>
+              <h2 className="font-bold text-xl text-base-content">Pages</h2>
             </div>
-            <h2 className="font-bold text-xl text-base-content">Pages</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={openCreateModal}
-              className="btn btn-primary btn-sm gap-2 hover:scale-110 transition-all duration-200 rounded-xl shadow-lg shadow-primary/25"
-              title="Create New Page"
+            <div className="flex items-center gap-2">
+              <button
+                onClick={openCreateModal}
+                className="btn btn-primary btn-sm gap-2 hover:scale-110 transition-all duration-200 rounded-xl shadow-lg shadow-primary/25"
+                title="Create New Page"
             >
               <FiPlus className="w-4 h-4" />
               <span className="hidden xl:inline">New</span>
@@ -732,7 +734,30 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+
+      {/* Floating Tab Button for Mobile - Only visible on mobile when sidebar is closed */}
+      {!isOpen && (
+        <button
+          onClick={() => onClose && onClose()}
+          className="lg:hidden fixed h-55 left-0 top-1/3 z-40 bg-primary text-primary-content  py-4 rounded-r-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:px-4 group flex items-center gap-2"
+          aria-label="Open sidebar"
+        >
+          <FiChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </button>
+      )}
+
+      {/* Swipe-to-close indicator when sidebar is open on mobile */}
+      {isOpen && (
+        <button
+          onClick={onClose}
+          className="lg:hidden fixed left-72 top-24 z-40 bg-base-100 text-base-content px-2 py-4 rounded-r-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-l-0 border-base-300"
+          aria-label="Close sidebar"
+        >
+          <FiChevronRight className="w-4 h-4 rotate-180" />
+        </button>
+      )}
+    </>
   );
 };
 
