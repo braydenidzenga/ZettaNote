@@ -18,6 +18,7 @@ import axios from 'axios';
 import authContext from '../../context/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { VITE_API_URL } from '../../env';
+import { createPortal } from 'react-dom';
 
 const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const { user, setuser } = useContext(authContext);
@@ -524,115 +525,198 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
                         <p className="text-sm">No shared pages</p>
                       </div>
                     )}
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-base-300 bg-base-100 sticky bottom-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-primary text-primary-content rounded-full flex items-center justify-center text-sm font-bold">
-              {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-base-content truncate">
-                {user?.name || user?.email || 'User'}
-              </p>
-              <p className="text-xs text-base-content/60">{pages.length} pages</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Rename Page Modal */}
-        {showRenameModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md border border-base-300">
-              {/* Modal Header */}
-              <div className="p-6 border-b border-base-300">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <FiEdit3 className="w-5 h-5 text-blue-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-base-content">Rename Page</h3>
-                    <p className="text-sm text-base-content/60">Give your page a new name</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Modal Content */}
-              <div className="p-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-base-content mb-2">
-                      Page Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter new page name..."
-                      className="input input-bordered w-full focus:input-primary focus:outline-none"
-                      value={renamePageName}
-                      onChange={(e) => setRenamePageName(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && !isRenaming) {
-                          renamePage();
-                        }
-                      }}
-                      autoFocus
-                      maxLength={100}
-                    />
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-xs text-base-content/60">
-                        {renamePageName.length}/100 characters
-                      </span>
-                      {renamePageName.trim() &&
-                        renamePageName.trim() !==
-                          pages.find((p) => p._id === renamePageId)?.title && (
-                          <span className="text-xs text-success">✓ Ready to rename</span>
-                        )}
+                   : (
+                    <div className="text-center py-6 text-base-content/60">
+                      <FiFile className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No pages found</p>
+                      <button
+                        onClick={openCreateModal}
+                        className="text-primary hover:text-primary-focus text-sm mt-1"
+                      >
+                        Create your first page
+                      </button>
                     </div>
+                  )
+                </div>
+              )}
+            </div>
+
+            {/* Shared Pages Section */}
+            <div>
+              <button
+                onClick={() => setShowSharedPages(!showSharedPages)}
+                className="flex items-center gap-2 font-semibold text-base-content/80 mb-3 hover:text-base-content transition-colors w-full text-left"
+              >
+                {showSharedPages ? (
+                  <FiChevronDown className="w-4 h-4" />
+                ) : (
+                  <FiChevronRight className="w-4 h-4" />
+                )}
+                <FiUsers className="w-4 h-4 text-secondary" />
+                Shared with me ({filteredSharedPages.length})
+              </button>
+
+              {showSharedPages && (
+                <div className="space-y-1 ml-6">
+                  {filteredSharedPages.length > 0 ? (
+                    filteredSharedPages.map((page) => (
+                      <div key={page._id} className="group">
+                        <div
+                          className={`flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors cursor-pointer ${
+                            selectedPageId === page._id
+                              ? 'bg-secondary/10 border border-secondary/20'
+                              : ''
+                          }`}
+                          onClick={() =>
+                            onPageSelect &&
+                            onPageSelect({ id: page._id, name: page.title, ...page })
+                          }
+                        >
+                          <FiShare2
+                            className={`w-4 h-4 flex-shrink-0 ${
+                              selectedPageId === page._id ? 'text-secondary' : 'text-secondary'
+                            }`}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className={`text-sm font-medium truncate ${
+                                selectedPageId === page._id ? 'text-secondary' : 'text-base-content'
+                              }`}
+                            >
+                              {page.title || 'Untitled'}
+                            </p>
+                            <p className="text-xs text-base-content/60">
+                              by {page.owner?.name || 'Unknown'}
+                            </p>
+                          </div>
+                          <span className="text-xs px-2 py-1 bg-secondary/20 text-secondary rounded-full">
+                            Shared
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-base-content/60">
+                      <FiUsers className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No shared pages</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-base-300 bg-base-100 sticky bottom-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary text-primary-content rounded-full flex items-center justify-center text-sm font-bold">
+            {user?.name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-base-content truncate">
+              {user?.name || user?.email || 'User'}
+            </p>
+            <p className="text-xs text-base-content/60">{pages.length} pages</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Rename Page Modal */}
+      {showRenameModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md border border-base-300">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-base-300">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <FiEdit3 className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-base-content">Rename Page</h3>
+                  <p className="text-sm text-base-content/60">Give your page a new name</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-base-content mb-2">
+                    Page Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter new page name..."
+                    className="input input-bordered w-full focus:input-primary focus:outline-none"
+                    value={renamePageName}
+                    onChange={(e) => setRenamePageName(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !isRenaming) {
+                        renamePage();
+                      }
+                    }}
+                    autoFocus
+                    maxLength={100}
+                  />
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-xs text-base-content/60">
+                      {renamePageName.length}/100 characters
+                    </span>
+                    {renamePageName.trim() &&
+                      renamePageName.trim() !==
+                        pages.find((p) => p._id === renamePageId)?.title && (
+                        <span className="text-xs text-success">✓ Ready to rename</span>
+                      )}
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Modal Footer */}
-              <div className="p-6 pt-0 flex justify-end gap-3">
-                <button onClick={closeRenameModal} className="btn btn-ghost" disabled={isRenaming}>
-                  Cancel
-                </button>
-                <button
-                  onClick={renamePage}
-                  className="btn btn-primary gap-2"
-                  disabled={
-                    !renamePageName.trim() ||
-                    isRenaming ||
-                    renamePageName.trim() === pages.find((p) => p._id === renamePageId)?.title
-                  }
-                >
-                  {isRenaming ? (
-                    <>
-                      <span className="loading loading-spinner loading-sm"></span>
-                      Renaming...
-                    </>
-                  ) : (
-                    <>
-                      <FiEdit3 className="w-4 h-4" />
-                      Rename
-                    </>
-                  )}
-                </button>
-              </div>
+            {/* Modal Footer */}
+            <div className="p-6 pt-0 flex justify-end gap-3">
+              <button onClick={closeRenameModal} className="btn btn-ghost" disabled={isRenaming}>
+                Cancel
+              </button>
+              <button
+                onClick={renamePage}
+                className="btn btn-primary gap-2"
+                disabled={
+                  !renamePageName.trim() ||
+                  isRenaming ||
+                  renamePageName.trim() === pages.find((p) => p._id === renamePageId)?.title
+                }
+              >
+                {isRenaming ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Renaming...
+                  </>
+                ) : (
+                  <>
+                    <FiEdit3 className="w-4 h-4" />
+                    Rename
+                  </>
+                )}
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Create Page Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md border border-base-300">
+      {/* Create Page Modal */}
+      {showCreateModal &&
+        createPortal(
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={closeCreateModal}
+          >
+            <div
+              className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md border border-base-300"
+              onClick={(event) => event.stopPropagation()}
+            >
               {/* Modal Header */}
               <div className="p-6 border-b border-base-300">
                 <div className="flex items-center gap-3">
@@ -726,7 +810,8 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
                 </button>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
 
         {/* Loading overlay for delete operation */}
