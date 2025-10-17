@@ -263,7 +263,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
     <>
       {/* Sidebar Container */}
       <div
-        className={`w-72 h-screen bg-base-100 border-r border-base-300 fixed left-0 top-16 z-50 flex flex-col shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`w-72 h-screen bg-base-100 border-r border-t border-base-300 fixed left-0 top-16.5 lg:top-18 z-50 flex flex-col shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

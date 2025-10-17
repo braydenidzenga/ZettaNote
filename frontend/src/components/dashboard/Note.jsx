@@ -16,17 +16,19 @@ import {
   FiCode,
   FiMinus,
   FiStar,
+  FiPlus,
 } from 'react-icons/fi';
 import { FaQuoteRight, FaListOl, FaStrikethrough, FaHighlighter } from 'react-icons/fa';
 import { BiCodeBlock, BiMath } from 'react-icons/bi';
 import toast from 'react-hot-toast';
 import propTypes from 'prop-types';
+import { createPortal } from 'react-dom';
 
 // Importing highlight.js for code syntax highlighting
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 
-const Note = ({ activePage, onContentChange, content = '', onSave }) => {
+const Note = ({ activePage, onContentChange, content = '', onSave, onCreatePage }) => {
   const [editorContent, setEditorContent] = useState(content);
   const [isPreview, setIsPreview] = useState(false);
   const [history, setHistory] = useState([]);
@@ -35,6 +37,11 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const editorRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const [lineCount, setLineCount] = useState(20);
+
+  // Create page modal states
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newPageName, setNewPageName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     if (content !== editorContent) {
@@ -62,6 +69,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     const requiredLines = Math.max(1, Math.floor(ta.scrollHeight / approxLineHeight));
     setLineCount(requiredLines);
   }, [editorContent, activePage?.id]);
+
+  
 
   const addToHistory = useCallback(
     (newContent) => {
@@ -276,6 +285,59 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       }
     };
     input.click();
+  };
+
+  const openCreateModal = () => {
+    setNewPageName('');
+    setShowCreateModal(true);
+  };
+
+  const closeCreateModal = () => {
+    setShowCreateModal(false);
+    setNewPageName('');
+    setIsCreating(false);
+  };
+
+  const createNewPage = async () => {
+    if (!newPageName.trim()) {
+      toast.error('Page name cannot be empty');
+      return;
+    }
+
+    try {
+     const response = await axios.post(
+        `${VITE_API_URL}/api/pages/createpage`,
+        {
+          pageName: newPageName.trim(),
+        },
+        { withCredentials: true }
+      );
+
+      if (response.data.Page) {
+        toast.success(`Page "${newPageName}" created successfully!`);
+        fetchPages();
+        closeCreateModal();
+
+        if (onPageSelect && response.data.Page) {
+          onPageSelect({
+            id: response.data.Page.id || response.data.Page._id,
+            name: newPageName,
+            ...response.data.Page,
+          });
+        }
+      } else if (response.data.message) {
+        toast.success(response.data.message);
+        fetchPages();
+        closeCreateModal();
+      }
+    } catch (error) {
+      if (handleUnauthorized(error)) return;
+      const errorMsg = error.response?.data?.message || 'Failed to create page';
+      toast.error(errorMsg);
+      console.error('Error creating page:', error);
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   const toolbarGroups = [
@@ -521,7 +583,10 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       <div className="flex-1 flex items-center justify-center bg-base-100">
         <div className="text-center space-y-6 max-w-md mx-auto p-8">
           <div className="relative">
-            <div className="w-20 h-20 mx-auto bg-primary/20 rounded-3xl flex items-center justify-center shadow-lg border border-primary/10">
+            <div
+              className="w-20 h-20 mx-auto bg-primary/20 rounded-3xl flex items-center justify-center shadow-lg border border-primary/10 cursor-pointer hover:bg-primary/30 hover:scale-105 transition-all duration-200"
+              onClick={openCreateModal}
+            >
               <FiEdit className="w-10 h-10 text-primary" />
             </div>
             <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary/20 rounded-full animate-pulse"></div>
@@ -529,10 +594,120 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
           <div className="space-y-3">
             <h3 className="text-2xl font-bold text-primary">Ready to Create?</h3>
             <p className="text-base-content/70 text-lg leading-relaxed">
-              Select a page from the sidebar or create a new one to start your creative journey
+              Click the icon above or select a page from the sidebar to start your creative journey
             </p>
           </div>
         </div>
+
+        {/* Create Page Modal */}
+        {showCreateModal &&
+          createPortal(
+            <div
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+              onClick={closeCreateModal}
+            >
+              <div
+                className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-md border border-base-300"
+                onClick={(event) => event.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div className="p-6 border-b border-base-300">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <FiPlus className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-base-content">Create New Page</h3>
+                      <p className="text-sm text-base-content/60">
+                        Give your page a memorable name
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Content */}
+                <div className="p-6">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-base-content mb-2">
+                        Page Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter page name..."
+                        className="input input-bordered w-full focus:input-primary focus:outline-none"
+                        value={newPageName}
+                        onChange={(e) => setNewPageName(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter' && !isCreating) {
+                            createNewPage();
+                          }
+                        }}
+                        autoFocus
+                        maxLength={100}
+                      />
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="text-xs text-base-content/60">
+                          {newPageName.length}/100 characters
+                        </span>
+                        {newPageName.trim() && (
+                          <span className="text-xs text-success">✓ Ready to create</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Suggestions */}
+                    <div>
+                      <p className="text-xs text-base-content/60 mb-2">Quick suggestions:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {['Meeting Notes', 'Ideas', 'To-Do List', 'Project Plan', 'Daily Journal'].map(
+                          (suggestion) => (
+                            <button
+                              key={suggestion}
+                              onClick={() => setNewPageName(suggestion)}
+                              className="btn btn-xs btn-ghost btn-outline hover:btn-primary"
+                              disabled={isCreating}
+                            >
+                              {suggestion}
+                            </button>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Modal Footer */}
+                <div className="p-6 pt-0 flex justify-end gap-3">
+                  <button
+                    onClick={closeCreateModal}
+                    className="btn btn-ghost"
+                    disabled={isCreating}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={createNewPage}
+                    className="btn btn-primary gap-2"
+                    disabled={!newPageName.trim() || isCreating}
+                  >
+                    {isCreating ? (
+                      <>
+                        <span className="loading loading-spinner loading-sm"></span>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <FiPlus className="w-4 h-4" />
+                        Create Page
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
       </div>
     );
   }
@@ -753,6 +928,7 @@ Note.propTypes = {
   onContentChange: propTypes.func,
   content: propTypes.string,
   onSave: propTypes.func,
+  onCreatePage: propTypes.func,
 };
 
 export default Note;
