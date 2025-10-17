@@ -252,11 +252,11 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   }, [fetchPages, user]);
 
   const filteredPages = pages.filter((page) =>
-    page.title.toLowerCase().includes(searchTerm.toLowerCase())
+    page.pageName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const filteredSharedPages = sharedPages.filter((page) =>
-    page.title.toLowerCase().includes(searchTerm.toLowerCase())
+    page.pageName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (

@@ -7,6 +7,10 @@ import app from './src/app.js';
 import { connectDatabase, getDatabaseStatus } from './src/config/database.js';
 import config from './src/config/index.js';
 import logger from './src/utils/logger.js';
+import { ConnectRedis } from './src/config/redis.js';
+
+// Connect to Redis
+ConnectRedis();
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
