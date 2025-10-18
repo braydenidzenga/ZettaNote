@@ -563,8 +563,15 @@ export const sharePage = async (req) => {
  * @param {object} req - Express request object
  * @returns {object} Response status and message if successful
  */
+/**
+ * Public Share Controller
+ * Generates public share link for page
+ * @param {object} req - Express request object
+ * @returns {object} Response status and message if successful
+ */
 export const publicShare = async (req) => {
   try {
+    console.log("Received public share request with body:", req.body);
     const token = req.cookies?.token;
     if (!token) {
       return {
@@ -582,7 +589,9 @@ export const publicShare = async (req) => {
       };
     }
 
-    const { pageId } = req.body;
+    const { pageId, allowDownload = false } = req.body;
+    console.log("allowDownload value in backend:", allowDownload);
+    
     const page = await Page.findById(pageId);
 
     if (!page) {
@@ -600,20 +609,27 @@ export const publicShare = async (req) => {
       };
     }
 
-    // Check if already has public share ID
+    // Check if already has public share ID - UPDATE THIS PART
     if (page.publicShareId) {
+      // Update the existing share settings, including allowDownload
+      page.allowDownload = allowDownload;
+      await page.save();
+      
       return {
         resStatus: STATUS_CODES.OK,
         resMessage: {
-          message: 'Already shared publicly',
+          message: 'Share settings updated',
           publicShareId: page.publicShareId,
+          allowDownload: page.allowDownload
         },
       };
     }
 
-    // Generate and save public share ID
+    // Generate and save public share ID for new share
     const uniqueShareId = uuidv4();
     page.publicShareId = uniqueShareId;
+    page.allowDownload = allowDownload;
+    console.log("allowDownload value in backend:", allowDownload);
     await page.save();
 
     return {
@@ -621,6 +637,7 @@ export const publicShare = async (req) => {
       resMessage: {
         message: 'Successfully shared publicly',
         publicShareId: page.publicShareId,
+        allowDownload: page.allowDownload
       },
     };
   } catch (err) {
@@ -648,13 +665,15 @@ export const getPublicShare = async (shareId) => {
         resMessage: { Error: MESSAGES.PAGE.NOT_FOUND },
       };
     }
-
+console.log("allowDownload value in backend:", page.allowDownload);
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: {
-        title: page.pageName,
-        content: page.pageData,
-      },
+  title: page.pageName,
+  content: page.pageData,
+  allowDownload: page.allowDownload ?? false, // ✅ added
+},
+
     };
   } catch (err) {
     logger.error('Get public share error', err);

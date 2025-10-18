@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import {
   FiShare2,
   FiCopy,
@@ -53,53 +53,80 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
     expiresAt: null,
   });
 
-  const generateShareableLink = async () => {
-    if (!activePage?.id) return;
+  // Track previous allowDownload to detect deselect (true -> false)
+  const prevAllowDownloadRef = useRef(shareSettings.allowDownload);
 
-    setIsGeneratingLink(true);
-    try {
-      const response = await axios.post(
-        `${VITE_API_URL}/api/pages/publicshare`,
-        {
-          pageId: activePage.id,
-        },
-        {
-          withCredentials: true,
-        }
-      );
+  // Auto-regenerate link when the user deselects the "Allow Download" option.
+  // Guards: don't run on initial render and don't trigger while a generation
+  // is already in progress.
+  useEffect(() => {
+    const prev = prevAllowDownloadRef.current;
+    const current = shareSettings.allowDownload;
 
-      if (response.status === 200 && response.data) {
-        const publicLink = `${window.location.origin}/public/${response.data.publicShareId}`;
-        setShareableLink(publicLink);
-
-        if (response.data.message === 'Already Shared') {
-          toast.success('🔗 Public link retrieved successfully!');
-        } else {
-          toast.success('🔗 Public link generated successfully!');
-        }
-      } else {
-        throw new Error(
-          response.data?.Error || response.data?.message || 'Failed to generate link'
-        );
+    // Only act when toggled from true -> false
+    if (prev === true && current === false) {
+      // If we already have a public link, regenerate it to apply new policy.
+      // Otherwise just generate one.
+      if (!isGeneratingLink) {
+        if (shareableLink) regenerateLink();
+        else generateShareableLink();
       }
-    } catch (error) {
-      if (handleUnauthorized(error)) return;
-      console.error('Error generating share link:', error);
-      if (error.response) {
-        toast.error(
-          `❌ Failed to generate link: ${
-            error.response.data?.Error || error.response.data?.message || 'Server error'
-          }`
-        );
-      } else if (error.request) {
-        toast.error('❌ Network error. Please check your connection.');
-      } else {
-        toast.error(`❌ Failed to generate link: ${error.message}`);
-      }
-    } finally {
-      setIsGeneratingLink(false);
     }
-  };
+
+    prevAllowDownloadRef.current = current;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shareSettings.allowDownload]);
+
+const generateShareableLink = async () => {
+  if (!activePage?.id) return;
+
+  setIsGeneratingLink(true);
+  try {
+    const response = await axios.post(
+      `${VITE_API_URL}/api/pages/publicshare`,
+      {
+        pageId: activePage.id,
+        allowDownload: shareSettings?.allowDownload ?? true,   // ✅ added line
+        isPublic: shareSettings?.isPublic ?? true,             // optional
+        allowComments: shareSettings?.allowComments ?? false,  // optional
+        expiresAt: shareSettings?.expiresAt ?? null,           // optional
+      },
+      { withCredentials: true }
+    );
+
+    if (response.status === 200 && response.data) {
+      const publicLink = `${window.location.origin}/public/${response.data.publicShareId}`;
+      setShareableLink(publicLink);
+
+      if (response.data.message === 'Already Shared') {
+        toast.success('🔗 Public link retrieved successfully!');
+      } else {
+        toast.success('🔗 Public link generated successfully!');
+      }
+    } else {
+      throw new Error(
+        response.data?.Error || response.data?.message || 'Failed to generate link'
+      );
+    }
+  } catch (error) {
+    if (handleUnauthorized(error)) return;
+    console.error('Error generating share link:', error);
+    if (error.response) {
+      toast.error(
+        `❌ Failed to generate link: ${
+          error.response.data?.Error || error.response.data?.message || 'Server error'
+        }`
+      );
+    } else if (error.request) {
+      toast.error('❌ Network error. Please check your connection.');
+    } else {
+      toast.error(`❌ Failed to generate link: ${error.message}`);
+    }
+  } finally {
+    setIsGeneratingLink(false);
+  }
+};
+
 
   const regenerateLink = async () => {
     if (!activePage?.id) return;

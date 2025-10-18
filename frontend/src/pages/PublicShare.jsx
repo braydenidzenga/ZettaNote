@@ -25,7 +25,8 @@ const PublicShare = () => {
 
       try {
         const response = await axios.get(`${VITE_API_URL}/api/pages/share/${shareId}`);
-
+console.log('API Response:', response.data); // Add this line
+      console.log('allowDownload value:', response.data.allowDownload); // Check this 
         if (response.status === 200 && response.data) {
           setPageData(response.data);
         } else {
@@ -239,25 +240,38 @@ const PublicShare = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleDownload}
-                className="btn btn-outline btn-sm gap-2 hover:btn-secondary"
-                title="Download as Markdown"
-              >
-                <FiDownload className="w-4 h-4" />
-                <span className="hidden sm:inline">Download</span>
-              </button>
-              <button
-                onClick={() => navigate('/')}
-                className="btn btn-primary btn-sm gap-2"
-                title="Try ZettaNote"
-              >
-                <FiHome className="w-4 h-4" />
-                <span className="hidden sm:inline">Try ZettaNote</span>
-              </button>
-            </div>
+           {/* Action Buttons */}
+<div className="flex items-center gap-3">
+  {pageData?.allowDownload ? (
+    <button
+      onClick={handleDownload}
+      className="btn btn-outline btn-sm gap-2 hover:btn-secondary"
+      title="Download as Markdown"
+    >
+      <FiDownload className="w-4 h-4" />
+      <span className="hidden sm:inline">Download</span>
+    </button>
+  ) : (
+    <button
+      disabled
+      className="btn btn-outline btn-sm gap-2 opacity-50 cursor-not-allowed"
+      title="Download disabled by the author"
+    >
+      <FiDownload className="w-4 h-4" />
+      <span className="hidden sm:inline">Download Disabled</span>
+    </button>
+  )}
+
+  <button
+    onClick={() => navigate('/')}
+    className="btn btn-primary btn-sm gap-2"
+    title="Try ZettaNote"
+  >
+    <FiHome className="w-4 h-4" />
+    <span className="hidden sm:inline">Try ZettaNote</span>
+  </button>
+</div>
+
           </div>
         </div>
       </div>
