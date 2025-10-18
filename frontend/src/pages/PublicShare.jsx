@@ -25,8 +25,6 @@ const PublicShare = () => {
 
       try {
         const response = await axios.get(`${VITE_API_URL}/api/pages/share/${shareId}`);
-console.log('API Response:', response.data); // Add this line
-      console.log('allowDownload value:', response.data.allowDownload); // Check this 
         if (response.status === 200 && response.data) {
           setPageData(response.data);
         } else {
@@ -85,7 +83,9 @@ console.log('API Response:', response.data); // Add this line
             ? hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
             : hljs.highlightAuto(code).value;
 
-          return `<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono language-${lang || 'auto'}">${highlighted}</code></pre>`;
+          return `<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono language-${
+            lang || 'auto'
+          }">${highlighted}</code></pre>`;
         })
         // Single line code block with syntax highlighting
         //tbh idk why adding highlighting just to multiline code block adds it to single line too, but i will add it again just to be safe.
@@ -240,38 +240,37 @@ console.log('API Response:', response.data); // Add this line
               </div>
             </div>
 
-           {/* Action Buttons */}
-<div className="flex items-center gap-3">
-  {pageData?.allowDownload ? (
-    <button
-      onClick={handleDownload}
-      className="btn btn-outline btn-sm gap-2 hover:btn-secondary"
-      title="Download as Markdown"
-    >
-      <FiDownload className="w-4 h-4" />
-      <span className="hidden sm:inline">Download</span>
-    </button>
-  ) : (
-    <button
-      disabled
-      className="btn btn-outline btn-sm gap-2 opacity-50 cursor-not-allowed"
-      title="Download disabled by the author"
-    >
-      <FiDownload className="w-4 h-4" />
-      <span className="hidden sm:inline">Download Disabled</span>
-    </button>
-  )}
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              {pageData?.allowDownload ? (
+                <button
+                  onClick={handleDownload}
+                  className="btn btn-outline btn-sm gap-2 hover:btn-secondary"
+                  title="Download as Markdown"
+                >
+                  <FiDownload className="w-4 h-4" />
+                  <span className="hidden sm:inline">Download</span>
+                </button>
+              ) : (
+                <button
+                  disabled
+                  className="btn btn-outline btn-sm gap-2 opacity-50 cursor-not-allowed"
+                  title="Download disabled by the author"
+                >
+                  <FiDownload className="w-4 h-4" />
+                  <span className="hidden sm:inline">Download Disabled</span>
+                </button>
+              )}
 
-  <button
-    onClick={() => navigate('/')}
-    className="btn btn-primary btn-sm gap-2"
-    title="Try ZettaNote"
-  >
-    <FiHome className="w-4 h-4" />
-    <span className="hidden sm:inline">Try ZettaNote</span>
-  </button>
-</div>
-
+              <button
+                onClick={() => navigate('/')}
+                className="btn btn-primary btn-sm gap-2"
+                title="Try ZettaNote"
+              >
+                <FiHome className="w-4 h-4" />
+                <span className="hidden sm:inline">Try ZettaNote</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

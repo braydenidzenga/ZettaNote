@@ -114,7 +114,6 @@ router.post(
 router.post(
   '/publicshare',
   asyncHandler(async (req, res) => {
-    console.log("Received public share request with body:", req.body);
     const { resStatus, resMessage } = await publicShare(req);
     res.status(resStatus).json(resMessage);
   })

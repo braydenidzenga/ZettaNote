@@ -563,15 +563,8 @@ export const sharePage = async (req) => {
  * @param {object} req - Express request object
  * @returns {object} Response status and message if successful
  */
-/**
- * Public Share Controller
- * Generates public share link for page
- * @param {object} req - Express request object
- * @returns {object} Response status and message if successful
- */
 export const publicShare = async (req) => {
   try {
-    console.log("Received public share request with body:", req.body);
     const token = req.cookies?.token;
     if (!token) {
       return {
@@ -590,8 +583,7 @@ export const publicShare = async (req) => {
     }
 
     const { pageId, allowDownload = false } = req.body;
-    console.log("allowDownload value in backend:", allowDownload);
-    
+
     const page = await Page.findById(pageId);
 
     if (!page) {
@@ -614,13 +606,13 @@ export const publicShare = async (req) => {
       // Update the existing share settings, including allowDownload
       page.allowDownload = allowDownload;
       await page.save();
-      
+
       return {
         resStatus: STATUS_CODES.OK,
         resMessage: {
           message: 'Share settings updated',
           publicShareId: page.publicShareId,
-          allowDownload: page.allowDownload
+          allowDownload: page.allowDownload,
         },
       };
     }
@@ -629,7 +621,6 @@ export const publicShare = async (req) => {
     const uniqueShareId = uuidv4();
     page.publicShareId = uniqueShareId;
     page.allowDownload = allowDownload;
-    console.log("allowDownload value in backend:", allowDownload);
     await page.save();
 
     return {
@@ -637,7 +628,7 @@ export const publicShare = async (req) => {
       resMessage: {
         message: 'Successfully shared publicly',
         publicShareId: page.publicShareId,
-        allowDownload: page.allowDownload
+        allowDownload: page.allowDownload,
       },
     };
   } catch (err) {
@@ -665,15 +656,13 @@ export const getPublicShare = async (shareId) => {
         resMessage: { Error: MESSAGES.PAGE.NOT_FOUND },
       };
     }
-console.log("allowDownload value in backend:", page.allowDownload);
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: {
-  title: page.pageName,
-  content: page.pageData,
-  allowDownload: page.allowDownload ?? false, // ✅ added
-},
-
+        title: page.pageName,
+        content: page.pageData,
+        allowDownload: page.allowDownload ?? false, // ✅ added
+      },
     };
   } catch (err) {
     logger.error('Get public share error', err);

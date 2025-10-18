@@ -77,56 +77,55 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareSettings.allowDownload]);
 
-const generateShareableLink = async () => {
-  if (!activePage?.id) return;
+  const generateShareableLink = async () => {
+    if (!activePage?.id) return;
 
-  setIsGeneratingLink(true);
-  try {
-    const response = await axios.post(
-      `${VITE_API_URL}/api/pages/publicshare`,
-      {
-        pageId: activePage.id,
-        allowDownload: shareSettings?.allowDownload ?? true,   // ✅ added line
-        isPublic: shareSettings?.isPublic ?? true,             // optional
-        allowComments: shareSettings?.allowComments ?? false,  // optional
-        expiresAt: shareSettings?.expiresAt ?? null,           // optional
-      },
-      { withCredentials: true }
-    );
+    setIsGeneratingLink(true);
+    try {
+      const response = await axios.post(
+        `${VITE_API_URL}/api/pages/publicshare`,
+        {
+          pageId: activePage.id,
+          allowDownload: shareSettings?.allowDownload ?? true, // ✅ added line
+          isPublic: shareSettings?.isPublic ?? true, // optional
+          allowComments: shareSettings?.allowComments ?? false, // optional
+          expiresAt: shareSettings?.expiresAt ?? null, // optional
+        },
+        { withCredentials: true }
+      );
 
-    if (response.status === 200 && response.data) {
-      const publicLink = `${window.location.origin}/public/${response.data.publicShareId}`;
-      setShareableLink(publicLink);
+      if (response.status === 200 && response.data) {
+        const publicLink = `${window.location.origin}/public/${response.data.publicShareId}`;
+        setShareableLink(publicLink);
 
-      if (response.data.message === 'Already Shared') {
-        toast.success('🔗 Public link retrieved successfully!');
+        if (response.data.message === 'Already Shared') {
+          toast.success('🔗 Public link retrieved successfully!');
+        } else {
+          toast.success('🔗 Public link generated successfully!');
+        }
       } else {
-        toast.success('🔗 Public link generated successfully!');
+        throw new Error(
+          response.data?.Error || response.data?.message || 'Failed to generate link'
+        );
       }
-    } else {
-      throw new Error(
-        response.data?.Error || response.data?.message || 'Failed to generate link'
-      );
+    } catch (error) {
+      if (handleUnauthorized(error)) return;
+      console.error('Error generating share link:', error);
+      if (error.response) {
+        toast.error(
+          `❌ Failed to generate link: ${
+            error.response.data?.Error || error.response.data?.message || 'Server error'
+          }`
+        );
+      } else if (error.request) {
+        toast.error('❌ Network error. Please check your connection.');
+      } else {
+        toast.error(`❌ Failed to generate link: ${error.message}`);
+      }
+    } finally {
+      setIsGeneratingLink(false);
     }
-  } catch (error) {
-    if (handleUnauthorized(error)) return;
-    console.error('Error generating share link:', error);
-    if (error.response) {
-      toast.error(
-        `❌ Failed to generate link: ${
-          error.response.data?.Error || error.response.data?.message || 'Server error'
-        }`
-      );
-    } else if (error.request) {
-      toast.error('❌ Network error. Please check your connection.');
-    } else {
-      toast.error(`❌ Failed to generate link: ${error.message}`);
-    }
-  } finally {
-    setIsGeneratingLink(false);
-  }
-};
-
+  };
 
   const regenerateLink = async () => {
     if (!activePage?.id) return;
