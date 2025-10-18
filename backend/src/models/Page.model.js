@@ -34,7 +34,6 @@ const PageSchema = new mongoose.Schema({
     default: Date.now,
   },
   allowDownload: { type: Boolean, default: true },
-
 });
 
 export default mongoose.model('Page', PageSchema);
