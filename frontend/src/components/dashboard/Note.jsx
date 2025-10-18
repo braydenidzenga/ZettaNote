@@ -25,6 +25,7 @@ import propTypes from 'prop-types';
 // Importing highlight.js for code syntax highlighting
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
+import NewNoteButton from '../modals/NewNoteButton';
 
 const Note = ({ activePage, onContentChange, content = '', onSave}) => {
   const [editorContent, setEditorContent] = useState(content);
@@ -523,10 +524,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave}) => {
       <div className="flex-1 flex items-center justify-center bg-base-100">
         <div className="text-center space-y-6 max-w-md mx-auto p-8">
           <div className="relative">
-            <div
-              className="w-20 h-20 mx-auto bg-primary/20 rounded-3xl flex items-center justify-center shadow-lg border border-primary/10 cursor-pointer hover:bg-primary/30 hover:scale-105 transition-all duration-200"
-            >
-              <FiEdit className="w-10 h-10 text-primary" />
+            <div>
+              <NewNoteButton />              
             </div>
             <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary/20 rounded-full animate-pulse"></div>
           </div>
