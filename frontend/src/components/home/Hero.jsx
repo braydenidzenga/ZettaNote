@@ -38,7 +38,7 @@ const Hero = () => {
           <div className="hero-buttons mt-6 flex flex-wrap gap-3">
             <Link
               to="/signup"
-              className="inline-flex items-center gap-2 px-5 py-2 rounded-md bg-[color:var(--color-primary)] text-[color:var(--color-primary-content)] font-medium shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[color:var(--color-primary)] text-[color:var(--color-primary-content)] hover:opacity-90 transition-opacity"
             >
               Create account
             </Link>

@@ -12,6 +12,7 @@ import {
   AiOutlineMobile,
   AiOutlineHistory,
 } from 'react-icons/ai';
+import { motion } from 'framer-motion';
 
 const features = [
   {
@@ -74,9 +75,15 @@ const Features = () => {
         </p>
         <div className="mt-6 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
-            <div key={i} className="feature-item h-full flex flex-col">
+            <motion.div
+              key={i}
+              className="feature-item h-full flex flex-col"
+              whileHover={{ y: -4, scale: 1.02 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+              aria-label={f.title}
+            >
               <Feature icon={f.icon} title={f.title} desc={f.desc} />
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
