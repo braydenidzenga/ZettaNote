@@ -9,15 +9,17 @@ import config from './src/config/index.js';
 import logger from './src/utils/logger.js';
 import { ConnectRedis } from './src/config/redis.js';
 
-// Connect to Redis
-ConnectRedis();
-
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   logger.error('❌ UNCAUGHT EXCEPTION! Shutting down...');
   logger.error(err.name, err.message);
   logger.error(err.stack);
   process.exit(1);
+});
+
+// Connect to Redis
+ConnectRedis().catch((err) => {
+  logger.error('❌ Failed to connect to Redis:', err);
 });
 
 // Connect to database and start server
