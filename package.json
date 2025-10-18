@@ -1,0 +1,20 @@
+{
+  "name": "ZettaNote",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "pnpm install && cd backend && pnpm install && cd ../frontend && pnpm install && cd ../",
+    "start:backend": "cd backend && pnpm dev",
+    "start:frontend": "cd frontend && pnpm dev",
+    "start": "concurrently -n \"🔵 Backend,🟡 Frontend\" -c \"blue,yellow\" \"pnpm start:backend\" \"pnpm start:frontend\"",
+    "dev": "concurrently -n \"🔵 Backend,🟡 Frontend\" -c \"blue,yellow\" \"pnpm start:backend\" \"pnpm start:frontend\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.18.3",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

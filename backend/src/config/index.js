@@ -11,6 +11,11 @@ const config = {
     nodeEnv: process.env.NODE_ENV || 'development',
   },
 
+  // Redis Configuration
+  redis: {
+    url: process.env.REDIS_URL || 'redis://localhost:6379',
+  },
+
   // Database Configuration
   database: {
     uri: process.env.DB || process.env.MONGODB_URI || 'mongodb://localhost:27017/zettanote',

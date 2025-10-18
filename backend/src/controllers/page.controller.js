@@ -6,6 +6,7 @@ import { STATUS_CODES } from '../constants/statusCodes.js';
 import { MESSAGES } from '../constants/messages.js';
 import { z } from 'zod';
 import logger from '../utils/logger.js';
+import { safeRedisCall } from '../config/redis.js';
 
 /**
  * Helper function to get page name and ID
@@ -73,6 +74,20 @@ export const createPage = async (req) => {
     user.pages.push(newPage._id);
     await user.save();
 
+    // Cache new page in Redis
+    const cachedPages = JSON.parse(await safeRedisCall('get', `user:${user._id}:ownedPages`)) || [];
+    cachedPages.push({ name: newPage.pageName, id: newPage._id });
+    const saved = await safeRedisCall(
+      'set',
+      `user:${user._id}:ownedPages`,
+      JSON.stringify(cachedPages),
+      {
+        EX: 3600, // Cache for 1 hour
+      }
+    );
+    if (saved) {
+      logger.info('New page cached in Redis');
+    }
     return {
       resStatus: STATUS_CODES.CREATED,
       resMessage: {
@@ -118,12 +133,24 @@ export const getPage = async (req) => {
     }
     const { pageId } = parseResult.data;
 
+    const key = `page:${pageId}`;
+
     // Verify user
     const user = await verifyToken(token);
     if (!user) {
       return {
         resStatus: STATUS_CODES.UNAUTHORIZED,
         resMessage: { message: MESSAGES.AUTH.INVALID_TOKEN },
+      };
+    }
+
+    // Check Redis cache first
+    const cachedPage = await safeRedisCall('get', key);
+    if (cachedPage) {
+      logger.info('Page fetched from Redis cache');
+      return {
+        resStatus: STATUS_CODES.OK,
+        resMessage: { Page: JSON.parse(cachedPage) },
       };
     }
 
@@ -145,6 +172,14 @@ export const getPage = async (req) => {
         resStatus: STATUS_CODES.FORBIDDEN,
         resMessage: { Error: MESSAGES.PAGE.ACCESS_DENIED },
       };
+    }
+
+    // Cache page in Redis for future requests
+    const saved = await safeRedisCall('set', key, JSON.stringify(page), {
+      EX: 3600, // Cache for 1 hour
+    });
+    if (saved) {
+      logger.info('Page cached in Redis');
     }
 
     return {
@@ -187,19 +222,51 @@ export const getPages = async (req) => {
 
     // Get owned pages
     const ownedPages = [];
-    for (const id of user.pages) {
-      const page = await getPageNameAndId(id);
-      if (page !== null) {
-        ownedPages.push(page);
+
+    // Check Redis cache for owned pages
+    const ownedPagesCacheKey = `user:${user._id}:ownedPages`;
+    const cachedOwnedPages = await safeRedisCall('get', ownedPagesCacheKey);
+    if (cachedOwnedPages) {
+      logger.info('Owned pages fetched from Redis cache');
+      ownedPages.push(...JSON.parse(cachedOwnedPages));
+    } else {
+      for (const id of user.pages) {
+        const page = await getPageNameAndId(id);
+        if (page !== null) {
+          ownedPages.push(page);
+        }
+      }
+      // Cache owned pages in Redis
+      const saved = await safeRedisCall('set', ownedPagesCacheKey, JSON.stringify(ownedPages), {
+        EX: 3600, // Cache for 1 hour
+      });
+      if (saved) {
+        logger.info('Owned pages cached in Redis');
       }
     }
 
     // Get shared pages
     const sharedPages = [];
-    for (const id of user.sharedPages) {
-      const page = await getPageNameAndId(id);
-      if (page !== null) {
-        sharedPages.push(page);
+
+    // Check Redis cache for shared pages
+    const sharedPagesCacheKey = `user:${user._id}:sharedPages`;
+    const cachedSharedPages = await safeRedisCall('get', sharedPagesCacheKey);
+    if (cachedSharedPages) {
+      logger.info('Shared pages fetched from Redis cache');
+      sharedPages.push(...JSON.parse(cachedSharedPages));
+    } else {
+      for (const id of user.sharedPages) {
+        const page = await getPageNameAndId(id);
+        if (page !== null) {
+          sharedPages.push(page);
+        }
+      }
+      // Cache shared pages in Redis
+      const saved = await safeRedisCall('set', sharedPagesCacheKey, JSON.stringify(sharedPages), {
+        EX: 3600, // Cache for 1 hour
+      });
+      if (saved) {
+        logger.info('Shared pages cached in Redis');
       }
     }
 
@@ -279,6 +346,15 @@ export const savePage = async (req) => {
     page.pageData = newPageData;
     await page.save();
 
+    const key = `page:${pageId}`;
+    // Update cache in Redis
+    const saved = await safeRedisCall('set', key, JSON.stringify(page), {
+      EX: 3600, // Cache for 1 hour
+    });
+    if (saved) {
+      logger.info('Page cache updated in Redis');
+    }
+
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: {
@@ -355,6 +431,16 @@ export const renamePage = async (req) => {
     page.pageName = newPageName;
     await page.save();
 
+    const key = `user:${user._id}:ownedPages`;
+    // // Update cache in Redis
+    const cachedPages = JSON.parse(await safeRedisCall('get', key)) || [];
+    const updatedPages = cachedPages.map((p) =>
+      p.id === pageId ? { ...p, name: newPageName } : p
+    );
+    const saved = await safeRedisCall('set', key, JSON.stringify(updatedPages));
+    if (saved) {
+      logger.info('Page name updated in Redis cache');
+    }
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: {
@@ -439,6 +525,14 @@ export const deletePage = async (req) => {
     user.pages.pull(page._id);
     await user.save();
 
+    // remove from Redis cache
+    const key = `user:${user._id}:ownedPages`;
+    const cachedPages = JSON.parse(await safeRedisCall('get', key)) || [];
+    const updatedPages = cachedPages.filter((p) => p.id !== pageId);
+    const saved = await safeRedisCall('set', key, JSON.stringify(updatedPages));
+    if (saved) {
+      logger.info('Page removed from Redis cache');
+    }
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: { message: MESSAGES.PAGE.DELETED },
