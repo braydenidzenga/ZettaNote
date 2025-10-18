@@ -1,6 +1,6 @@
 {
-  "name": "ZettaNote",
-  "version": "1.0.0",
+  "name": "zettanote",
+  "version": "4.2.0",
   "description": "",
   "main": "index.js",
   "scripts": {

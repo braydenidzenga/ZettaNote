@@ -1,7 +1,6 @@
 {
-  "name": "frontend_v2",
-  "private": true,
-  "version": "0.0.0",
+  "name": "zettanote-frontend",
+  "version": "4.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

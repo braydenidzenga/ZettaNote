@@ -1,6 +1,6 @@
 {
-  "name": "backend",
-  "version": "2.0.0",
+  "name": "zettanote-backend",
+  "version": "4.2.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
