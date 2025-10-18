@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import {
   FiShare2,
   FiCopy,
@@ -53,6 +53,30 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
     expiresAt: null,
   });
 
+  // Track previous allowDownload to detect deselect (true -> false)
+  const prevAllowDownloadRef = useRef(shareSettings.allowDownload);
+
+  // Auto-regenerate link when the user deselects the "Allow Download" option.
+  // Guards: don't run on initial render and don't trigger while a generation
+  // is already in progress.
+  useEffect(() => {
+    const prev = prevAllowDownloadRef.current;
+    const current = shareSettings.allowDownload;
+
+    // Only act when toggled from true -> false
+    if (prev === true && current === false) {
+      // If we already have a public link, regenerate it to apply new policy.
+      // Otherwise just generate one.
+      if (!isGeneratingLink) {
+        if (shareableLink) regenerateLink();
+        else generateShareableLink();
+      }
+    }
+
+    prevAllowDownloadRef.current = current;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shareSettings.allowDownload]);
+
   const generateShareableLink = async () => {
     if (!activePage?.id) return;
 
@@ -62,10 +86,12 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
         `${VITE_API_URL}/api/pages/publicshare`,
         {
           pageId: activePage.id,
+          allowDownload: shareSettings?.allowDownload ?? true, // ✅ added line
+          isPublic: shareSettings?.isPublic ?? true, // optional
+          allowComments: shareSettings?.allowComments ?? false, // optional
+          expiresAt: shareSettings?.expiresAt ?? null, // optional
         },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (response.status === 200 && response.data) {

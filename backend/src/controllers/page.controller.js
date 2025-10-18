@@ -582,7 +582,8 @@ export const publicShare = async (req) => {
       };
     }
 
-    const { pageId } = req.body;
+    const { pageId, allowDownload = false } = req.body;
+
     const page = await Page.findById(pageId);
 
     if (!page) {
@@ -600,20 +601,26 @@ export const publicShare = async (req) => {
       };
     }
 
-    // Check if already has public share ID
+    // Check if already has public share ID - UPDATE THIS PART
     if (page.publicShareId) {
+      // Update the existing share settings, including allowDownload
+      page.allowDownload = allowDownload;
+      await page.save();
+
       return {
         resStatus: STATUS_CODES.OK,
         resMessage: {
-          message: 'Already shared publicly',
+          message: 'Share settings updated',
           publicShareId: page.publicShareId,
+          allowDownload: page.allowDownload,
         },
       };
     }
 
-    // Generate and save public share ID
+    // Generate and save public share ID for new share
     const uniqueShareId = uuidv4();
     page.publicShareId = uniqueShareId;
+    page.allowDownload = allowDownload;
     await page.save();
 
     return {
@@ -621,6 +628,7 @@ export const publicShare = async (req) => {
       resMessage: {
         message: 'Successfully shared publicly',
         publicShareId: page.publicShareId,
+        allowDownload: page.allowDownload,
       },
     };
   } catch (err) {
@@ -648,12 +656,12 @@ export const getPublicShare = async (shareId) => {
         resMessage: { Error: MESSAGES.PAGE.NOT_FOUND },
       };
     }
-
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: {
         title: page.pageName,
         content: page.pageData,
+        allowDownload: page.allowDownload ?? false, // ✅ added
       },
     };
   } catch (err) {
