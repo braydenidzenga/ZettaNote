@@ -508,6 +508,13 @@ We welcome contributions from the community!
 		</tr>
 		<tr>
             <td align="center">
+                <a href="https://github.com/UrekMaz">
+                    <img src="https://avatars.githubusercontent.com/u/115329911?v=4" width="100;" alt="UrekMaz"/>
+                    <br />
+                    <sub><b>UrekMaz</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/matheusdcunha">
                     <img src="https://avatars.githubusercontent.com/u/91388782?v=4" width="100;" alt="matheusdcunha"/>
                     <br />
@@ -542,6 +549,8 @@ We welcome contributions from the community!
                     <sub><b>AsadAhmedSaiyed</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/21aansh06">
                     <img src="https://avatars.githubusercontent.com/u/178574389?v=4" width="100;" alt="21aansh06"/>
