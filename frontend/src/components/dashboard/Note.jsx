@@ -25,8 +25,9 @@ import propTypes from 'prop-types';
 // Importing highlight.js for code syntax highlighting
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
+import NewNoteButton from '../modals/NewNoteButton';
 
-const Note = ({ activePage, onContentChange, content = '', onSave }) => {
+const Note = ({ activePage, onContentChange, content = '', onSave}) => {
   const [editorContent, setEditorContent] = useState(content);
   const [isPreview, setIsPreview] = useState(false);
   const [history, setHistory] = useState([]);
@@ -62,6 +63,7 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     const requiredLines = Math.max(1, Math.floor(ta.scrollHeight / approxLineHeight));
     setLineCount(requiredLines);
   }, [editorContent, activePage?.id]);
+
 
   const addToHistory = useCallback(
     (newContent) => {
@@ -277,6 +279,7 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     };
     input.click();
   };
+
 
   const toolbarGroups = [
     {
@@ -521,15 +524,15 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       <div className="flex-1 flex items-center justify-center bg-base-100">
         <div className="text-center space-y-6 max-w-md mx-auto p-8">
           <div className="relative">
-            <div className="w-20 h-20 mx-auto bg-primary/20 rounded-3xl flex items-center justify-center shadow-lg border border-primary/10">
-              <FiEdit className="w-10 h-10 text-primary" />
+            <div>
+              <NewNoteButton />              
             </div>
             <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary/20 rounded-full animate-pulse"></div>
           </div>
           <div className="space-y-3">
             <h3 className="text-2xl font-bold text-primary">Ready to Create?</h3>
             <p className="text-base-content/70 text-lg leading-relaxed">
-              Select a page from the sidebar or create a new one to start your creative journey
+              select a page from the sidebar to start your creative journey
             </p>
           </div>
         </div>
