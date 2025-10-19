@@ -7,6 +7,10 @@ import DOMPurify from 'dompurify';
 import 'highlight.js/styles/atom-one-dark.css';
 import 'katex/dist/katex.min.css';
 
+/**
+ * Configure markdown-it instance with custom settings and extensions
+ * @type {MarkdownIt}
+ */
 const md = new MarkdownIt({
   html: true,
   breaks: true,
@@ -32,7 +36,11 @@ const md = new MarkdownIt({
 })
 .use(markdownItDeflist);
 
-// custom inline rule for strikethrough (~~text~~)
+/**
+ * Custom rule for strikethrough text using ~~text~~
+ * @param {Object} state - markdown-it state object
+ * @returns {boolean} True if rule was applied
+ */
 md.inline.ruler.push('strikethrough', (state) => {
   const start = state.pos;
   const marker = state.src.charCodeAt(start);
@@ -66,7 +74,11 @@ md.inline.ruler.push('strikethrough', (state) => {
   return false;
 });
 
-// custom inline rule for highlight (==text==)
+/**
+ * Custom rule for text highlighting using ==text==
+ * @param {Object} state - markdown-it state object
+ * @returns {boolean} True if rule was applied
+ */
 md.inline.ruler.push('highlight', (state) => {
   const start = state.pos;
   if (state.src.slice(start, start + 2) !== '==') return false;
@@ -88,13 +100,17 @@ md.inline.ruler.push('highlight', (state) => {
   return true;
 });
 
-// Custom renderers for strikethrough and highlight
+// renderer rules for strikethrough and highlight
 md.renderer.rules.strikethrough_open = () => '<del class="line-through opacity-75">';
 md.renderer.rules.strikethrough_close = () => '</del>';
 md.renderer.rules.highlight_open = () => '<mark class="bg-yellow-200 px-1 rounded">';
 md.renderer.rules.highlight_close = () => '</mark>';
 
-// custom ruler for inline math ($...$) support using KaTeX 
+/**
+ * Custom rule for inline math using $formula$
+ * @param {Object} state - markdown-it state object
+ * @returns {boolean} True if formula was rendered
+ */
 md.inline.ruler.push('math_inline', (state) => {
   const start = state.pos;
   if (state.src[start] !== '$') return false;
@@ -132,7 +148,11 @@ md.inline.ruler.push('math_inline', (state) => {
  // Render math inline using the pre-rendered KaTeX HTML
 md.renderer.rules.math_inline = (tokens, idx) => tokens[idx].content;
 
-// Apply styling classes to parsed HTML
+/**
+ * Add Tailwind CSS classes to HTML elements for styling
+ * @param {string} html - Raw HTML string from markdown-it
+ * @returns {string} HTML string with Tailwind classes added
+ */
 const addTailwindClasses = (html) => {
   return html
     // Headings
@@ -176,16 +196,24 @@ const addTailwindClasses = (html) => {
     .replace(/<dd>/g, '<dd class="ml-4 mt-1 text-base-content/90">');
 };
 
+/**
+ * Render markdown text to HTML with syntax highlighting and custom features
+ * @param {string} text - Raw markdown text to be rendered
+ * @returns {string} Sanitized HTML with proper styling
+ * @throws {Error} If text is null or not a string
+ * 
+ * Features:
+ * - Syntax highlighting (atom-one-dark theme)
+ * - Math expressions using KaTeX
+ * - Task lists with checkboxes
+ * - Definition lists
+ * - Text highlighting
+ */
 export const renderMarkdown = (text) => {
   if (!text || typeof text !== 'string') return '';
   
   const html = md.render(text);
-  
-//  // Log the raw HTML before style application
-//   console.group('Markdown Renderer Debug');
-//   console.log('Original Text:', text);
-//   console.log('Raw HTML before styling:', html);
-  
+
   const styledHtml = addTailwindClasses(html);
   // console.log('Styled HTML before sanitization:', styledHtml);
   
@@ -197,7 +225,6 @@ export const renderMarkdown = (text) => {
   });
   
   // console.log('Final sanitized HTML:', sanitizedHtml);
-  // console.groupEnd();
   
   return sanitizedHtml;
 };
