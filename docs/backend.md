@@ -507,14 +507,12 @@ const logger = winston.createLogger({
 ### Common Issues
 
 1. **Database Connection Issues**
-
    - Check MongoDB URI configuration
    - Verify network connectivity
    - Check MongoDB server status
    - Review connection pool settings
 
 2. **Authentication Problems**
-
    - Verify JWT secret configuration
    - Check cookie settings
    - Validate token expiration

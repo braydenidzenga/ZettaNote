@@ -296,13 +296,11 @@ CMD ["nginx", "-g", "daemon off;"]
 ### Common Issues
 
 1. **API Connection Issues**
-
    - Verify `VITE_API_URL` is correctly set
    - Check backend is running and accessible
    - Ensure CORS is properly configured
 
 2. **Authentication Problems**
-
    - Clear browser cookies and localStorage
    - Check JWT token expiration
    - Verify backend authentication endpoints
@@ -327,4 +325,3 @@ CMD ["nginx", "-g", "daemon off;"]
 - Advanced search and filtering
 - Mobile app development
 - Offline support with service workers
-
