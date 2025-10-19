@@ -19,6 +19,7 @@ import authContext from '../../context/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import { VITE_API_URL } from '../../env';
 import CreateNewNoteModal from '../modals/CreateNewNoteModal.jsx';
+import DeleteNoteModal from '../modals/DeleteNoteModal.jsx';
 
 const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const { user, setuser } = useContext(authContext);
@@ -48,9 +49,11 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const [showSharedPages, setShowSharedPages] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRenameModal, setShowRenameModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [newPageName, setNewPageName] = useState('');
   const [renamePageName, setRenamePageName] = useState('');
   const [renamePageId, setRenamePageId] = useState('');
+  const [pageToDelete, setPageToDelete] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -133,10 +136,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
     }
   };
 
-  const deletePage = async (pageId, pageName) => {
-    if (!confirm(`Are you sure you want to delete "${pageName}"? This action cannot be undone.`))
-      return;
-
+  const deletePage = async (pageId) => {
     try {
       setIsDeleting(true);
 
@@ -161,6 +161,16 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
       setIsDeleting(false);
     }
   };
+
+  const openDeleteModal = (page) => {
+    setPageToDelete(page);
+    setShowDeleteModal(true);
+  };
+
+  // const closeDeleteModal = () => {
+  //   setShowDeleteModal(false);
+  //   setPageToDelete(null);
+  // };
 
   const openRenameModal = (pageId, currentName) => {
     setRenamePageId(pageId);
@@ -428,7 +438,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        deletePage(page._id, page.title);
+                                        openDeleteModal(page);
                                       }}
                                       className="flex items-center gap-3 text-sm text-error hover:bg-error/10"
                                     >
@@ -652,17 +662,14 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
           onCreatePage={handleCreatePage}
         />
 
-        {/* Loading overlay for delete operation */}
-        {isDeleting && (
-          <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-            <div className="bg-base-100 rounded-2xl p-6 shadow-xl border border-base-300">
-              <div className="flex items-center gap-3">
-                <span className="loading loading-spinner loading-md text-error"></span>
-                <span className="text-base-content font-medium">Deleting page...</span>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Delete Page Modal */}
+        <DeleteNoteModal
+          showDeleteModal={showDeleteModal}
+          setShowDeleteModal={setShowDeleteModal}
+          pageToDelete={pageToDelete}
+          isDeleting={isDeleting}
+          onDeletePage={deletePage}
+        />
       </div>
 
       {/* Floating Tab Button for Mobile - Only visible on mobile when sidebar is closed */}
