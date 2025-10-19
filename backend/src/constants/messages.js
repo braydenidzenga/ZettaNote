@@ -55,6 +55,17 @@ export const MESSAGES = {
     BAD_REQUEST: 'Bad request',
     SUCCESS: 'Operation successful',
   },
+
+  // Task Messages
+  TASK: {
+    CREATED: 'Task created successfully',
+    UPDATED: 'Task updated successfully',
+    DELETED: 'Task deleted successfully',
+    COMPLETED: 'Task marked as completed',
+    UNCOMPLETED: 'Task marked as incomplete',
+    NOT_FOUND: 'Task not found',
+    ACCESS_DENIED: 'You do not have access to this task',
+  },
 };
 
 export default MESSAGES;

@@ -8,6 +8,7 @@ import { connectDatabase, getDatabaseStatus } from './src/config/database.js';
 import config from './src/config/index.js';
 import logger from './src/utils/logger.js';
 import { ConnectRedis } from './src/config/redis.js';
+import { startReminderCronJob, stopReminderCronJob } from './src/jobs/reminderJob.js';
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
@@ -41,9 +42,15 @@ const startServer = async () => {
       logger.info(`💚 Health check: http://localhost:${config.server.port}/api/health`);
     });
 
+    // Start reminder cron job
+    const reminderTask = startReminderCronJob();
+
     // Graceful shutdown
     const shutdown = async (signal) => {
       logger.info(`\n${signal} received. Starting graceful shutdown...`);
+
+      // Stop cron job
+      stopReminderCronJob(reminderTask);
 
       server.close(async () => {
         logger.info('✅ HTTP server closed');

@@ -9,6 +9,7 @@ import pageRoutes from './page.routes.js';
 import adminRoutes from './admin.routes.js';
 import mailerRoutes from './mailer.routes.js';
 import oauthRoutes from './oauth.routes.js';
+import taskRoutes from './task.routes.js';
 import { STATUS_CODES } from '../constants/statusCodes.js';
 
 const router = express.Router();
@@ -32,5 +33,6 @@ router.use('/auth', oauthRoutes);
 router.use('/pages', pageRoutes);
 router.use('/admin', adminRoutes);
 router.use('/mailer', mailerRoutes);
+router.use('/task', taskRoutes);
 
 export default router;
