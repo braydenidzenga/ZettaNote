@@ -33,6 +33,6 @@ router.use('/auth', oauthRoutes);
 router.use('/pages', pageRoutes);
 router.use('/admin', adminRoutes);
 router.use('/mailer', mailerRoutes);
-router.use('/task',taskRoutes)
+router.use('/task', taskRoutes);
 
 export default router;

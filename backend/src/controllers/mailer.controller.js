@@ -90,7 +90,7 @@ export const sendTaskReminderEmail = async (task, timeUntil) => {
   try {
     const subject = `⏰ Task Reminder: "${task.taskName}" due in ${timeUntil}`;
     const deadlineFormatted = new Date(task.taskDeadline).toLocaleString();
-    
+
     const html = `
 <!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -220,7 +220,7 @@ This is an automated reminder from ZettaNote.
       to: task.owner.email,
       subject,
       html,
-      text
+      text,
     });
 
     if (result.success) {
@@ -228,14 +228,17 @@ This is an automated reminder from ZettaNote.
       return {
         success: true,
         message: 'Reminder email sent successfully',
-        id: result.id
+        id: result.id,
       };
     } else {
-      logger.error(`Failed to send reminder email to ${task.owner.email} for task ${task._id}:`, result.error);
+      logger.error(
+        `Failed to send reminder email to ${task.owner.email} for task ${task._id}:`,
+        result.error
+      );
       return {
         success: false,
         message: 'Failed to send reminder email',
-        error: result.error
+        error: result.error,
       };
     }
   } catch (error) {
@@ -243,7 +246,7 @@ This is an automated reminder from ZettaNote.
     return {
       success: false,
       message: 'Error sending reminder email',
-      error: error.message
+      error: error.message,
     };
   }
 };
@@ -258,8 +261,10 @@ export const sendTaskOverdueEmail = async (task) => {
   try {
     const subject = `🚨 Task Overdue: "${task.taskName}"`;
     const deadlineFormatted = new Date(task.taskDeadline).toLocaleString();
-    const overdueDays = Math.floor((new Date() - new Date(task.taskDeadline)) / (1000 * 60 * 60 * 24));
-    
+    const overdueDays = Math.floor(
+      (new Date() - new Date(task.taskDeadline)) / (1000 * 60 * 60 * 24)
+    );
+
     const html = `
 <!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -389,7 +394,7 @@ This task is now overdue. Please log in to your ZettaNote dashboard to complete 
       to: task.owner.email,
       subject,
       html,
-      text
+      text,
     });
 
     if (result.success) {
@@ -397,14 +402,17 @@ This task is now overdue. Please log in to your ZettaNote dashboard to complete 
       return {
         success: true,
         message: 'Overdue email sent successfully',
-        id: result.id
+        id: result.id,
       };
     } else {
-      logger.error(`Failed to send overdue email to ${task.owner.email} for task ${task._id}:`, result.error);
+      logger.error(
+        `Failed to send overdue email to ${task.owner.email} for task ${task._id}:`,
+        result.error
+      );
       return {
         success: false,
         message: 'Failed to send overdue email',
-        error: result.error
+        error: result.error,
       };
     }
   } catch (error) {
@@ -412,7 +420,7 @@ This task is now overdue. Please log in to your ZettaNote dashboard to complete 
     return {
       success: false,
       message: 'Error sending overdue email',
-      error: error.message
+      error: error.message,
     };
   }
 };
