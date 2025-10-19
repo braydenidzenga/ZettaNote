@@ -499,14 +499,21 @@ We welcome contributions from the community!
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/shourya2006">
+                    <img src="https://avatars.githubusercontent.com/u/75479705?v=4" width="100;" alt="shourya2006"/>
+                    <br />
+                    <sub><b>shourya2006</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
                 <a href="https://github.com/Riya922003">
                     <img src="https://avatars.githubusercontent.com/u/139098932?v=4" width="100;" alt="Riya922003"/>
                     <br />
                     <sub><b>Riya922003</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/UrekMaz">
                     <img src="https://avatars.githubusercontent.com/u/115329911?v=4" width="100;" alt="UrekMaz"/>
@@ -542,6 +549,8 @@ We welcome contributions from the community!
                     <sub><b>komalsathvik</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/AsadAhmedSaiyed">
                     <img src="https://avatars.githubusercontent.com/u/166991578?v=4" width="100;" alt="AsadAhmedSaiyed"/>
@@ -549,8 +558,6 @@ We welcome contributions from the community!
                     <sub><b>AsadAhmedSaiyed</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/21aansh06">
                     <img src="https://avatars.githubusercontent.com/u/178574389?v=4" width="100;" alt="21aansh06"/>
