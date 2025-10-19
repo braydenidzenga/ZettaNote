@@ -329,31 +329,42 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
             </div>
           ) : (
             <>
-              {/* Enhanced My Pages Section */}
-              <div className="space-y-4">
+              <div className="relative">
+                {/* Timeline wrapper */}
+                {showMyPages && filteredPages.length > 0 && (
+                  <div className="absolute left-4 top-8 bottom-0 w-[2px] bg-base-300/80"></div>
+                )}
+
                 <button
                   onClick={() => setShowMyPages(!showMyPages)}
                   className="flex items-center gap-3 font-bold text-base-content/90 hover:text-base-content transition-all duration-200 w-full text-left p-3 rounded-2xl hover:bg-base-200/50 group"
                 >
-                  <div className="w-8 h-8 bg-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    {showMyPages ? (
-                      <FiChevronDown className="w-4 h-4 text-primary" />
-                    ) : (
-                      <FiChevronRight className="w-4 h-4 text-primary" />
-                    )}
-                  </div>
-                  <FiFolder className="w-5 h-5 text-primary" />
-                  <span className="text-base">My Pages</span>
-                  <div className="ml-auto bg-primary/20 text-primary px-2 py-1 rounded-full text-xs font-bold">
-                    {filteredPages.length}
-                  </div>
+                  {showMyPages ? (
+                    <FiChevronDown className="w-4 h-4" />
+                  ) : (
+                    <FiChevronRight className="w-4 h-4" />
+                  )}
+                  <FiFile className="w-4 h-4 text-primary" />
+                  My Pages ({filteredPages.length})
                 </button>
 
                 {showMyPages && (
-                  <div className="space-y-2 ml-4">
+                  <div className="space-y-2 ml-8 relative">
                     {filteredPages.length > 0 ? (
                       filteredPages.map((page) => (
                         <div key={page._id} className="group relative">
+                          {/* connector dot on the timeline */}
+                          <span
+                            className={`absolute -left-0 top-1/2 transform -translate-y-1/2 w-3 h-3 rounded-full z-10 ${
+                              selectedPageId === page._id
+                                ? 'bg-primary/80 ring-2 ring-primary/20'
+                                : 'bg-base-200 border border-base-300/80'
+                            }`}
+                            aria-hidden
+                          />
+                          {/* small horizontal connector from the dot to the card */}
+                          <span className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-4 h-[2px] bg-base-300/80 z-0" />
+
                           <div
                             className={`flex items-center justify-between p-4 rounded-2xl transition-all duration-200 cursor-pointer ${
                               selectedPageId === page._id
@@ -453,7 +464,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
                         <p className="text-sm">No pages found</p>
                         <button
                           onClick={openCreateModal}
-                          className="text-primary hover:text-primary-focus text-sm mt-1"
+                          className="text-primary hover:text-primary-focus text-sm mt-1 cursor-pointer"
                         >
                           Create your first page
                         </button>
@@ -464,7 +475,11 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
               </div>
 
               {/* Shared Pages Section */}
-              <div>
+              <div className="relative">
+                {showSharedPages && filteredSharedPages.length > 0 && (
+                  <div className="absolute left-4 top-8 bottom-0 w-[2px] bg-base-300/80" />
+                )}
+
                 <button
                   onClick={() => setShowSharedPages(!showSharedPages)}
                   className="flex items-center gap-2 font-semibold text-base-content/80 mb-3 hover:text-base-content transition-colors w-full text-left"
@@ -479,12 +494,24 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
                 </button>
 
                 {showSharedPages && (
-                  <div className="space-y-1 ml-6">
+                  <div className="space-y-1 ml-8 relative">
                     {filteredSharedPages.length > 0 ? (
                       filteredSharedPages.map((page) => (
-                        <div key={page._id} className="group">
+                        <div key={page._id} className="group relative">
+                          {/* timeline dot */}
+                          <span
+                            className={`absolute -left-0 top-1/2 transform -translate-y-1/2 w-2 h-2 rounded-full z-10 ${
+                              selectedPageId === page._id
+                                ? 'bg-secondary/80 ring-2 ring-secondary/20'
+                                : 'bg-base-200 border border-base-300/80'
+                            }`}
+                            aria-hidden
+                          />
+                          {/* horizontal connector */}
+                          <span className="absolute -left-4 top-1/2 transform -translate-y-1/2 w-4 h-[2px] bg-base-300/80 z-0" />
+
                           <div
-                            className={`flex items-center gap-3 p-2 rounded-lg hover:bg-base-200 transition-colors cursor-pointer ${
+                            className={`flex items-center gap-3 p-3 rounded-lg hover:bg-base-200 transition-colors cursor-pointer ${
                               selectedPageId === page._id
                                 ? 'bg-secondary/10 border border-secondary/20'
                                 : ''

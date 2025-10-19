@@ -412,7 +412,7 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
                 </div>
                 <button
                   onClick={() => setShowShareModal(false)}
-                  className="btn btn-ghost btn-sm btn-circle hover:btn-error hover:scale-110 transition-all text-xl"
+                  className="btn btn-ghost btn-sm btn-circle hover:btn-error hover:text-black hover:scale-110 transition-all text-xl"
                 >
                   ×
                 </button>
@@ -637,10 +637,10 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
                               </div>
                               <button
                                 onClick={() => removeSharedUser(sharedUser.email)}
-                                className="btn btn-ghost btn-sm btn-circle hover:btn-error hover:scale-110 transition-all text-base-content/60 hover:text-error"
+                                className="btn btn-ghost btn-sm btn-circle hover:btn-error hover:scale-110 transition-all text-base-content/60 hover:text-black"
                                 title="Remove access"
                               >
-                                <FiX className="w-4 h-4" />
+                                <FiX className="w-4 h-4 " />
                               </button>
                             </div>
                           ))}
@@ -670,7 +670,7 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
             </div>
 
             {/* Enhanced Modal Footer */}
-            <div className="p-8 pt-0 flex justify-between items-center border-t border-base-300/60">
+            <div className="p-8 pt-5 flex justify-between items-center border-t border-base-300/60">
               <div className="text-sm text-base-content/60 flex items-center gap-2">
                 <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                 <span>
