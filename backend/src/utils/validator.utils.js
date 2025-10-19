@@ -75,6 +75,46 @@ export const updatePageSchema = z.object({
   pageData: z.string().optional(),
 });
 
+export const taskNameSchema = z
+  .string()
+  .min(1, {message:' Task name is required'})
+  .max(200, {message:'Task name must be less than 200 characters'});
+
+export const taskDescriptionSchema = z
+  .string()
+  .max(1000, {message: 'Task description must be less than 1000 characters'})
+  .optional();
+
+export const taskDeadlineSchema = z
+  .string()
+  .datetime({message: 'Invalid date format'})
+  .or(z.null())
+  .optional();
+
+export const createTaskSchema = z.object({
+  taskName: taskNameSchema,
+  taskDescription: taskDescriptionSchema,
+  taskDeadline: taskDeadlineSchema,
+  parentTaskId: objectIdSchema.optional(),
+});
+
+export const updateTaskSchema = z.object({
+  taskId: objectIdSchema,
+  taskName: taskNameSchema.optional(),
+  taskDescription: taskDescriptionSchema,
+  taskDeadline: taskDeadlineSchema,
+  isTaskCompleted: z.boolean().optional(),
+});
+
+export const getTaskIdSchema = z.object({
+  taskId: objectIdSchema,
+});
+
+export const toggleTaskCompletionSchema = z.object({
+  taskId: objectIdSchema,
+});
+
+
 /**
  * Validate input against schema
  * @param {z.ZodSchema} schema - Zod schema to validate against
