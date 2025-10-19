@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { VITE_API_URL } from '../../env';
 import { createPortal } from 'react-dom';
 
-const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
+const NewNoteButton = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const { user, setuser } = useContext(authContext);
   const navigate = useNavigate();
 
@@ -28,9 +28,13 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
     [setuser, navigate]
   );
 
+  // Only keep necessary state variables for create functionality
+  const [loading, setLoading] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPageName, setNewPageName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
+  // Simplified fetchPages function - only needed for refreshing after create
   const fetchPages = useCallback(async () => {
     try {
       setLoading(true);
@@ -38,12 +42,8 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
         withCredentials: true,
       });
       
-      if (response.data.pages) {
-        setPages(response.data.pages);
-      }
-      if (response.data.sharedPages) {
-        setSharedPages(response.data.sharedPages);
-      }
+      // We don't need to store pages since this component only creates
+      console.log('Pages fetched successfully:', response.data);
     } catch (error) {
       if (handleUnauthorized(error)) return;
       console.error('Error fetching pages:', error);
@@ -52,12 +52,6 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
       setLoading(false);
     }
   }, [handleUnauthorized]);
-
-  useEffect(() => {
-    if (user) {
-      fetchPages();
-    }
-  }, [fetchPages, user]);
 
   const openCreateModal = () => {
     setNewPageName('');
@@ -88,7 +82,7 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
 
       if (response.data.Page) {
         toast.success(`Page "${newPageName}" created successfully!`);
-        fetchPages();
+        fetchPages(); // Refresh pages after creation
         closeCreateModal();
 
         if (onPageSelect && response.data.Page) {
@@ -113,24 +107,38 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
     }
   };
 
+  // Only fetch pages on mount if user exists
+  useEffect(() => {
+    if (user) {
+      fetchPages();
+    }
+  }, [fetchPages, user]);
+
   return (
     <>
       <div className="flex items-center gap-2">
         <button
-            onClick={openCreateModal}
-            className="w-20 h-20 mx-auto bg-primary/20 rounded-3xl flex items-center justify-center shadow-lg border border-primary/10 cursor-pointer hover:bg-primary/30 hover:scale-105 transition-all duration-200"
-            title="Create New Page"
+          onClick={openCreateModal}
+          className="w-20 h-20 mx-auto bg-primary/20 rounded-3xl flex items-center justify-center shadow-lg border border-primary/10 cursor-pointer hover:bg-primary/30 hover:scale-105 transition-all duration-200"
+          title="Create New Page"
+          disabled={loading}
         >
-          <FiEdit className="w-10 h-10 text-primary" />
+          {loading ? (
+            <span className="loading loading-spinner loading-md text-primary"></span>
+          ) : (
+            <FiEdit className="w-10 h-10 text-primary" />
+          )}
         </button>
         {/* Mobile Close Button */}
-        <button
-          onClick={onClose}
-          className="btn btn-ghost btn-sm btn-circle lg:hidden hover:btn-error hover:scale-110 transition-all duration-200"
-          title="Close sidebar"
-        >
-          ×
-        </button>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="btn btn-ghost btn-sm btn-circle lg:hidden hover:btn-error hover:scale-110 transition-all duration-200"
+            title="Close sidebar"
+          >
+            ×
+          </button>
+        )}
       </div>
 
       {/* Create Page Modal */}
@@ -194,13 +202,7 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
                   <div>
                     <p className="text-xs text-base-content/60 mb-2">Quick suggestions:</p>
                     <div className="flex flex-wrap gap-2">
-                      {[
-                        'Meeting Notes',
-                        'Ideas',
-                        'To-Do List',
-                        'Project Plan',
-                        'Daily Journal',
-                      ].map((suggestion) => (
+                      {['Meeting Notes', 'Ideas', 'To-Do List', 'Project Plan', 'Daily Journal'].map((suggestion) => (
                         <button
                           key={suggestion}
                           onClick={() => setNewPageName(suggestion)}
@@ -248,9 +250,9 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
         )}
 
       {/* Floating Tab Button for Mobile - Only visible on mobile when sidebar is closed */}
-      {!isOpen && (
+      {!isOpen && onClose && (
         <button
-          onClick={() => onClose && onClose()}
+          onClick={onClose}
           className="lg:hidden fixed h-55 left-0 top-1/3 z-40 bg-primary text-primary-content py-4 rounded-r-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:px-4 group flex items-center gap-2"
           aria-label="Open sidebar"
         >
@@ -259,7 +261,7 @@ const NewNoteButton = ({ onPageSelect, isOpen, onClose }) => {
       )}
 
       {/* Swipe-to-close indicator when sidebar is open on mobile */}
-      {isOpen && (
+      {isOpen && onClose && (
         <button
           onClick={onClose}
           className="lg:hidden fixed left-72 top-24 z-40 bg-base-100 text-base-content px-2 py-4 rounded-r-xl shadow-lg hover:shadow-xl transition-all duration-300 border border-l-0 border-base-300"
