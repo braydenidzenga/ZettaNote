@@ -670,7 +670,7 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
             </div>
 
             {/* Enhanced Modal Footer */}
-            <div className="p-8 pt-0 flex justify-between items-center border-t border-base-300/60">
+            <div className="p-8 pt-5 flex justify-between items-center border-t border-base-300/60">
               <div className="text-sm text-base-content/60 flex items-center gap-2">
                 <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
                 <span>
