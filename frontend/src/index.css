@@ -74,7 +74,7 @@
   --color-info: oklch(70% 0.16 240);
   --color-success: oklch(72% 0.18 150);
   --color-warning: oklch(80% 0.17 80);
-  --color-error: oklch(65% 0.17 25);
+  --color-error: oklch(59.586% 0.19261 28.421 / 0.521);
 
   /* Neutrals */
   --color-neutral: oklch(26% 0.005 260);
