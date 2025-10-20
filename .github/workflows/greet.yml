@@ -22,11 +22,11 @@ jobs:
                   issue-message: |
                       🎉 Welcome to ZettaNote, @contributor_name! Thank you for opening your first issue. We're excited to have you here! 🚀
 
-                      Our team will review your issue soon. In the meantime, feel free to explore our [Contributing Guidelines](../CONTRIBUTING.md) and join the conversation. We appreciate your contribution to making ZettaNote better! 💡
+                      Our team will review your issue soon. In the meantime, feel free to explore our [Contributing Guidelines](https://github.com/braydenidzenga/ZettaNote/blob/main/CONTRIBUTING.md) and join the conversation. We appreciate your contribution to making ZettaNote better! 💡
 
                   pr-message: |
                       🎊 Awesome work, @contributor_name! Thank you for opening your first Pull Request to ZettaNote! 🌟
 
-                      We're thrilled to have you contribute to our project. A maintainer will review your PR soon. While you wait, make sure your changes follow our [Code of Conduct](../CODE_OF_CONDUCT.md) and [Contributing Guidelines](../CONTRIBUTING.md).
+                      We're thrilled to have you contribute to our project. A maintainer will review your PR soon. While you wait, make sure your changes follow our [Code of Conduct](https://github.com/braydenidzenga/ZettaNote/blob/main/CODE_OF_CONDUCT.md) and [Contributing Guidelines](https://github.com/braydenidzenga/ZettaNote/blob/main/CONTRIBUTING.md).
 
                       Thank you for being part of our community! 🙌
