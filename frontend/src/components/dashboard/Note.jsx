@@ -35,6 +35,12 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const editorRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const [lineCount, setLineCount] = useState(20);
+  // Floating toolbar state
+  const [isFocused, setIsFocused] = useState(false);
+  const [selectionLength, setSelectionLength] = useState(0);
+  const [floatingPos, setFloatingPos] = useState({ left: 0, top: 0 });
+  const [showFloating, setShowFloating] = useState(false);
+  const floatingRef = useRef(null);
 
   useEffect(() => {
     if (content !== editorContent) {
@@ -102,6 +108,75 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       ta.focus();
       ta.setSelectionRange(newContent.length, newContent.length);
     }, 0);
+  };
+
+  // Utility: approximate caret/selection coordinates inside a textarea by mirroring content
+  const getCaretCoordinates = (textarea, position) => {
+    if (!textarea) return { left: 0, top: 0 };
+
+    const div = document.createElement('div');
+    const style = getComputedStyle(textarea);
+
+    div.style.whiteSpace = 'pre-wrap';
+    div.style.wordWrap = 'break-word';
+    div.style.position = 'absolute';
+    div.style.visibility = 'hidden';
+    div.style.boxSizing = 'border-box';
+    div.style.width = textarea.clientWidth + 'px';
+
+    // Copy font related styles to get a close measurement
+    div.style.fontFamily = style.fontFamily;
+    div.style.fontSize = style.fontSize;
+    div.style.lineHeight = style.lineHeight;
+    div.style.padding = style.padding;
+    div.style.border = style.border;
+
+    const value = textarea.value || '';
+    const before = document.createTextNode(value.substring(0, position));
+    const span = document.createElement('span');
+    span.textContent = value.substring(position, position + 1) || '\u200b';
+
+    div.appendChild(before);
+    div.appendChild(span);
+    document.body.appendChild(div);
+
+    const spanRect = span.getBoundingClientRect();
+    const divRect = div.getBoundingClientRect();
+    const taRect = textarea.getBoundingClientRect();
+
+    const coords = {
+      left: taRect.left + (spanRect.left - divRect.left) - textarea.scrollLeft,
+      top: taRect.top + (spanRect.top - divRect.top) - textarea.scrollTop,
+    };
+
+    document.body.removeChild(div);
+    return coords;
+  };
+
+  const updateFloatingToolbar = () => {
+    const ta = editorRef.current;
+    if (!ta) return;
+
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selLen = Math.max(0, end - start);
+    setSelectionLength(selLen);
+
+    if (!isFocused || isPreview) {
+      setShowFloating(false);
+      return;
+    }
+
+    const coords = getCaretCoordinates(ta, end);
+    const top = coords.top - 42; // position above caret
+    const left = Math.max(8, coords.left - 20);
+
+    setFloatingPos({ left, top });
+    setShowFloating(true);
+  };
+
+  const handleSelectOrKey = () => {
+    setTimeout(updateFloatingToolbar, 0);
   };
 
   const handleKeyDown = (e) => {
@@ -717,6 +792,10 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                   value={editorContent}
                   onChange={handleContentChange}
                   onKeyDown={handleKeyDown}
+                  onFocus={() => { setIsFocused(true); setTimeout(updateFloatingToolbar, 0); }}
+                  onBlur={() => { setIsFocused(false); setShowFloating(false); }}
+                  onKeyUp={handleSelectOrKey}
+                  onMouseUp={handleSelectOrKey}
                   placeholder="# Welcome to your note! ✨
 
 Start writing here... You can use Markdown for rich formatting:
@@ -739,6 +818,56 @@ Happy writing! 🚀"
                     lineHeight: '1.6',
                   }}
                 />
+
+                {/* Floating inline toolbar */}
+                {showFloating && (
+                  <div
+                    ref={floatingRef}
+                    className="absolute z-50 bg-base-100 border border-base-300 rounded-lg shadow-lg px-1 py-1 flex items-center gap-1"
+                    style={{ left: floatingPos.left, top: floatingPos.top, transform: 'translateY(-100%)' }}
+                  >
+                    <button
+                      className="btn btn-ghost btn-xs btn-square"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => wrapSelectedText('**', '**', 'bold text')}
+                      title="Bold"
+                    >
+                      <FiBold className="w-3 h-3" />
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-xs btn-square"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => wrapSelectedText('*', '*', 'italic text')}
+                      title="Italic"
+                    >
+                      <FiItalic className="w-3 h-3" />
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-xs btn-square"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => wrapSelectedText('`', '`', 'code')}
+                      title="Inline code"
+                    >
+                      <FiCode className="w-3 h-3" />
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-xs btn-square"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => wrapSelectedText('[', '](url)', 'Link text')}
+                      title="Add link"
+                    >
+                      <FiLink className="w-3 h-3" />
+                    </button>
+                    <button
+                      className="btn btn-ghost btn-xs btn-square"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => insertAtCursor('\n```javascript\n\n```\n', 15)}
+                      title="Code block"
+                    >
+                      <BiCodeBlock className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
