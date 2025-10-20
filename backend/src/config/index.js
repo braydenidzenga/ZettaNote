@@ -31,17 +31,39 @@ const config = {
 
   // CORS Configuration
   cors: {
-    allowedOrigins: process.env.CORS_ORIGIN
-      ? process.env.CORS_ORIGIN.split(',')
-      : process.env.ALLOWED_ORIGINS
-        ? process.env.ALLOWED_ORIGINS.split(',')
-        : [
-            'http://localhost:3000',
-            'http://localhost:3001',
-            'http://localhost:3002',
-            'http://localhost:80',
-            'http://localhost:5173',
-          ],
+    // Read comma-separated origins from either CORS_ORIGIN or ALLOWED_ORIGINS.
+    // Trim entries and ignore empty strings to avoid accidentally blocking all origins.
+    allowedOrigins: (() => {
+      const envList = process.env.CORS_ORIGIN || process.env.ALLOWED_ORIGINS;
+
+      // Helper to normalize entries (trim, remove trailing slash)
+      const normalize = (s) => s && s.trim().replace(/\/$/, '');
+
+      if (envList && envList.trim() !== '') {
+        const parsed = envList.split(',').map((s) => normalize(s)).filter(Boolean);
+
+        // Also include FRONTEND_URL if set and not already in the list
+        if (process.env.FRONTEND_URL && process.env.FRONTEND_URL.trim() !== '') {
+          const frontend = normalize(process.env.FRONTEND_URL);
+          if (frontend && !parsed.includes(frontend)) { 
+            parsed.push(frontend);
+          }
+        }
+
+        // Deduplicate while preserving order
+        return [...new Set(parsed)];
+      }
+
+      return [
+        'http://localhost:3000',
+        'http://localhost:3001',
+        'http://localhost:3002',
+        'http://localhost:80',
+        'http://localhost:5173',
+        // Vite sometimes uses 127.0.0.1
+        'http://127.0.0.1:5173',
+      ];
+    })(),
   },
 
   // Cookie Configuration
