@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useRef } from 'react';
+import { useContext, useState } from 'react';
 import {
   FiShare2,
   FiCopy,
@@ -53,7 +53,6 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
     expiresAt: null,
   });
 
-  
   const [previousShareSettings, setPreviousShareSettings] = useState({
     isPublic: null,
     allowComments: false,
@@ -62,37 +61,46 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
   });
 
   const getStatus = async () => {
+    const response = await axios.post(
+      `${VITE_API_URL}/api/pages/getpage`,
+      { pageId: activePage.id },
+      { withCredentials: true }
+    );
 
-  const response = await axios.post(
-    `${VITE_API_URL}/api/pages/getpage`,
-    { pageId: activePage.id },
-    { withCredentials: true }
-  );
-  
-  const data = response.data.Page;
-  
-  setPreviousShareSettings({ ...currentShareSetting, isPublic: !!data.publicShareId, allowDownload:data.allowDownload});
-  setCurrentShareSetting({ ...currentShareSetting, isPublic: !!data.publicShareId, allowDownload:data.allowDownload});
-  
-  if(data.publicShareId){
-    setShareableLink(`${window.location.origin}/public/${data.publicShareId}`);
-  }
-  else{
-    setShareableLink("");
-  }
-};
+    const data = response.data.Page;
 
-const handleSave = async () => {
+    setPreviousShareSettings({
+      ...currentShareSetting,
+      isPublic: !!data.publicShareId,
+      allowDownload: data.allowDownload,
+    });
+    setCurrentShareSetting({
+      ...currentShareSetting,
+      isPublic: !!data.publicShareId,
+      allowDownload: data.allowDownload,
+    });
 
-    if(currentShareSetting.isPublic!=previousShareSettings.isPublic && currentShareSetting.isPublic){
-      generateShareableLink()
-      return
+    if (data.publicShareId) {
+      setShareableLink(`${window.location.origin}/public/${data.publicShareId}`);
+    } else {
+      setShareableLink('');
+    }
+  };
+
+  const handleSave = async () => {
+    if (
+      currentShareSetting.isPublic != previousShareSettings.isPublic &&
+      currentShareSetting.isPublic
+    ) {
+      generateShareableLink();
+      return;
     }
 
-    try{
-      const response = await axios.post(
+    try {
+      await axios.post(
         `${VITE_API_URL}/api/pages/publicshare`,
-        { pageId: activePage.id,
+        {
+          pageId: activePage.id,
           allowDownload: currentShareSetting.allowDownload,
           isPublic: currentShareSetting.isPublic,
           isRegenerate: currentShareSetting.isPublic ? false : true,
@@ -100,11 +108,11 @@ const handleSave = async () => {
         { withCredentials: true }
       );
       toast.success('Saved Successfully');
-
-    } catch(error){
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
       toast.error('Error Saving');
     }
-  }
+  };
 
   const generateShareableLink = async () => {
     if (!activePage?.id) return;
@@ -126,10 +134,10 @@ const handleSave = async () => {
       if (response.status === 200 && response.data) {
         const publicLink = `${window.location.origin}/public/${response.data.publicShareId}`;
 
-        setPreviousShareSettings({ ...currentShareSetting, isPublic: true, allowDownload: false});
-        setCurrentShareSetting({ ...currentShareSetting, isPublic: true, allowDownload: false});
+        setPreviousShareSettings({ ...currentShareSetting, isPublic: true, allowDownload: false });
+        setCurrentShareSetting({ ...currentShareSetting, isPublic: true, allowDownload: false });
         setShareableLink(publicLink);
-        copyToClipboard(publicLink)
+        copyToClipboard(publicLink);
 
         if (response.data.message === 'Already Shared') {
           toast.success('🔗 Public link retrieved successfully!');
@@ -244,7 +252,7 @@ const handleSave = async () => {
 
   const handleShare = () => {
     setShowShareModal(true);
-    getStatus()
+    getStatus();
     fetchSharedUsers();
   };
 
@@ -526,7 +534,10 @@ const handleSave = async () => {
                           className="checkbox checkbox-primary"
                           checked={currentShareSetting.isPublic}
                           onChange={(e) =>
-                            setCurrentShareSetting({ ...currentShareSetting, isPublic: e.target.checked })
+                            setCurrentShareSetting({
+                              ...currentShareSetting,
+                              isPublic: e.target.checked,
+                            })
                           }
                         />
                         <div className="flex items-center gap-2">
@@ -546,7 +557,10 @@ const handleSave = async () => {
                           className="checkbox checkbox-secondary"
                           checked={currentShareSetting.allowDownload}
                           onChange={(e) =>
-                            setCurrentShareSetting({ ...currentShareSetting, allowDownload: e.target.checked })
+                            setCurrentShareSetting({
+                              ...currentShareSetting,
+                              allowDownload: e.target.checked,
+                            })
                           }
                         />
                         <div className="flex items-center gap-2">
@@ -710,10 +724,10 @@ const handleSave = async () => {
                   {shareableLink && Array.isArray(sharedUsers) && sharedUsers.length > 0
                     ? 'Public & private sharing active'
                     : shareableLink
-                      ? 'Public sharing active'
-                      : Array.isArray(sharedUsers) && sharedUsers.length > 0
-                        ? 'Private sharing active'
-                        : 'No active sharing'}
+                    ? 'Public sharing active'
+                    : Array.isArray(sharedUsers) && sharedUsers.length > 0
+                    ? 'Private sharing active'
+                    : 'No active sharing'}
                 </span>
               </div>
               <div className="flex gap-3">
@@ -725,7 +739,7 @@ const handleSave = async () => {
                 </button>
                 <button
                   onClick={() => {
-                    handleSave()
+                    handleSave();
                     setShowShareModal(false);
                   }}
                   className="btn btn-primary gap-2 rounded-xl shadow-lg shadow-primary/25 hover:scale-105 transition-all"

@@ -676,7 +676,7 @@ export const publicShare = async (req) => {
       };
     }
 
-    const { pageId, allowDownload = false, isPublic = true, isRegenerate = true} = req.body;
+    const { pageId, allowDownload = false, isPublic = true, isRegenerate = true } = req.body;
 
     const page = await Page.findById(pageId);
 
@@ -695,8 +695,8 @@ export const publicShare = async (req) => {
       };
     }
 
-    if(!isPublic){
-      page.publicShareId = "";
+    if (!isPublic) {
+      page.publicShareId = '';
       page.allowDownload = false;
     }
 
@@ -704,9 +704,7 @@ export const publicShare = async (req) => {
     else if (!isRegenerate) {
       // Update the existing share settings, including allowDownload
       page.allowDownload = allowDownload;
-    }
-
-    else{
+    } else {
       // Generate and save public share ID for new share
       const uniqueShareId = uuidv4();
       page.publicShareId = uniqueShareId;
