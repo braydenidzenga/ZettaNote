@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import FloatingToolbar from './FloatingToolbar';
 import {
   FiBold,
   FiItalic,
@@ -17,6 +18,8 @@ import {
   FiCode,
   FiMinus,
   FiStar,
+  FiCopy,
+  FiClipboard,
 } from 'react-icons/fi';
 import { FaQuoteRight, FaListOl, FaStrikethrough, FaHighlighter } from 'react-icons/fa';
 import { BiCodeBlock, BiMath } from 'react-icons/bi';
@@ -28,6 +31,11 @@ import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
 
 const Note = ({ activePage, onContentChange, content = '', onSave }) => {
+  // Floating toolbar state
+  // Toggle for enabling/disabling floating toolbar
+  const [floatingToolbarEnabled, setFloatingToolbarEnabled] = useState(true);
+  const [toolbarVisible, setToolbarVisible] = useState(false);
+  const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
   const [editorContent, setEditorContent] = useState(content);
   const [isPreview, setIsPreview] = useState(false);
   const [history, setHistory] = useState([]);
@@ -677,6 +685,114 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
 
   return (
     <div className="flex-1 flex flex-col bg-base-100">
+      {/* Floating Toolbar for right-click */}
+      <FloatingToolbar
+        visible={toolbarVisible}
+        x={toolbarPos.x}
+        y={toolbarPos.y}
+        onClose={() => setToolbarVisible(false)}
+      >
+        {/* 22 toolbar buttons as icons only, arranged in 3 rows: 8, 8, 6 */}
+        {(() => {
+          const allButtons = toolbarGroups.flatMap((group) => group.buttons);
+          const rows = [
+            allButtons.slice(0, 8),
+            allButtons.slice(8, 16),
+            allButtons.slice(16, 22),
+          ];
+          // Add Copy and Paste buttons to the last row
+          const copyPasteIcons = [
+            {
+              title: 'Copy',
+              icon: FiCopy,
+              onClick: async () => {
+                try {
+                  const textarea = editorRef.current;
+                  let textToCopy = editorContent;
+                  if (textarea) {
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    if (start !== end) {
+                      textToCopy = editorContent.substring(start, end);
+                    }
+                  }
+                  await navigator.clipboard.writeText(textToCopy);
+                  toast.success('Copied to clipboard');
+                } catch {
+                  toast.error('Copy failed');
+                }
+                setToolbarVisible(false);
+              },
+            },
+            {
+              title: 'Paste',
+              icon: FiClipboard,
+              onClick: async () => {
+                try {
+                  const text = await navigator.clipboard.readText();
+                  insertAtCursor(text);
+                  toast.success('Pasted from clipboard');
+                } catch {
+                  toast.error('Paste failed');
+                }
+                setToolbarVisible(false);
+              },
+            },
+          ];
+          const thirdRow = [...rows[2], ...copyPasteIcons];
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 justify-center">
+                {rows[0].map((btn, idx) => (
+                  <button
+                    key={btn.title + '-' + idx}
+                    className={`btn btn-square btn-sm flex items-center justify-center ${btn.icon === FiTable ? 'btn-primary' : 'btn-ghost'}`}
+                    title={btn.title}
+                    onClick={() => {
+                      setToolbarVisible(false);
+                      btn.onClick();
+                    }}
+                    disabled={btn.disabled}
+                    style={{ minWidth: 36, minHeight: 36 }}
+                  >
+                    {btn.icon && <btn.icon className="w-5 h-5" />}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 justify-center">
+                {rows[1].map((btn, idx) => (
+                  <button
+                    key={btn.title + '-' + idx}
+                    className={`btn btn-square btn-sm flex items-center justify-center ${btn.icon === FiTable ? 'btn-primary' : 'btn-ghost'}`}
+                    title={btn.title}
+                    onClick={() => {
+                      setToolbarVisible(false);
+                      btn.onClick();
+                    }}
+                    disabled={btn.disabled}
+                    style={{ minWidth: 36, minHeight: 36 }}
+                  >
+                    {btn.icon && <btn.icon className="w-5 h-5" />}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 justify-center">
+                {thirdRow.map((btn, idx) => (
+                  <button
+                    key={btn.title + '-' + idx}
+                    className={`btn btn-square btn-sm flex items-center justify-center ${btn.icon === FiTable ? 'btn-primary' : 'btn-ghost'}`}
+                    title={btn.title}
+                    onClick={btn.onClick}
+                    style={{ minWidth: 36, minHeight: 36 }}
+                  >
+                    {btn.icon && <btn.icon className="w-5 h-5" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+      </FloatingToolbar>
       {/* Enhanced Toolbar */}
       <div className="border-b border-base-300/60 bg-base-100/80 backdrop-blur-xl sticky top-28 lg:top-32 z-20 shadow-sm">
         <div className="p-2 lg:p-4">
@@ -828,12 +944,27 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                     Markdown Enabled
                   </span>
                   <span>Auto-save: On</span>
+                  <label className="flex items-center gap-2 cursor-pointer select-none ml-4">
+                    <input
+                      type="checkbox"
+                      checked={floatingToolbarEnabled}
+                      onChange={e => setFloatingToolbarEnabled(e.target.checked)}
+                      className="toggle toggle-xs toggle-primary"
+                    />
+                    <span className="text-xs font-medium">Floating Toolbar</span>
+                  </label>
                 </div>
               </div>
 
               {/* Enhanced Editor */}
               <div
                 onClick={handleContainerClick}
+                onContextMenu={(e) => {
+                  if (!floatingToolbarEnabled) return;
+                  e.preventDefault();
+                  setToolbarPos({ x: e.clientX, y: e.clientY });
+                  setToolbarVisible(true);
+                }}
                 className="bg-base-100 rounded-2xl border border-base-300 shadow-lg overflow-x-hidden overflow-y-auto max-h-[70vh] min-h-[70vh] relative flex note-container-scrollable"
               >
                 {/* Line Numbers */}
