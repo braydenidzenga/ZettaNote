@@ -229,10 +229,7 @@ const Dashboard = () => {
       )}
 
       {/* Reminders Sidebar Component */}
-      <Reminder 
-        isOpen={isRemindersSidebarOpen} 
-        onClose={() => setIsRemindersSidebarOpen(false)} 
-      />
+      <Reminder isOpen={isRemindersSidebarOpen} onClose={() => setIsRemindersSidebarOpen(false)} />
     </div>
   );
 };
