@@ -2,11 +2,13 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import Sidebar from '../components/dashboard/Sidebar';
 import TopBar from '../components/dashboard/TopBar';
 import Note from '../components/dashboard/Note';
+import Reminder from '../components/dashboard/Reminder';
 import authContext from '../context/AuthProvider';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { VITE_API_URL } from '../env';
+import { FiBell } from 'react-icons/fi';
 
 const Dashboard = () => {
   const { user, setuser } = useContext(authContext);
@@ -15,6 +17,7 @@ const Dashboard = () => {
   const [lastSaved, setLastSaved] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isRemindersSidebarOpen, setIsRemindersSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -212,6 +215,21 @@ const Dashboard = () => {
           onSave={handleSave}
         />
       </div>
+
+      {/* Floating Reminders Button - Only show when sidebar is closed */}
+      {!isRemindersSidebarOpen && (
+        <button
+          onClick={() => setIsRemindersSidebarOpen(true)}
+          className="fixed bottom-6 right-6 btn btn-primary btn-lg gap-3 rounded-full shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/35 hover:scale-105 transition-all duration-300 z-50 group"
+          title="Open Reminders"
+        >
+          <FiBell className="w-6 h-6 group-hover:animate-pulse" />
+          <span className="font-semibold">Reminders</span>
+        </button>
+      )}
+
+      {/* Reminders Sidebar Component */}
+      <Reminder isOpen={isRemindersSidebarOpen} onClose={() => setIsRemindersSidebarOpen(false)} />
     </div>
   );
 };
