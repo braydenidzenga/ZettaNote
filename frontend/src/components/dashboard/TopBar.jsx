@@ -46,36 +46,65 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
     }
     return false;
   };
-  const [shareSettings, setShareSettings] = useState({
-    isPublic: true,
+  const [currentShareSetting, setCurrentShareSetting] = useState({
+    isPublic: null,
     allowComments: false,
-    allowDownload: true,
+    allowDownload: null,
     expiresAt: null,
   });
 
-  // Track previous allowDownload to detect deselect (true -> false)
-  const prevAllowDownloadRef = useRef(shareSettings.allowDownload);
+  
+  const [previousShareSettings, setPreviousShareSettings] = useState({
+    isPublic: null,
+    allowComments: false,
+    allowDownload: null,
+    expiresAt: null,
+  });
 
-  // Auto-regenerate link when the user deselects the "Allow Download" option.
-  // Guards: don't run on initial render and don't trigger while a generation
-  // is already in progress.
-  useEffect(() => {
-    const prev = prevAllowDownloadRef.current;
-    const current = shareSettings.allowDownload;
+  const getStatus = async () => {
 
-    // Only act when toggled from true -> false
-    if (prev === true && current === false) {
-      // If we already have a public link, regenerate it to apply new policy.
-      // Otherwise just generate one.
-      if (!isGeneratingLink) {
-        if (shareableLink) regenerateLink();
-        else generateShareableLink();
-      }
+  const response = await axios.post(
+    `${VITE_API_URL}/api/pages/getpage`,
+    { pageId: activePage.id },
+    { withCredentials: true }
+  );
+  
+  const data = response.data.Page;
+  
+  setPreviousShareSettings({ ...currentShareSetting, isPublic: !!data.publicShareId, allowDownload:data.allowDownload});
+  setCurrentShareSetting({ ...currentShareSetting, isPublic: !!data.publicShareId, allowDownload:data.allowDownload});
+  
+  if(data.publicShareId){
+    setShareableLink(`${window.location.origin}/public/${data.publicShareId}`);
+  }
+  else{
+    setShareableLink("");
+  }
+};
+
+const handleSave = async () => {
+
+    if(currentShareSetting.isPublic!=previousShareSettings.isPublic && currentShareSetting.isPublic){
+      generateShareableLink()
+      return
     }
 
-    prevAllowDownloadRef.current = current;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shareSettings.allowDownload]);
+    try{
+      const response = await axios.post(
+        `${VITE_API_URL}/api/pages/publicshare`,
+        { pageId: activePage.id,
+          allowDownload: currentShareSetting.allowDownload,
+          isPublic: currentShareSetting.isPublic,
+          isRegenerate: currentShareSetting.isPublic ? false : true,
+        },
+        { withCredentials: true }
+      );
+      toast.success('Saved Successfully');
+
+    } catch(error){
+      toast.error('Error Saving');
+    }
+  }
 
   const generateShareableLink = async () => {
     if (!activePage?.id) return;
@@ -86,17 +115,21 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
         `${VITE_API_URL}/api/pages/publicshare`,
         {
           pageId: activePage.id,
-          allowDownload: shareSettings?.allowDownload ?? true, // ✅ added line
-          isPublic: shareSettings?.isPublic ?? true, // optional
-          allowComments: shareSettings?.allowComments ?? false, // optional
-          expiresAt: shareSettings?.expiresAt ?? null, // optional
+          allowDownload: false,
+          isPublic: true,
+          allowComments: currentShareSetting?.allowComments ?? false, // optional
+          expiresAt: currentShareSetting?.expiresAt ?? null, // optional
         },
         { withCredentials: true }
       );
 
       if (response.status === 200 && response.data) {
         const publicLink = `${window.location.origin}/public/${response.data.publicShareId}`;
+
+        setPreviousShareSettings({ ...currentShareSetting, isPublic: true, allowDownload: false});
+        setCurrentShareSetting({ ...currentShareSetting, isPublic: true, allowDownload: false});
         setShareableLink(publicLink);
+        copyToClipboard(publicLink)
 
         if (response.data.message === 'Already Shared') {
           toast.success('🔗 Public link retrieved successfully!');
@@ -211,7 +244,7 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
 
   const handleShare = () => {
     setShowShareModal(true);
-    generateShareableLink();
+    getStatus()
     fetchSharedUsers();
   };
 
@@ -491,9 +524,9 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
                         <input
                           type="checkbox"
                           className="checkbox checkbox-primary"
-                          checked={shareSettings.isPublic}
+                          checked={currentShareSetting.isPublic}
                           onChange={(e) =>
-                            setShareSettings({ ...shareSettings, isPublic: e.target.checked })
+                            setCurrentShareSetting({ ...currentShareSetting, isPublic: e.target.checked })
                           }
                         />
                         <div className="flex items-center gap-2">
@@ -511,9 +544,9 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
                         <input
                           type="checkbox"
                           className="checkbox checkbox-secondary"
-                          checked={shareSettings.allowDownload}
+                          checked={currentShareSetting.allowDownload}
                           onChange={(e) =>
-                            setShareSettings({ ...shareSettings, allowDownload: e.target.checked })
+                            setCurrentShareSetting({ ...currentShareSetting, allowDownload: e.target.checked })
                           }
                         />
                         <div className="flex items-center gap-2">
@@ -692,16 +725,12 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
                 </button>
                 <button
                   onClick={() => {
-                    if (shareableLink) {
-                      copyToClipboard(shareableLink);
-                    }
+                    handleSave()
                     setShowShareModal(false);
                   }}
                   className="btn btn-primary gap-2 rounded-xl shadow-lg shadow-primary/25 hover:scale-105 transition-all"
-                  disabled={!shareableLink}
                 >
-                  <FiCopy className="w-4 h-4" />
-                  {shareableLink ? 'Copy Link & Close' : 'Close'}
+                  Save
                 </button>
               </div>
             </div>
