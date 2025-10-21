@@ -724,10 +724,10 @@ const TopBar = ({ activePage, onSave, lastSaved, isLoading }) => {
                   {shareableLink && Array.isArray(sharedUsers) && sharedUsers.length > 0
                     ? 'Public & private sharing active'
                     : shareableLink
-                    ? 'Public sharing active'
-                    : Array.isArray(sharedUsers) && sharedUsers.length > 0
-                    ? 'Private sharing active'
-                    : 'No active sharing'}
+                      ? 'Public sharing active'
+                      : Array.isArray(sharedUsers) && sharedUsers.length > 0
+                        ? 'Private sharing active'
+                        : 'No active sharing'}
                 </span>
               </div>
               <div className="flex gap-3">
