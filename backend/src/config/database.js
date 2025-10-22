@@ -8,7 +8,15 @@ import logger from '../utils/logger.js';
  */
 export const connectDatabase = async () => {
   try {
-    await mongoose.connect(config.database.uri);
+    await mongoose.connect(config.database.uri, {
+      // Connection pool settings for better performance
+      maxPoolSize: 10, // Maximum number of connections in the connection pool
+      minPoolSize: 2, // Minimum number of connections in the connection pool
+      maxIdleTimeMS: 30000, // Close connections after 30 seconds of inactivity
+      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+      bufferCommands: false, // Disable mongoose buffering
+    });
     logger.success('Connected to MongoDB database');
 
     // Handle connection events
