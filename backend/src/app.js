@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import { configureCors } from './config/cors.js';
 import routes from './routes/index.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
+import { apiLimiter } from './utils/security.utils.js';
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 // API Routes
+// Global API rate limiter (applies to all /api routes)
+app.use('/api', apiLimiter);
 app.use('/api', routes);
 
 // Root route
