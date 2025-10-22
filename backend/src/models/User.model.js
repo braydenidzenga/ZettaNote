@@ -75,4 +75,4 @@ UserSchema.index({ providerId: 1, authProvider: 1 }, { sparse: true });
 // Individual index on providerId for partial matches (sparse since not all users have providerId)
 UserSchema.index({ providerId: 1 }, { sparse: true });
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.models.User || mongoose.model('User', UserSchema);
