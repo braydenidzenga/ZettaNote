@@ -1,15 +1,16 @@
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+import logger from '../utils/logger.js';
 dotenv.config();
 
 if (process.env.CLOUDINARY_API_KEY === undefined) {
-  throw new Error('CLOUDINARY_API_KEY is not defined in environment variables');
+  logger.error('CLOUDINARY_API_KEY is not defined in environment variables');
 }
 if (process.env.CLOUDINARY_CLOUD_NAME === undefined) {
-  throw new Error('CLOUDINARY_CLOUD_NAME is not defined in environment variables');
+  logger.error('CLOUDINARY_CLOUD_NAME is not defined in environment variables');
 }
 if (process.env.CLOUDINARY_SECRET === undefined) {
-  throw new Error('CLOUDINARY_SECRET is not defined in environment variables');
+  logger.error('CLOUDINARY_SECRET is not defined in environment variables');
 }
 
 cloudinary.config({
