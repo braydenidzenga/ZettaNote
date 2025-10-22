@@ -17,9 +17,9 @@ export const MESSAGES = {
     ACCOUNT_TERMINATED: 'Account terminated successfully',
     UNAUTHORIZED: 'No token, authorization denied',
     INVALID_TOKEN: 'Invalid or expired token',
-    ACCOUNT_FOUND:'Account found successfully',
-    USER_UPDATED:'User updated successfully',
-    AVATAR_ADDED:'Avatar added successfully',
+    ACCOUNT_FOUND: 'Account found successfully',
+    USER_UPDATED: 'User updated successfully',
+    AVATAR_ADDED: 'Avatar added successfully',
   },
 
   // Page Messages
