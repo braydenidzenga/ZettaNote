@@ -1,11 +1,10 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, FileText } from 'lucide-react';
-import axios from 'axios';
+import { authAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 import authContext from '../context/AuthProvider';
 import OAuthButtons from '../components/OAuthButtons';
-import { VITE_API_URL } from '../env';
 import Input from '../components/ui/Input';
 
 const Signup = () => {
@@ -69,12 +68,7 @@ const Signup = () => {
     const formdata = { name: name.trim(), email: email.trim(), password };
 
     try {
-      const res = await axios.post(`${VITE_API_URL}/api/auth/signup`, formdata, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await authAPI.register(formdata);
 
       setSuccess('Account created successfully! Welcome to ZettaNote!');
       setuser(res.data.user);

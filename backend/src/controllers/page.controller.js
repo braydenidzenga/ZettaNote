@@ -165,7 +165,7 @@ export const getPage = async (req) => {
 
     // Check permissions
     const isOwner = page.owner.equals(user._id);
-    const isShared = page.sharedTo.some((id) => id.equals(user._id));
+    const isShared = (page.sharedTo || []).some((id) => id.equals(user._id));
 
     if (!isOwner && !isShared) {
       return {
@@ -353,7 +353,7 @@ export const savePage = async (req) => {
     }
 
     // Check if user is owner or has write permission
-    if (!page.owner.equals(user._id) && !page.sharedTo.some((id) => id.equals(user._id))) {
+    if (!page.owner.equals(user._id) && !(page.sharedTo || []).some((id) => id.equals(user._id))) {
       return {
         resStatus: STATUS_CODES.FORBIDDEN,
         resMessage: { message: MESSAGES.PAGE.ACCESS_DENIED },
@@ -362,7 +362,6 @@ export const savePage = async (req) => {
 
     // Update page
     page.pageData = newPageData;
-    page.updatedAt = new Date();
     await page.save();
 
     const pageKey = `page:${pageId}`;
@@ -376,7 +375,7 @@ export const savePage = async (req) => {
 
     // Invalidate related user caches (owner and shared users)
     const ownerCacheKey = `user:${page.owner}:ownedPages`;
-    const sharedUserCacheKeys = page.sharedTo.map((userId) => `user:${userId}:sharedPages`);
+    const sharedUserCacheKeys = (page.sharedTo || []).map((userId) => `user:${userId}:sharedPages`);
 
     // Invalidate owner cache
     await safeRedisCall('del', ownerCacheKey);
@@ -460,12 +459,11 @@ export const renamePage = async (req) => {
 
     // Update page name
     page.pageName = newPageName;
-    page.updatedAt = new Date();
     await page.save();
 
     // Invalidate related user caches (owner and shared users)
     const ownerCacheKey = `user:${page.owner}:ownedPages`;
-    const sharedUserCacheKeys = page.sharedTo.map((userId) => `user:${userId}:sharedPages`);
+    const sharedUserCacheKeys = (page.sharedTo || []).map((userId) => `user:${userId}:sharedPages`);
 
     // Invalidate caches in parallel
     const cacheInvalidations = [safeRedisCall('del', ownerCacheKey)];
@@ -546,7 +544,7 @@ export const deletePage = async (req) => {
     }
 
     // Store shared users before deletion for cache invalidation
-    const sharedUserIds = [...page.sharedTo];
+    const sharedUserIds = [...(page.sharedTo || [])];
 
     // Delete page
     const pageDeleted = await Page.findByIdAndDelete(pageId);
@@ -664,7 +662,7 @@ export const sharePage = async (req) => {
     }
 
     // Check if already shared
-    const pageAlreadyShared = page.sharedTo.some((id) => id.equals(sharedUser._id));
+    const pageAlreadyShared = (page.sharedTo || []).some((id) => id.equals(sharedUser._id));
     if (pageAlreadyShared) {
       return {
         resStatus: STATUS_CODES.BAD_REQUEST,
@@ -859,7 +857,7 @@ export const removeUserFromSharedPage = async (req, id, gmail) => {
     }
 
     // Check if page is actually shared with the user
-    const isShared = page.sharedTo.some((uid) => uid.equals(user._id));
+    const isShared = (page.sharedTo || []).some((uid) => uid.equals(user._id));
     if (!isShared) {
       return {
         resStatus: STATUS_CODES.BAD_REQUEST,

@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiFile, FiHome, FiDownload, FiExternalLink, FiClock, FiEye } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import axios from 'axios';
-import { VITE_API_URL } from '../env';
+import { pagesAPI } from '../utils/api';
 // Importing highlight.js for code syntax highlighting
 import hljs from 'highlight.js';
 import 'highlight.js/styles/atom-one-dark.css';
@@ -24,7 +23,7 @@ const PublicShare = () => {
       }
 
       try {
-        const response = await axios.get(`${VITE_API_URL}/api/pages/share/${shareId}`);
+        const response = await pagesAPI.getPublicPage(shareId);
         if (response.status === 200 && response.data) {
           setPageData(response.data);
         } else {

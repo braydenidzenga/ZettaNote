@@ -24,6 +24,36 @@ import propTypes from 'prop-types';
 import 'highlight.js/styles/atom-one-dark.css';
 import { renderMarkdown } from '../../utils/markdownRenderer.js';
 
+// =============================================================================
+// DEVELOPER NOTES
+// =============================================================================
+// Note component - Main markdown editor with live preview.
+// Key features:
+// - Real-time markdown rendering and preview
+// - Undo/redo functionality with history management
+// - Keyboard shortcuts (Ctrl+B, Ctrl+I, Ctrl+Z, etc.)
+// - Auto-resizing textarea with line numbers
+// - Rich toolbar with formatting options
+// - Syntax highlighting in preview mode
+//
+// Performance considerations:
+// - Debounced content updates to parent
+// - Efficient history management (limited to 50 entries)
+// - Optimized re-renders with proper useEffect dependencies
+
+// =============================================================================
+// TODO
+// =============================================================================
+// - [ ] Add collaborative editing with real-time cursors
+// - [ ] Implement image upload and embedding
+// - [ ] Add table editing capabilities
+// - [ ] Implement spell checking
+// - [ ] Add find and replace functionality
+// - [ ] Support for custom markdown extensions
+// - [ ] Add export to PDF/HTML functionality
+// - [ ] Implement dark mode syntax highlighting themes
+// - [ ] Add voice-to-text input support
+
 const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const [editorContent, setEditorContent] = useState(content);
   const [isPreview, setIsPreview] = useState(false);

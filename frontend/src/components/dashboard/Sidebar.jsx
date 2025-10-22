@@ -14,34 +14,45 @@ import {
   FiChevronRight,
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import authContext from '../../context/AuthProvider';
 import { usePageCache } from '../../hooks/usePageCache.js';
 import { useNavigate } from 'react-router-dom';
-import { VITE_API_URL } from '../../env';
+import { pagesAPI, apiUtils } from '../../utils/api';
 import CreateNewNoteModal from '../modals/CreateNewNoteModal.jsx';
 import DeleteNoteModal from '../modals/DeleteNoteModal.jsx';
+
+// =============================================================================
+// DEVELOPER NOTES
+// =============================================================================
+// Sidebar component for page navigation and management.
+// Features:
+// - Page listing with search functionality
+// - Create, rename, delete page operations
+// - Shared pages section
+// - Responsive design with mobile overlay
+// - Page preloading on hover for better UX
+//
+// Performance optimizations:
+// - Debounced hover preloading (300ms delay)
+// - Memory cleanup for timeouts
+// - Efficient search filtering
+
+// =============================================================================
+// TODO
+// =============================================================================
+// - [ ] Add drag-and-drop for page reordering
+// - [ ] Implement page folders/categories
+// - [ ] Add page favorites/starred functionality
+// - [ ] Improve search with fuzzy matching and highlighting
+// - [ ] Add bulk operations (select multiple pages)
+// - [ ] Implement page tags/labels system
+// - [ ] Add recent pages section
+// - [ ] Consider implementing page thumbnails/previews
 
 const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const { user, setuser } = useContext(authContext);
   const { preloadPage, isPreloading } = usePageCache();
   const navigate = useNavigate();
-
-  const handleUnauthorized = useCallback(
-    (error) => {
-      if (error.response && error.response.status === 401) {
-        setuser(null);
-        localStorage.removeItem('zetta_user');
-        toast.error('Session expired. Please login again.');
-        setTimeout(() => {
-          navigate('/login');
-        }, 1500);
-        return true;
-      }
-      return false;
-    },
-    [setuser, navigate]
-  );
 
   const [pages, setPages] = useState([]);
   const [sharedPages, setSharedPages] = useState([]);
@@ -64,11 +75,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const fetchPages = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.post(
-        `${VITE_API_URL}/api/pages/getpages`,
-        {},
-        { withCredentials: true }
-      );
+      const response = await pagesAPI.getAllPages();
 
       if (response.data.OwnedPages) {
         const transformedPages = response.data.OwnedPages.map((page) => ({
@@ -93,13 +100,23 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
         setSharedPages(transformedSharedPages);
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          setTimeout(() => {
+            navigate('/login');
+          }, 1500);
+        })
+      )
+        return;
       console.error('Error fetching pages:', error);
       toast.error('Failed to load pages');
     } finally {
       setLoading(false);
     }
-  }, [handleUnauthorized]);
+  }, [setuser, navigate]);
 
   const openCreateModal = () => {
     setNewPageName('');
@@ -108,13 +125,9 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
 
   const handleCreatePage = async (pageName) => {
     try {
-      const response = await axios.post(
-        `${VITE_API_URL}/api/pages/createpage`,
-        {
-          pageName: pageName,
-        },
-        { withCredentials: true }
-      );
+      const response = await pagesAPI.createPage({
+        pageName: pageName,
+      });
 
       if (response.data.Page) {
         toast.success(`Page "${pageName}" created successfully!`);
@@ -131,7 +144,17 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
         fetchPages();
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          setTimeout(() => {
+            navigate('/login');
+          }, 1500);
+        })
+      )
+        return;
       const errorMsg = error.response?.data?.message || 'Failed to create page';
       toast.error(errorMsg);
       console.error('Error creating page:', error);
@@ -143,10 +166,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
     try {
       setIsDeleting(true);
 
-      const response = await axios.delete(`${VITE_API_URL}/api/pages/deletepage`, {
-        data: { pageId },
-        withCredentials: true,
-      });
+      const response = await pagesAPI.deletePage(pageId);
 
       if (response.data.success || response.data.message?.includes('deleted')) {
         toast.success('Page deleted successfully!');
@@ -156,7 +176,17 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
         }
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          setTimeout(() => {
+            navigate('/login');
+          }, 1500);
+        })
+      )
+        return;
       const errorMsg = error.response?.data?.message || 'Failed to delete page';
       toast.error(errorMsg);
       console.error('Error deleting page:', error);
@@ -202,14 +232,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
     try {
       setIsRenaming(true);
 
-      const response = await axios.post(
-        `${VITE_API_URL}/api/pages/renamepage`,
-        {
-          pageId: renamePageId,
-          newPageName: renamePageName.trim(),
-        },
-        { withCredentials: true }
-      );
+      const response = await pagesAPI.renamePage(renamePageId, renamePageName.trim());
 
       if (
         response.data['Updated Page'] ||
@@ -233,7 +256,17 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
         }
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          setTimeout(() => {
+            navigate('/login');
+          }, 1500);
+        })
+      )
+        return;
       const errorMsg = error.response?.data?.message || 'Failed to rename page';
       toast.error(errorMsg);
       console.error('Error renaming page:', error);
