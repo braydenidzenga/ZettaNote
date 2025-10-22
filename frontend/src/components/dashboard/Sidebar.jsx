@@ -16,6 +16,7 @@ import {
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import authContext from '../../context/AuthProvider';
+import { usePageCache } from '../../context/PageCacheProvider';
 import { useNavigate } from 'react-router-dom';
 import { VITE_API_URL } from '../../env';
 import CreateNewNoteModal from '../modals/CreateNewNoteModal.jsx';
@@ -23,6 +24,7 @@ import DeleteNoteModal from '../modals/DeleteNoteModal.jsx';
 
 const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const { user, setuser } = useContext(authContext);
+  const { preloadPage, isPreloading } = usePageCache();
   const navigate = useNavigate();
 
   const handleUnauthorized = useCallback(
@@ -57,6 +59,7 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [hoverTimeouts, setHoverTimeouts] = useState(new Map());
 
   const fetchPages = useCallback(async () => {
     try {
@@ -239,6 +242,54 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
     }
   };
 
+  // Hover preloading handlers
+  const handlePageHover = useCallback(
+    (pageId) => {
+      if (!pageId || selectedPageId === pageId) return;
+
+      // Clear any existing timeout for this page
+      const existingTimeout = hoverTimeouts.get(pageId);
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+      }
+
+      // Set a new timeout to preload after 300ms hover
+      const timeoutId = setTimeout(() => {
+        if (!isPreloading(pageId)) {
+          preloadPage(pageId, 0); // No additional delay since we're already debounced
+        }
+      }, 300);
+
+      setHoverTimeouts((prev) => new Map(prev).set(pageId, timeoutId));
+    },
+    [selectedPageId, hoverTimeouts, isPreloading, preloadPage]
+  );
+
+  const handlePageLeave = useCallback(
+    (pageId) => {
+      if (!pageId) return;
+
+      // Clear the timeout for this page
+      const existingTimeout = hoverTimeouts.get(pageId);
+      if (existingTimeout) {
+        clearTimeout(existingTimeout);
+        setHoverTimeouts((prev) => {
+          const newMap = new Map(prev);
+          newMap.delete(pageId);
+          return newMap;
+        });
+      }
+    },
+    [hoverTimeouts]
+  );
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      hoverTimeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+    };
+  }, [hoverTimeouts]);
+
   useEffect(() => {
     if (user) {
       fetchPages();
@@ -364,11 +415,13 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
                               selectedPageId === page._id
                                 ? 'bg-primary/10 border border-primary/30 shadow-lg'
                                 : 'hover:bg-base-200/60 hover:shadow-md hover:scale-[1.01]'
-                            }`}
+                            } ${isPreloading(page._id) ? 'opacity-75' : ''}`}
                             onClick={() =>
                               onPageSelect &&
                               onPageSelect({ id: page._id, name: page.title, ...page })
                             }
+                            onMouseEnter={() => handlePageHover(page._id)}
+                            onMouseLeave={() => handlePageLeave(page._id)}
                           >
                             <div className="flex items-center gap-4 flex-1 min-w-0">
                               <div
@@ -509,11 +562,13 @@ const Sidebar = ({ onPageSelect, selectedPageId, isOpen, onClose }) => {
                               selectedPageId === page._id
                                 ? 'bg-secondary/10 border border-secondary/20'
                                 : ''
-                            }`}
+                            } ${isPreloading(page._id) ? 'opacity-75' : ''}`}
                             onClick={() =>
                               onPageSelect &&
                               onPageSelect({ id: page._id, name: page.title, ...page })
                             }
+                            onMouseEnter={() => handlePageHover(page._id)}
+                            onMouseLeave={() => handlePageLeave(page._id)}
                           >
                             <FiShare2
                               className={`w-4 h-4 flex-shrink-0 ${

@@ -4,6 +4,7 @@ import TopBar from '../components/dashboard/TopBar';
 import Note from '../components/dashboard/Note';
 import Reminder from '../components/dashboard/Reminder';
 import authContext from '../context/AuthProvider';
+import { usePageCache } from '../context/PageCacheProvider';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -12,6 +13,7 @@ import { FiBell } from 'react-icons/fi';
 
 const Dashboard = () => {
   const { user, setuser } = useContext(authContext);
+  const { getCachedPage, setCachedPage, clearPageCache } = usePageCache();
   const [activePage, setActivePage] = useState(null);
   const [pageContent, setPageContent] = useState('');
   const [lastSaved, setLastSaved] = useState(null);
@@ -71,6 +73,17 @@ const Dashboard = () => {
     async (pageId) => {
       try {
         setIsLoading(true);
+
+        // Check if page content is already cached
+        const cachedPage = getCachedPage(pageId);
+        if (cachedPage) {
+          setPageContent(cachedPage.content);
+          setLastSaved(cachedPage.lastSaved);
+          setIsLoading(false);
+          return;
+        }
+
+        // If not cached, fetch from server
         const response = await axios.post(
           `${VITE_API_URL}/api/pages/getpage`,
           { pageId },
@@ -78,8 +91,14 @@ const Dashboard = () => {
         );
 
         if (response.data.Page) {
-          setPageContent(response.data.Page.pageData || '');
-          setLastSaved(response.data.Page.updatedAt);
+          const content = response.data.Page.pageData || '';
+          const lastSavedTime = response.data.Page.updatedAt;
+
+          setPageContent(content);
+          setLastSaved(lastSavedTime);
+
+          // Cache the loaded content
+          setCachedPage(pageId, content, lastSavedTime);
         }
       } catch (error) {
         if (error.response?.status === 401) {
@@ -92,7 +111,7 @@ const Dashboard = () => {
         setIsLoading(false);
       }
     },
-    [handleUnauthorized]
+    [handleUnauthorized, getCachedPage, setCachedPage]
   );
 
   useEffect(() => {
@@ -128,6 +147,9 @@ const Dashboard = () => {
       if (response.data.success) {
         setLastSaved(new Date().toISOString());
         toast.success('Page saved successfully!');
+
+        // Clear cache for this page since content has changed
+        clearPageCache(activePage.id);
       }
     } catch (error) {
       if (error.response?.status === 401) {
