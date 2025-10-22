@@ -21,6 +21,7 @@ const md = new MarkdownIt({
         return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
       }
       return hljs.highlightAuto(code).value;
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
       return code;
     }
@@ -141,6 +142,7 @@ md.inline.ruler.push('math_inline', (state) => {
 
     state.pos = end + 1;
     return true;
+    // eslint-disable-next-line no-unused-vars
   } catch (err) {
     return false;
   }

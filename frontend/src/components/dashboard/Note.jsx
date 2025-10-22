@@ -43,7 +43,7 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   }, [content, activePage?.id, editorContent]);
 
   // useEffect(() => { if (isPreview) hljs.highlightAll(); }, [isPreview, editorContent]);
-  
+
   // Auto-resize textarea to match content so the outer container remains the single scroller
   useEffect(() => {
     const ta = editorRef.current;
