@@ -33,6 +33,11 @@ const PageSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
   allowDownload: { type: Boolean, default: false },
 });
 

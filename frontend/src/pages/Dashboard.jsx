@@ -13,7 +13,7 @@ import { FiBell } from 'react-icons/fi';
 
 const Dashboard = () => {
   const { user, setuser } = useContext(authContext);
-  const { getCachedPage, setCachedPage, clearPageCache } = usePageCache();
+  const { getCachedPage, setCachedPage } = usePageCache();
   const [activePage, setActivePage] = useState(null);
   const [pageContent, setPageContent] = useState('');
   const [lastSaved, setLastSaved] = useState(null);
@@ -144,12 +144,14 @@ const Dashboard = () => {
         { withCredentials: true }
       );
 
-      if (response.data.success) {
-        setLastSaved(new Date().toISOString());
+      if (response.data.message) {
+        const serverTimestamp =
+          response.data['Updated Page']?.updatedAt || new Date().toISOString();
+        setLastSaved(serverTimestamp);
         toast.success('Page saved successfully!');
 
-        // Clear cache for this page since content has changed
-        clearPageCache(activePage.id);
+        // Update cache with the saved content and server timestamp
+        setCachedPage(activePage.id, content, serverTimestamp);
       }
     } catch (error) {
       if (error.response?.status === 401) {

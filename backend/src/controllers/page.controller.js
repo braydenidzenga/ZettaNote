@@ -362,6 +362,7 @@ export const savePage = async (req) => {
 
     // Update page
     page.pageData = newPageData;
+    page.updatedAt = new Date();
     await page.save();
 
     const pageKey = `page:${pageId}`;
@@ -459,6 +460,7 @@ export const renamePage = async (req) => {
 
     // Update page name
     page.pageName = newPageName;
+    page.updatedAt = new Date();
     await page.save();
 
     // Invalidate related user caches (owner and shared users)
