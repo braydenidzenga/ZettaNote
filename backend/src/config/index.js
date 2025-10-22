@@ -68,6 +68,11 @@ const config = {
   },
   // Frontend URL
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
+
+  // Cron Job Configuration
+  cron: {
+    reminderJobEnabled: process.env.DISABLE_REMINDER_CRON !== 'true',
+  },
 };
 
 export default config;

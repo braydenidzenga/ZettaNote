@@ -1,9 +1,8 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
 import { FiBell, FiX, FiPlus, FiClock, FiCheck } from 'react-icons/fi';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import toast from 'react-hot-toast';
-import { VITE_API_URL } from '../../env';
+import { tasksAPI, apiUtils } from '../../utils/api';
 import authContext from '../../context/AuthProvider';
 
 const Reminder = ({ isOpen, onClose }) => {
@@ -19,20 +18,6 @@ const Reminder = ({ isOpen, onClose }) => {
     dueTime: '',
   });
 
-  const handleUnauthorized = useCallback(
-    (error) => {
-      if (error.response && error.response.status === 401) {
-        setuser(null);
-        localStorage.removeItem('zetta_user');
-        toast.error('Session expired. Please login again.');
-        onClose();
-        return true;
-      }
-      return false;
-    },
-    [setuser, onClose]
-  );
-
   const fetchTasks = useCallback(async () => {
     if (!user) {
       //   console.error('No user found, cannot fetch tasks');
@@ -43,9 +28,7 @@ const Reminder = ({ isOpen, onClose }) => {
     try {
       setLoading(true);
 
-      const response = await axios.get(`${VITE_API_URL}/api/task/getAllTasks`, {
-        withCredentials: true,
-      });
+      const response = await tasksAPI.getAllTasks();
 
       if (response.data && response.data.Tasks && Array.isArray(response.data.Tasks)) {
         const transformedTasks = response.data.Tasks.map((task) => ({
@@ -63,7 +46,15 @@ const Reminder = ({ isOpen, onClose }) => {
         setReminders([]);
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          onClose();
+        })
+      )
+        return;
       console.error('Error fetching tasks:', error);
       console.error('Error response:', error.response?.data);
       toast.error('Failed to load reminders');
@@ -71,7 +62,7 @@ const Reminder = ({ isOpen, onClose }) => {
     } finally {
       setLoading(false);
     }
-  }, [handleUnauthorized, user]);
+  }, [user, setuser, onClose]);
 
   useEffect(() => {
     if (isOpen && user) {
@@ -182,12 +173,7 @@ const Reminder = ({ isOpen, onClose }) => {
         taskDeadline: dueDateTime,
       };
 
-      const response = await axios.post(`${VITE_API_URL}/api/task/createTask`, taskData, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await tasksAPI.createTask(taskData);
 
       if (response.data && (response.data.Task || response.data.message)) {
         toast.success('Reminder added successfully!');
@@ -198,7 +184,15 @@ const Reminder = ({ isOpen, onClose }) => {
         throw new Error('Invalid response from server');
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          onClose();
+        })
+      )
+        return;
       console.error('Error creating task:', error);
 
       if (error.response?.data?.message) {
@@ -223,11 +217,7 @@ const Reminder = ({ isOpen, onClose }) => {
         )
       );
 
-      const response = await axios.put(
-        `${VITE_API_URL}/api/task/toggleCompletion`,
-        { taskId: id },
-        { withCredentials: true }
-      );
+      const response = await tasksAPI.toggleCompletion(id);
 
       if (response.data && response.data.Task) {
         toast.success('Reminder updated successfully!');
@@ -240,7 +230,15 @@ const Reminder = ({ isOpen, onClose }) => {
         )
       );
 
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          onClose();
+        })
+      )
+        return;
       console.error('Error updating task:', error);
       toast.error('Failed to update reminder');
     }
@@ -248,17 +246,22 @@ const Reminder = ({ isOpen, onClose }) => {
 
   const deleteReminder = async (id) => {
     try {
-      const response = await axios.delete(`${VITE_API_URL}/api/task/deleteTask`, {
-        data: { taskId: id },
-        withCredentials: true,
-      });
+      const response = await tasksAPI.deleteTask(id);
 
       if (response.data.message) {
         toast.success('Reminder deleted successfully!');
         fetchTasks();
       }
     } catch (error) {
-      if (handleUnauthorized(error)) return;
+      if (
+        apiUtils.handleUnauthorized(error, () => {
+          setuser(null);
+          localStorage.removeItem('zetta_user');
+          toast.error('Session expired. Please login again.');
+          onClose();
+        })
+      )
+        return;
       console.error('Error deleting task:', error);
       toast.error('Failed to delete reminder');
     }

@@ -104,6 +104,9 @@ JWT_SECRET=your-secret-key-change-in-production
 
 # CORS
 ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
+
+# Cron Jobs
+DISABLE_REMINDER_CRON=false  # Set to 'true' to disable the reminder cron job
 ```
 
 ## 📚 API Documentation

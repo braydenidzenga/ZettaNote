@@ -25,7 +25,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=4000
-      - DB=${DB}
+      - DB=mongodb://${MONGO_ROOT_USERNAME}:${MONGO_ROOT_PASSWORD}@zettanote-mongodb:27017/zettanote?authSource=admin
       - JWT_SECRET=${JWT_SECRET}
       - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
       - RESEND_API_KEY=${RESEND_API_KEY}
@@ -40,6 +40,10 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_SECRET=${CLOUDINARY_SECRET}
+      - DISABLE_REMINDER_CRON=${DISABLE_REMINDER_CRON}
+    depends_on:
+      - mongodb
+      - redis
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4000/']
@@ -84,8 +88,30 @@ services:
     networks:
       - zettanote-network
 
+  mongodb:
+    image: mongo:7.0
+    container_name: zettanote-mongodb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=zettanote
+    volumes:
+      - mongodb_data:/data/db
+    expose:
+      - '27017'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - zettanote-network
+
 volumes:
   nginx_certbot:
+  mongodb_data:
 
 networks:
   zettanote-network:

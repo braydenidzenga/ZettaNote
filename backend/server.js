@@ -42,15 +42,24 @@ const startServer = async () => {
       logger.info(`💚 Health check: http://localhost:${config.server.port}/api/health`);
     });
 
-    // Start reminder cron job
-    const reminderTask = startReminderCronJob();
+    // Start reminder cron job (if enabled)
+    let reminderTask = null;
+    if (config.cron.reminderJobEnabled) {
+      reminderTask = startReminderCronJob();
+      logger.info('⏰ Reminder cron job started');
+    } else {
+      logger.info('⏰ Reminder cron job disabled via configuration');
+    }
 
     // Graceful shutdown
     const shutdown = async (signal) => {
       logger.info(`\n${signal} received. Starting graceful shutdown...`);
 
-      // Stop cron job
-      stopReminderCronJob(reminderTask);
+      // Stop cron job (if it was started)
+      if (reminderTask) {
+        stopReminderCronJob(reminderTask);
+        logger.info('⏰ Reminder cron job stopped');
+      }
 
       server.close(async () => {
         logger.info('✅ HTTP server closed');

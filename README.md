@@ -222,10 +222,9 @@ The frontend is built with:
 
 ### Prerequisites
 
-- **Docker** installed
-- **MongoDB** instance (local or cloud)
+- **Docker** and **Docker Compose** installed
 
-### Steps
+### Quick Start with Docker Compose
 
 1. **Clone the repository**
 
@@ -237,27 +236,46 @@ The frontend is built with:
 2. **Configure environment variables**
 
    ```bash
-   # Backend: Modify variables in backend/Dockerfile
-   # Frontend: Update config.js to point to your backend
+   # Copy the example environment file
+   cp .env.example .env
+
+      # Edit .env with your configuration (required: JWT_SECRET, email settings)
+   nano .env
    ```
 
-3. **Build Docker images**
+3. **Start all services with Docker Compose**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   This will start:
+   - **MongoDB** (database)
+   - **Redis** (caching)
+   - **Backend** (API server)
+   - **Frontend** (web application)
+   - **Nginx** (reverse proxy)
+
+4. **Access the application**
+   - Frontend: `http://localhost` or `https://localhost` (if SSL configured)
+   - API: `http://localhost/api` or `https://localhost/api`
+
+### Manual Docker Setup (Alternative)
+
+If you prefer to run services individually or have an external MongoDB:
+
+1. **Build Docker images**
 
    ```bash
    docker build -t zettanote-backend ./backend
    docker build -t zettanote-frontend ./frontend
    ```
 
-4. **Run containers**
+2. **Run containers**
 
    ```bash
    docker run -d -p 5000:5000 --name zettanote-backend zettanote-backend
    docker run -d -p 3000:3000 --name zettanote-frontend zettanote-frontend
-   ```
-
-5. **Or use Docker Compose** (recommended)
-   ```bash
-   docker-compose up -d
    ```
 
 ---
