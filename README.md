@@ -552,6 +552,20 @@ We welcome contributions from the community!
 		</tr>
 		<tr>
             <td align="center">
+                <a href="https://github.com/MIGHTYgAur">
+                    <img src="https://avatars.githubusercontent.com/u/150644364?v=4" width="100;" alt="MIGHTYgAur"/>
+                    <br />
+                    <sub><b>MIGHTYgAur</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/theboringguy07">
+                    <img src="https://avatars.githubusercontent.com/u/112367925?v=4" width="100;" alt="theboringguy07"/>
+                    <br />
+                    <sub><b>theboringguy07</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/AsadAhmedSaiyed">
                     <img src="https://avatars.githubusercontent.com/u/166991578?v=4" width="100;" alt="AsadAhmedSaiyed"/>
                     <br />
