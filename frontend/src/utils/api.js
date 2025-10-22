@@ -63,7 +63,7 @@ export const authAPI = {
 
   login: (credentials) => api.post('/api/auth/login', credentials),
 
-  register: (userData) => api.post('/api/auth/register', userData),
+  register: (userData) => api.post('/api/auth/signup', userData),
 
   logout: () => api.post('/api/auth/logout'),
 
@@ -85,7 +85,7 @@ export const pagesAPI = {
   renamePage: (pageId, newName) =>
     api.post('/api/pages/renamepage', { pageId, newPageName: newName }),
 
-  getAllPages: () => api.get('/api/pages/getallpages'),
+  getAllPages: () => api.post('/api/pages/getpages'),
 
   // Sharing APIs
   publicShare: (data) => api.post('/api/pages/publicshare', data),
@@ -95,13 +95,11 @@ export const pagesAPI = {
   removeSharedUser: (email, pageId) =>
     api.post('/api/pages/sharepage/remove-user', { gmail: email, id: pageId }),
 
-  getPublicPage: (publicShareId) => api.get(`/api/pages/public/${publicShareId}`),
+  getPublicPage: (publicShareId) => api.get(`/api/pages/share/${publicShareId}`),
 };
 
 // Tasks API
 export const tasksAPI = {
-  getTasks: (pageId) => api.post('/api/task/gettasks', { pageId }),
-
   getAllTasks: () => api.get('/api/task/getAllTasks'),
 
   createTask: (taskData) => api.post('/api/task/createTask', taskData),
@@ -109,8 +107,6 @@ export const tasksAPI = {
   updateTask: (taskId, updates) => api.put('/api/task/updateTask', { taskId, ...updates }),
 
   deleteTask: (taskId) => api.delete('/api/task/deleteTask', { data: { taskId } }),
-
-  toggleTask: (taskId) => api.post('/api/task/toggletask', { taskId }),
 
   toggleCompletion: (taskId) => api.put('/api/task/toggleCompletion', { taskId }),
 
