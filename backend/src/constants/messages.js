@@ -14,9 +14,12 @@ export const MESSAGES = {
     USER_NOT_FOUND: 'User not found',
     PASSWORD_CHANGED: 'Password changed successfully',
     INCORRECT_PASSWORD: 'Current password is incorrect',
-    ACCOUNT_DELETED: 'Account deleted successfully',
+    ACCOUNT_TERMINATED: 'Account terminated successfully',
     UNAUTHORIZED: 'No token, authorization denied',
     INVALID_TOKEN: 'Invalid or expired token',
+    ACCOUNT_FOUND: 'Account found successfully',
+    USER_UPDATED: 'User updated successfully',
+    AVATAR_ADDED: 'Avatar added successfully',
   },
 
   // Page Messages
