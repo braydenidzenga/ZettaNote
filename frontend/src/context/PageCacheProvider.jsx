@@ -1,17 +1,9 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useState, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import { VITE_API_URL } from '../env';
 
 const PageCacheContext = createContext();
-
-export const usePageCache = () => {
-  const context = useContext(PageCacheContext);
-  if (!context) {
-    throw new Error('usePageCache must be used within a PageCacheProvider');
-  }
-  return context;
-};
 
 export const PageCacheProvider = ({ children }) => {
   const [pageCache, setPageCache] = useState(new Map());
@@ -131,3 +123,5 @@ export const PageCacheProvider = ({ children }) => {
 PageCacheProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
+export default PageCacheContext;

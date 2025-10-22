@@ -16,7 +16,7 @@ import {
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import authContext from '../../context/AuthProvider';
-import { usePageCache } from '../../context/PageCacheProvider';
+import { usePageCache } from '../../hooks/usePageCache.js';
 import { useNavigate } from 'react-router-dom';
 import { VITE_API_URL } from '../../env';
 import CreateNewNoteModal from '../modals/CreateNewNoteModal.jsx';

@@ -4,7 +4,7 @@ import TopBar from '../components/dashboard/TopBar';
 import Note from '../components/dashboard/Note';
 import Reminder from '../components/dashboard/Reminder';
 import authContext from '../context/AuthProvider';
-import { usePageCache } from '../context/PageCacheProvider';
+import { usePageCache } from '../context/usePageCache';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
