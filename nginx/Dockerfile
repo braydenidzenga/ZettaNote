@@ -5,8 +5,7 @@ RUN apk add --no-cache \
     certbot \
     certbot-nginx \
     python3 \
-    py3-pip \
-    && pip3 install --no-cache-dir certbot-nginx
+    py3-pip
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
