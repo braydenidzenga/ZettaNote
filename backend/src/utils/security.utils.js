@@ -18,6 +18,21 @@ export const adminLoginLimiter = rateLimit({
 });
 
 /**
+ * Rate limiting for public user auth endpoints (login/signup)
+ */
+export const userAuthLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true,
+});
+
+/**
  * Speed limiting for admin operations
  */
 export const adminSlowDown = slowDown({
@@ -37,6 +52,20 @@ export const adminApiLimiter = rateLimit({
   message: {
     success: false,
     message: 'Too many API requests, please try again later.',
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/**
+ * Global API rate limiter (applied to /api)
+ */
+export const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests, please try again later.',
   },
   standardHeaders: true,
   legacyHeaders: false,
@@ -155,6 +184,8 @@ export default {
   adminSlowDown,
   adminApiLimiter,
   adminCreationLimiter,
+  userAuthLimiter,
+  apiLimiter,
   logSuspiciousActivity,
   enforceHTTPS,
   securityHeaders,
