@@ -250,7 +250,6 @@ The frontend is built with:
    ```
 
    This will start:
-
    - **MongoDB** (database)
    - **Redis** (caching)
    - **Backend** (API server)
