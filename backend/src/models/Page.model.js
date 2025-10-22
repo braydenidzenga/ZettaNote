@@ -33,7 +33,28 @@ const PageSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
   allowDownload: { type: Boolean, default: false },
 });
+
+// Indexes for optimized queries
+// Index on owner for fast owned pages queries
+PageSchema.index({ owner: 1 });
+
+// Index on sharedTo for fast shared pages queries
+PageSchema.index({ sharedTo: 1 });
+
+// Index on publicShareId for fast public share lookups
+PageSchema.index({ publicShareId: 1 }, { sparse: true });
+
+// Compound index for owner + createdAt for sorted owned pages
+PageSchema.index({ owner: 1, createdAt: -1 });
+
+// Compound index for sharedTo + createdAt for sorted shared pages
+PageSchema.index({ sharedTo: 1, createdAt: -1 });
 
 export default mongoose.model('Page', PageSchema);
