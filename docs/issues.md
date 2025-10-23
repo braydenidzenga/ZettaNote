@@ -502,5 +502,3 @@ _Critical: 5 issues_
 _Medium: 11 issues_
 _Low: 10 issues_
 _Technical Debt: 4 issues_
-
-
