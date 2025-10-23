@@ -12,9 +12,8 @@ import {
   FaSpinner,
 } from 'react-icons/fa';
 import authContext from '../context/AuthProvider';
-import axios from 'axios';
+import { authAPI } from '../utils/api';
 import toast from 'react-hot-toast';
-import { VITE_API_URL } from '../env';
 
 const Navbar = () => {
   const { theme, settheme } = useContext(themeContext);
@@ -31,13 +30,7 @@ const Navbar = () => {
 
     setIsLoggingOut(true);
     try {
-      await axios.post(
-        `${VITE_API_URL}/api/auth/logout`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      await authAPI.logout();
 
       localStorage.removeItem('zetta_user');
       setuser(null);

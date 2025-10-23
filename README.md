@@ -11,7 +11,7 @@
 
 **An open-source note-taking application** inspired by Notion, focusing on **Markdown-based notes**, **real-time collaboration**, and **flexible organization** while remaining lightweight and developer-friendly.
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Docker](#-running-with-docker) • [Contributing](#-contributing)
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Docker](#-running-with-docker) • [Roadmap](todos.md) • [Contributing](#-contributing)
 
 </div>
 
@@ -39,14 +39,16 @@
 
 ### 🚀 Currently Available
 
-- ✅ **Modern Markdown Editor** with syntax highlighting
+- ✅ **Modern Markdown Editor** with syntax highlighting and live preview
 - ✅ **Auto-save Functionality** - Never lose your work
 - ✅ **Responsive Dashboard** - Mobile-friendly design
 - ✅ **Page Management** - Create, rename, delete pages
 - ✅ **Public Sharing** - Share pages with secure links
-- ✅ **Dark/Light Theme** - Switch between themes
-- ✅ **User Authentication** - Secure login and registration
+- ✅ **Dark/Light Theme** - Switch between themes seamlessly
+- ✅ **User Authentication** - Secure login and registration with OAuth
 - ✅ **Admin Portal** - User management interface
+- ✅ **Task Management** - Complete task system with subtasks and reminders
+- ✅ **Email Notifications** - Automated reminders and notifications
 
 ### 🔮 Coming Soon
 
@@ -222,10 +224,9 @@ The frontend is built with:
 
 ### Prerequisites
 
-- **Docker** installed
-- **MongoDB** instance (local or cloud)
+- **Docker** and **Docker Compose** installed
 
-### Steps
+### Quick Start with Docker Compose
 
 1. **Clone the repository**
 
@@ -237,27 +238,46 @@ The frontend is built with:
 2. **Configure environment variables**
 
    ```bash
-   # Backend: Modify variables in backend/Dockerfile
-   # Frontend: Update config.js to point to your backend
+   # Copy the example environment file
+   cp .env.example .env
+
+      # Edit .env with your configuration (required: JWT_SECRET, email settings)
+   nano .env
    ```
 
-3. **Build Docker images**
+3. **Start all services with Docker Compose**
+
+   ```bash
+   docker-compose up -d
+   ```
+
+   This will start:
+   - **MongoDB** (database)
+   - **Redis** (caching)
+   - **Backend** (API server)
+   - **Frontend** (web application)
+   - **Nginx** (reverse proxy)
+
+4. **Access the application**
+   - Frontend: `http://localhost` or `https://localhost` (if SSL configured)
+   - API: `http://localhost/api` or `https://localhost/api`
+
+### Manual Docker Setup (Alternative)
+
+If you prefer to run services individually or have an external MongoDB:
+
+1. **Build Docker images**
 
    ```bash
    docker build -t zettanote-backend ./backend
    docker build -t zettanote-frontend ./frontend
    ```
 
-4. **Run containers**
+2. **Run containers**
 
    ```bash
-   docker run -d -p 5000:5000 --name zettanote-backend zettanote-backend
+   docker run -d -p 4000:4000 --name zettanote-backend zettanote-backend
    docker run -d -p 3000:3000 --name zettanote-frontend zettanote-frontend
-   ```
-
-5. **Or use Docker Compose** (recommended)
-   ```bash
-   docker-compose up -d
    ```
 
 ---
@@ -404,12 +424,21 @@ We welcome contributions from the community!
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/shourya2006">
+                    <img src="https://avatars.githubusercontent.com/u/75479705?v=4" width="100;" alt="shourya2006"/>
+                    <br />
+                    <sub><b>shourya2006</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/Er-luffy-D">
                     <img src="https://avatars.githubusercontent.com/u/70336252?v=4" width="100;" alt="Er-luffy-D"/>
                     <br />
                     <sub><b>Er-luffy-D</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/Omar8345">
                     <img src="https://avatars.githubusercontent.com/u/68811721?v=4" width="100;" alt="Omar8345"/>
@@ -417,8 +446,6 @@ We welcome contributions from the community!
                     <sub><b>Omar8345</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Nitin2332">
                     <img src="https://avatars.githubusercontent.com/u/175546686?v=4" width="100;" alt="Nitin2332"/>
@@ -448,12 +475,14 @@ We welcome contributions from the community!
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/AnirbanNath-dev">
-                    <img src="https://avatars.githubusercontent.com/u/116329986?v=4" width="100;" alt="AnirbanNath-dev"/>
+                <a href="https://github.com/anirbandotdev">
+                    <img src="https://avatars.githubusercontent.com/u/116329986?v=4" width="100;" alt="anirbandotdev"/>
                     <br />
-                    <sub><b>AnirbanNath-dev</b></sub>
+                    <sub><b>anirbandotdev</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/AmjustGettingStarted">
                     <img src="https://avatars.githubusercontent.com/u/111118246?v=4" width="100;" alt="AmjustGettingStarted"/>
@@ -461,8 +490,6 @@ We welcome contributions from the community!
                     <sub><b>AmjustGettingStarted</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/sudoyasir">
                     <img src="https://avatars.githubusercontent.com/u/94890956?v=4" width="100;" alt="sudoyasir"/>
@@ -496,13 +523,6 @@ We welcome contributions from the community!
                     <img src="https://avatars.githubusercontent.com/u/91618085?v=4" width="100;" alt="siddxharth1"/>
                     <br />
                     <sub><b>siddxharth1</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/shourya2006">
-                    <img src="https://avatars.githubusercontent.com/u/75479705?v=4" width="100;" alt="shourya2006"/>
-                    <br />
-                    <sub><b>shourya2006</b></sub>
                 </a>
             </td>
 		</tr>
@@ -551,6 +571,20 @@ We welcome contributions from the community!
             </td>
 		</tr>
 		<tr>
+            <td align="center">
+                <a href="https://github.com/MIGHTYgAur">
+                    <img src="https://avatars.githubusercontent.com/u/150644364?v=4" width="100;" alt="MIGHTYgAur"/>
+                    <br />
+                    <sub><b>MIGHTYgAur</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/theboringguy07">
+                    <img src="https://avatars.githubusercontent.com/u/112367925?v=4" width="100;" alt="theboringguy07"/>
+                    <br />
+                    <sub><b>theboringguy07</b></sub>
+                </a>
+            </td>
             <td align="center">
                 <a href="https://github.com/AsadAhmedSaiyed">
                     <img src="https://avatars.githubusercontent.com/u/166991578?v=4" width="100;" alt="AsadAhmedSaiyed"/>

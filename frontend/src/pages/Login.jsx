@@ -1,11 +1,10 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, FileText } from 'lucide-react';
-import axios from 'axios';
+import { authAPI } from '../utils/api';
 import toast from 'react-hot-toast';
 import authContext from '../context/AuthProvider';
 import OAuthButtons from '../components/OAuthButtons';
-import { VITE_API_URL } from '../env';
 import Input from '../components/ui/Input';
 
 const Login = () => {
@@ -51,12 +50,7 @@ const Login = () => {
     const formdata = { email: email.trim(), password };
 
     try {
-      const res = await axios.post(`${VITE_API_URL}/api/auth/login`, formdata, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const res = await authAPI.login(formdata);
       setuser(res.data.user);
       localStorage.setItem('zetta_user', JSON.stringify(res.data.user));
 

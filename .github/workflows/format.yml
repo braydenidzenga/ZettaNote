@@ -6,6 +6,11 @@ on:
       - main
   workflow_dispatch:
 
+# Cancel previous runs for the same PR when new commits are pushed
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   prettier:
     runs-on: ubuntu-latest

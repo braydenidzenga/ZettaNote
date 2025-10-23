@@ -13,7 +13,7 @@ import { safeRedisCall } from '../config/redis.js';
  * @param {string} pageId - ID of the page
  * @returns {object|null} Object with page name and ID or null if not found
  */
-const getPageNameAndId = async (pageId) => {
+const _getPageNameAndId = async (pageId) => {
   const page = await Page.findById(pageId);
   if (!page) {
     return null;
@@ -165,7 +165,7 @@ export const getPage = async (req) => {
 
     // Check permissions
     const isOwner = page.owner.equals(user._id);
-    const isShared = page.sharedTo.some((id) => id.equals(user._id));
+    const isShared = (page.sharedTo || []).some((id) => id.equals(user._id));
 
     if (!isOwner && !isShared) {
       return {
@@ -230,12 +230,21 @@ export const getPages = async (req) => {
       logger.info('Owned pages fetched from Redis cache');
       ownedPages.push(...JSON.parse(cachedOwnedPages));
     } else {
-      for (const id of user.pages) {
-        const page = await getPageNameAndId(id);
-        if (page !== null) {
-          ownedPages.push(page);
-        }
+      // Use single query with $in operator instead of N+1 queries
+      if (user.pages && user.pages.length > 0) {
+        const ownedPagesData = await Page.find(
+          { _id: { $in: user.pages } },
+          { pageName: 1, _id: 1 }
+        ).lean();
+
+        ownedPages.push(
+          ...ownedPagesData.map((page) => ({
+            name: page.pageName,
+            id: page._id,
+          }))
+        );
       }
+
       // Cache owned pages in Redis
       const saved = await safeRedisCall('set', ownedPagesCacheKey, JSON.stringify(ownedPages), {
         EX: 3600, // Cache for 1 hour
@@ -255,12 +264,21 @@ export const getPages = async (req) => {
       logger.info('Shared pages fetched from Redis cache');
       sharedPages.push(...JSON.parse(cachedSharedPages));
     } else {
-      for (const id of user.sharedPages) {
-        const page = await getPageNameAndId(id);
-        if (page !== null) {
-          sharedPages.push(page);
-        }
+      // Use single query with $in operator instead of N+1 queries
+      if (user.sharedPages && user.sharedPages.length > 0) {
+        const sharedPagesData = await Page.find(
+          { _id: { $in: user.sharedPages } },
+          { pageName: 1, _id: 1 }
+        ).lean();
+
+        sharedPages.push(
+          ...sharedPagesData.map((page) => ({
+            name: page.pageName,
+            id: page._id,
+          }))
+        );
       }
+
       // Cache shared pages in Redis
       const saved = await safeRedisCall('set', sharedPagesCacheKey, JSON.stringify(sharedPages), {
         EX: 3600, // Cache for 1 hour
@@ -335,7 +353,7 @@ export const savePage = async (req) => {
     }
 
     // Check if user is owner or has write permission
-    if (!page.owner.equals(user._id) && !page.sharedTo.some((id) => id.equals(user._id))) {
+    if (!page.owner.equals(user._id) && !(page.sharedTo || []).some((id) => id.equals(user._id))) {
       return {
         resStatus: STATUS_CODES.FORBIDDEN,
         resMessage: { message: MESSAGES.PAGE.ACCESS_DENIED },
@@ -346,13 +364,25 @@ export const savePage = async (req) => {
     page.pageData = newPageData;
     await page.save();
 
-    const key = `page:${pageId}`;
+    const pageKey = `page:${pageId}`;
     // Update cache in Redis
-    const saved = await safeRedisCall('set', key, JSON.stringify(page), {
+    const saved = await safeRedisCall('set', pageKey, JSON.stringify(page), {
       EX: 3600, // Cache for 1 hour
     });
     if (saved) {
       logger.info('Page cache updated in Redis');
+    }
+
+    // Invalidate related user caches (owner and shared users)
+    const ownerCacheKey = `user:${page.owner}:ownedPages`;
+    const sharedUserCacheKeys = (page.sharedTo || []).map((userId) => `user:${userId}:sharedPages`);
+
+    // Invalidate owner cache
+    await safeRedisCall('del', ownerCacheKey);
+
+    // Invalidate shared user caches in parallel
+    if (sharedUserCacheKeys.length > 0) {
+      await Promise.all(sharedUserCacheKeys.map((key) => safeRedisCall('del', key)));
     }
 
     return {
@@ -431,16 +461,17 @@ export const renamePage = async (req) => {
     page.pageName = newPageName;
     await page.save();
 
-    const key = `user:${user._id}:ownedPages`;
-    // // Update cache in Redis
-    const cachedPages = JSON.parse(await safeRedisCall('get', key)) || [];
-    const updatedPages = cachedPages.map((p) =>
-      p.id === pageId ? { ...p, name: newPageName } : p
-    );
-    const saved = await safeRedisCall('set', key, JSON.stringify(updatedPages));
-    if (saved) {
-      logger.info('Page name updated in Redis cache');
+    // Invalidate related user caches (owner and shared users)
+    const ownerCacheKey = `user:${page.owner}:ownedPages`;
+    const sharedUserCacheKeys = (page.sharedTo || []).map((userId) => `user:${userId}:sharedPages`);
+
+    // Invalidate caches in parallel
+    const cacheInvalidations = [safeRedisCall('del', ownerCacheKey)];
+    if (sharedUserCacheKeys.length > 0) {
+      cacheInvalidations.push(...sharedUserCacheKeys.map((key) => safeRedisCall('del', key)));
     }
+    await Promise.all(cacheInvalidations);
+
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: {
@@ -512,6 +543,9 @@ export const deletePage = async (req) => {
       };
     }
 
+    // Store shared users before deletion for cache invalidation
+    const sharedUserIds = [...(page.sharedTo || [])];
+
     // Delete page
     const pageDeleted = await Page.findByIdAndDelete(pageId);
     if (!pageDeleted) {
@@ -525,14 +559,20 @@ export const deletePage = async (req) => {
     user.pages.pull(page._id);
     await user.save();
 
-    // remove from Redis cache
-    const key = `user:${user._id}:ownedPages`;
-    const cachedPages = JSON.parse(await safeRedisCall('get', key)) || [];
-    const updatedPages = cachedPages.filter((p) => p.id !== pageId);
-    const saved = await safeRedisCall('set', key, JSON.stringify(updatedPages));
-    if (saved) {
-      logger.info('Page removed from Redis cache');
-    }
+    // Invalidate caches for all affected users (owner and shared users)
+    const cacheInvalidations = [
+      safeRedisCall('del', `page:${pageId}`), // Delete page cache
+      safeRedisCall('del', `user:${page.owner}:ownedPages`), // Owner's cache
+    ];
+
+    // Invalidate shared users' caches
+    sharedUserIds.forEach((userId) => {
+      cacheInvalidations.push(safeRedisCall('del', `user:${userId}:sharedPages`));
+    });
+
+    // Execute all cache invalidations in parallel
+    await Promise.all(cacheInvalidations);
+
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: { message: MESSAGES.PAGE.DELETED },
@@ -622,7 +662,7 @@ export const sharePage = async (req) => {
     }
 
     // Check if already shared
-    const pageAlreadyShared = page.sharedTo.some((id) => id.equals(sharedUser._id));
+    const pageAlreadyShared = (page.sharedTo || []).some((id) => id.equals(sharedUser._id));
     if (pageAlreadyShared) {
       return {
         resStatus: STATUS_CODES.BAD_REQUEST,
@@ -817,7 +857,7 @@ export const removeUserFromSharedPage = async (req, id, gmail) => {
     }
 
     // Check if page is actually shared with the user
-    const isShared = page.sharedTo.some((uid) => uid.equals(user._id));
+    const isShared = (page.sharedTo || []).some((uid) => uid.equals(user._id));
     if (!isShared) {
       return {
         resStatus: STATUS_CODES.BAD_REQUEST,

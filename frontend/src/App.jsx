@@ -11,6 +11,25 @@ import Dashboard from './pages/Dashboard';
 import PublicShare from './pages/PublicShare';
 import authContext from './context/AuthProvider';
 
+// =============================================================================
+// DEVELOPER NOTES
+// =============================================================================
+// Main application component handling routing and global layout.
+// Key considerations:
+// - OAuth callback handling for social logins
+// - Conditional rendering based on authentication state
+// - Toast notifications configuration
+// - Route protection logic
+
+// =============================================================================
+// TODO
+// =============================================================================
+// - [ ] Add loading states for route transitions
+// - [ ] Implement route-based code splitting for better performance
+// - [ ] Add error boundaries for better error handling
+// - [ ] Consider implementing PWA features (service worker, offline support)
+// - [ ] Add analytics tracking for user behavior
+
 const App = () => {
   const location = useLocation();
   const { user } = useContext(authContext);

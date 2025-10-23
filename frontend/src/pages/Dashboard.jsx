@@ -1,23 +1,55 @@
-import { useState, useEffect, useContext, useCallback } from 'react';
+import { useState, useEffect, useContext, useCallback, useRef } from 'react';
 import Sidebar from '../components/dashboard/Sidebar';
 import TopBar from '../components/dashboard/TopBar';
 import Note from '../components/dashboard/Note';
 import Reminder from '../components/dashboard/Reminder';
 import authContext from '../context/AuthProvider';
-import axios from 'axios';
+import { usePageCache } from '../hooks/usePageCache.js';
 import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { VITE_API_URL } from '../env';
 import { FiBell } from 'react-icons/fi';
+import { authAPI, pagesAPI } from '../utils/api';
+
+// =============================================================================
+// DEVELOPER NOTES
+// =============================================================================
+// Main dashboard component handling page editing and management.
+// Key features:
+// - Auto-save functionality (1 second after typing stops)
+// - Page caching with IndexedDB and localStorage fallback
+// - OAuth callback handling for social logins
+// - Real-time save status indicators
+// - Responsive sidebar management
+// - Unsaved changes protection on page unload
+
+// Performance considerations:
+// - Debounced auto-save to prevent excessive API calls
+// - Optimistic UI updates with background sync
+// - AbortController for cancelling pending requests
+// - Memory cleanup on component unmount
+
+// =============================================================================
+// TODO
+// =============================================================================
+// - [ ] Add collaborative editing features (real-time updates)
+// - [ ] Implement page versioning/history
+// - [ ] Add keyboard shortcuts for common actions
+// - [ ] Improve offline support and conflict resolution
+// - [ ] Add page templates and quick-start options
+// - [ ] Implement search within page content
+// - [ ] Add page export functionality (PDF, Markdown, etc.)
+// - [ ] Consider implementing page locking for concurrent edits
 
 const Dashboard = () => {
   const { user, setuser } = useContext(authContext);
+  const { getCachedPage, setCachedPage } = usePageCache();
   const [activePage, setActivePage] = useState(null);
   const [pageContent, setPageContent] = useState('');
   const [lastSaved, setLastSaved] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('synced'); // 'synced', 'cached', 'saving', 'error', 'unsaved'
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isRemindersSidebarOpen, setIsRemindersSidebarOpen] = useState(false);
+  const saveAbortControllerRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,9 +62,7 @@ const Dashboard = () => {
       // Fetch user data from backend using the cookie
       const fetchUserData = async () => {
         try {
-          const response = await axios.get(`${VITE_API_URL}/api/auth/getuser`, {
-            withCredentials: true,
-          });
+          const response = await authAPI.getUser();
 
           if (response.data.user) {
             setuser(response.data.user);
@@ -70,16 +100,50 @@ const Dashboard = () => {
   const loadPageContent = useCallback(
     async (pageId) => {
       try {
-        setIsLoading(true);
-        const response = await axios.post(
-          `${VITE_API_URL}/api/pages/getpage`,
-          { pageId },
-          { withCredentials: true }
-        );
+        // Check if page content is already cached
+        const cachedPage = await getCachedPage(pageId);
+        if (cachedPage) {
+          setPageContent(cachedPage.content);
+          setLastSaved(cachedPage.lastSaved);
+          setSaveStatus('synced');
+          return;
+        }
+
+        // Check for unsaved changes in localStorage
+        const unsavedData = localStorage.getItem(`unsaved_page_${pageId}`);
+        if (unsavedData) {
+          try {
+            const parsed = JSON.parse(unsavedData);
+            // Only restore if it's recent (within last 24 hours)
+            if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+              setPageContent(parsed.content);
+              setLastSaved(new Date(parsed.timestamp).toISOString());
+              setSaveStatus('cached');
+              toast.info('Restored unsaved changes');
+              return;
+            } else {
+              // Remove old unsaved data
+              localStorage.removeItem(`unsaved_page_${pageId}`);
+            }
+          } catch {
+            // Invalid data, remove it
+            localStorage.removeItem(`unsaved_page_${pageId}`);
+          }
+        }
+
+        // If not cached and no unsaved changes, fetch from server
+        const response = await pagesAPI.getPage(pageId);
 
         if (response.data.Page) {
-          setPageContent(response.data.Page.pageData || '');
-          setLastSaved(response.data.Page.updatedAt);
+          const content = response.data.Page.pageData || '';
+          const lastSavedTime = response.data.Page.updatedAt;
+
+          setPageContent(content);
+          setLastSaved(lastSavedTime);
+          setSaveStatus('synced');
+
+          // Cache the loaded content
+          setCachedPage(pageId, content, lastSavedTime);
         }
       } catch (error) {
         if (error.response?.status === 401) {
@@ -88,12 +152,27 @@ const Dashboard = () => {
         }
         toast.error('Failed to load page content');
         console.error('Error loading page:', error);
-      } finally {
-        setIsLoading(false);
       }
     },
-    [handleUnauthorized]
+    [handleUnauthorized, getCachedPage, setCachedPage]
   );
+
+  // Cleanup abort controller on unmount
+  useEffect(() => {
+    return () => {
+      if (saveAbortControllerRef.current) {
+        saveAbortControllerRef.current.abort();
+      }
+    };
+  }, []);
+
+  // Cancel any pending save when switching pages
+  useEffect(() => {
+    if (saveAbortControllerRef.current) {
+      saveAbortControllerRef.current.abort();
+      saveAbortControllerRef.current = null;
+    }
+  }, [activePage?.id]);
 
   useEffect(() => {
     if (activePage?.id) {
@@ -103,41 +182,109 @@ const Dashboard = () => {
     }
   }, [activePage, loadPageContent]);
 
+  // Handle beforeunload to save pending changes
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      // Check if there are unsaved changes
+      const unsavedData = localStorage.getItem(`unsaved_page_${activePage?.id}`);
+      if (unsavedData && saveStatus === 'cached') {
+        // Cancel the unload and show a warning
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [activePage?.id, saveStatus]);
+
   const handleContentChange = (newContent) => {
     setPageContent(newContent);
+    setSaveStatus('cached');
+
+    // Immediately update cache with new content (optimistic update)
+    if (activePage?.id) {
+      setCachedPage(activePage.id, newContent, new Date().toISOString());
+
+      // Save unsaved changes to localStorage for persistence across reloads
+      const unsavedData = {
+        content: newContent,
+        timestamp: Date.now(),
+        pageId: activePage.id,
+        pageName: activePage.name,
+      };
+      localStorage.setItem(`unsaved_page_${activePage.id}`, JSON.stringify(unsavedData));
+    }
+
+    // Clear existing timeout
     clearTimeout(window.autoSaveTimeout);
+
+    // Set new timeout for background save (reduced to 1 second for better responsiveness)
     window.autoSaveTimeout = setTimeout(() => {
       handleSave(newContent);
-    }, 2000);
+    }, 1000);
   };
 
   const handleSave = async (content = pageContent) => {
     if (!activePage?.id) return;
 
-    try {
-      setIsLoading(true);
-      const response = await axios.post(
-        `${VITE_API_URL}/api/pages/savepage`,
-        {
-          pageId: activePage.id,
-          newPageData: content,
-        },
-        { withCredentials: true }
-      );
+    // Cancel any previous save request
+    if (saveAbortControllerRef.current) {
+      saveAbortControllerRef.current.abort();
+    }
 
-      if (response.data.success) {
-        setLastSaved(new Date().toISOString());
-        toast.success('Page saved successfully!');
+    // Don't save if already saving
+    if (saveStatus === 'saving') return;
+
+    const saveStartTime = Date.now();
+    setSaveStatus('saving');
+
+    // Create new AbortController for this request
+    saveAbortControllerRef.current = new AbortController();
+
+    try {
+      // Direct server call for save
+      const response = await pagesAPI.savePage(activePage.id, content);
+
+      if (response.status === 200 || response.status === 201) {
+        const serverTimestamp = new Date().toISOString();
+        setLastSaved(serverTimestamp);
+        setSaveStatus('synced');
+
+        // Update cache with server timestamp
+        setCachedPage(activePage.id, content, serverTimestamp);
+
+        // Remove unsaved changes from localStorage since they're now saved
+        localStorage.removeItem(`unsaved_page_${activePage.id}`);
+
+        // Only show success toast if save took more than 500ms (avoid spam for fast saves)
+        if (Date.now() - saveStartTime > 500) {
+          toast.success('Page saved successfully!');
+        }
+      } else {
+        throw new Error('Save failed');
       }
     } catch (error) {
-      if (error.response?.status === 401) {
-        handleUnauthorized();
+      // Don't handle errors if the request was cancelled
+      if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') {
         return;
       }
-      toast.error('Failed to save page');
+
       console.error('Error saving page:', error);
+      setSaveStatus('error');
+
+      if (error.response?.status === 401) {
+        handleUnauthorized(error);
+        return;
+      }
+
+      toast.error('Failed to save page - changes cached locally');
     } finally {
-      setIsLoading(false);
+      // Clear the abort controller reference if this was the current request
+      if (saveAbortControllerRef.current?.signal.aborted === false) {
+        saveAbortControllerRef.current = null;
+      }
     }
   };
 
@@ -147,19 +294,22 @@ const Dashboard = () => {
     if (!confirm(`Are you sure you want to delete "${activePage.name}"?`)) return;
 
     try {
-      const response = await axios.delete(`${VITE_API_URL}/api/pages/deletepage`, {
-        data: { pageId: activePage.id },
-        withCredentials: true,
-      });
+      // Direct server call for delete
+      const response = await pagesAPI.deletePage(activePage.id);
 
-      if (response.data.success || response.data.message?.includes('deleted')) {
+      if (response.status === 200 || response.status === 204) {
         toast.success('Page deleted successfully!');
         setActivePage(null);
         setPageContent('');
+
+        // Clear any unsaved changes for this page
+        localStorage.removeItem(`unsaved_page_${activePage.id}`);
+      } else {
+        throw new Error('Delete failed');
       }
     } catch (error) {
       if (error.response?.status === 401) {
-        handleUnauthorized();
+        handleUnauthorized(error);
         return;
       }
       toast.error('Failed to delete page');
@@ -167,10 +317,24 @@ const Dashboard = () => {
     }
   };
 
-  const handleRenamePage = () => {
+  const handleRenamePage = async () => {
     const newName = prompt(`Rename "${activePage.name}" to:`, activePage.name);
     if (newName && newName.trim() && newName !== activePage.name) {
-      toast.info('Rename functionality would be implemented with backend API');
+      try {
+        // Direct server call for rename
+        const response = await pagesAPI.renamePage(activePage.id, newName.trim());
+
+        if (response.status === 200 || response.status === 201) {
+          toast.success('Page renamed successfully!');
+          // Update the active page name in state
+          setActivePage((prev) => (prev ? { ...prev, name: newName.trim() } : null));
+        } else {
+          throw new Error('Rename failed');
+        }
+      } catch (error) {
+        console.error('Error renaming page:', error);
+        toast.error('Failed to rename page');
+      }
     }
   };
 
@@ -204,7 +368,7 @@ const Dashboard = () => {
           onDelete={handleDeletePage}
           onRename={handleRenamePage}
           lastSaved={lastSaved}
-          isLoading={isLoading}
+          saveStatus={saveStatus}
         />
 
         {/* Enhanced Note Editor */}

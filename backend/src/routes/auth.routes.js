@@ -8,6 +8,7 @@ import {
   getUserById,
 } from '../controllers/auth.controller.js';
 import { asyncHandler } from '../middleware/error.middleware.js';
+import { userAuthLimiter } from '../utils/security.utils.js';
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ const router = express.Router();
  */
 router.post(
   '/signup',
+  userAuthLimiter,
   asyncHandler(async (req, res) => {
     const { resStatus, resMessage, token } = await signup(req);
 
@@ -41,6 +43,7 @@ router.post(
  */
 router.post(
   '/login',
+  userAuthLimiter,
   asyncHandler(async (req, res) => {
     const { resStatus, resMessage, token } = await login(req);
 
