@@ -419,35 +419,49 @@ This document outlines critical issues, bugs, and technical debt that need to be
   - Add component documentation
 - **Estimated Effort**: 4-6 hours
 
-### Dependency Management
+### Event-Driven Architecture Implementation
 
-#### 29. **Outdated Dependencies**
+#### 31. **Implement Event-Driven Database Operations**
 
-- **Status**: Potential issue
+- **Status**: Not implemented
 - **Severity**: Medium
-- **Files**: `package.json` files
-- **Description**: Some dependencies may be outdated
-- **Impact**: Security vulnerabilities, performance issues
+- **Files**: `backend/src/controllers/`, new event system
+- **Description**: Database operations are synchronous, causing slow API responses
+- **Impact**: Poor user experience, especially with large documents
 - **Solution**:
-  - Regular dependency updates
-  - Automated security scanning
-  - Dependency vulnerability monitoring
-  - Update testing procedures
-- **Estimated Effort**: 2-3 hours (ongoing)
+  - Implement event-driven architecture (Motia/BullMQ/Redis Streams)
+  - Move heavy DB operations to background workers
+  - Immediate response for saves, eventual consistency
+  - Event sourcing for audit trails
+- **Estimated Effort**: 15-20 hours
 
-#### 30. **Unused Dependencies**
+#### 32. **Background Cache Management**
 
-- **Status**: Potential issue
+- **Status**: Not implemented
+- **Severity**: Medium
+- **Files**: `backend/src/controllers/page.controller.js`, cache layer
+- **Description**: Cache invalidation happens synchronously in API responses
+- **Impact**: Slower API responses, potential timeouts
+- **Solution**:
+  - Event-driven cache warming and invalidation
+  - Background cache updates
+  - Predictive caching based on usage patterns
+  - Cache analytics and monitoring
+- **Estimated Effort**: 8-12 hours
+
+#### 33. **Asynchronous Search Indexing**
+
+- **Status**: Not implemented
 - **Severity**: Low
-- **Files**: `package.json` files
-- **Description**: Some dependencies may no longer be used
-- **Impact**: Larger bundle sizes, security surface
+- **Files**: Future search functionality
+- **Description**: No search indexing system for content
+- **Impact**: Slow search performance, no advanced search features
 - **Solution**:
-  - Audit dependency usage
-  - Remove unused packages
-  - Implement dependency analysis tools
-  - Regular cleanup procedures
-- **Estimated Effort**: 1-2 hours
+  - Background indexing of page content
+  - Full-text search with Elasticsearch/MeiliSearch
+  - Real-time indexing via events
+  - Search analytics and suggestions
+- **Estimated Effort**: 12-16 hours
 
 ## Implementation Guidelines
 
@@ -497,8 +511,8 @@ When fixing issues:
 ---
 
 _Last updated: October 23, 2025_
-_Total issues identified: 30_
+_Total issues identified: 33_
 _Critical: 5 issues_
 _Medium: 11 issues_
 _Low: 10 issues_
-_Technical Debt: 4 issues_
+_Technical Debt: 7 issues_
