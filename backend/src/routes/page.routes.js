@@ -10,6 +10,7 @@ import {
   publicShare,
   getPublicShare,
   removeUserFromSharedPage,
+  uploadImage,
 } from '../controllers/page.controller.js';
 import { asyncHandler } from '../middleware/error.middleware.js';
 
@@ -143,6 +144,19 @@ router.post(
   asyncHandler(async (req, res) => {
     const { gmail, id } = req.body;
     const { resStatus, resMessage } = await removeUserFromSharedPage(req, id, gmail);
+    res.status(resStatus).json(resMessage);
+  })
+);
+
+/**
+ * POST /api/pages/upload-image
+ * @description Upload an image to Cloudinary
+ * @private
+ */
+router.post(
+  '/upload-image',
+  asyncHandler(async (req, res) => {
+    const { resStatus, resMessage } = await uploadImage(req);
     res.status(resStatus).json(resMessage);
   })
 );
