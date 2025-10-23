@@ -11,7 +11,7 @@
 
 **An open-source note-taking application** inspired by Notion, focusing on **Markdown-based notes**, **real-time collaboration**, and **flexible organization** while remaining lightweight and developer-friendly.
 
-[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Docker](#-running-with-docker) • [Contributing](#-contributing)
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Docker](#-running-with-docker) • [Roadmap](todos.md) • [Contributing](#-contributing)
 
 </div>
 
@@ -39,14 +39,16 @@
 
 ### 🚀 Currently Available
 
-- ✅ **Modern Markdown Editor** with syntax highlighting
+- ✅ **Modern Markdown Editor** with syntax highlighting and live preview
 - ✅ **Auto-save Functionality** - Never lose your work
 - ✅ **Responsive Dashboard** - Mobile-friendly design
 - ✅ **Page Management** - Create, rename, delete pages
 - ✅ **Public Sharing** - Share pages with secure links
-- ✅ **Dark/Light Theme** - Switch between themes
-- ✅ **User Authentication** - Secure login and registration
+- ✅ **Dark/Light Theme** - Switch between themes seamlessly
+- ✅ **User Authentication** - Secure login and registration with OAuth
 - ✅ **Admin Portal** - User management interface
+- ✅ **Task Management** - Complete task system with subtasks and reminders
+- ✅ **Email Notifications** - Automated reminders and notifications
 
 ### 🔮 Coming Soon
 
@@ -274,7 +276,7 @@ If you prefer to run services individually or have an external MongoDB:
 2. **Run containers**
 
    ```bash
-   docker run -d -p 5000:5000 --name zettanote-backend zettanote-backend
+   docker run -d -p 4000:4000 --name zettanote-backend zettanote-backend
    docker run -d -p 3000:3000 --name zettanote-frontend zettanote-frontend
    ```
 
