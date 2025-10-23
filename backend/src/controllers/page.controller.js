@@ -7,6 +7,7 @@ import { MESSAGES } from '../constants/messages.js';
 import { z } from 'zod';
 import logger from '../utils/logger.js';
 import { safeRedisCall } from '../config/redis.js';
+import cloudinary from '../config/cloudinary.js';
 
 /**
  * Helper function to get page name and ID
