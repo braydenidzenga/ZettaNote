@@ -43,8 +43,8 @@ services:
       - CLOUDINARY_SECRET=${CLOUDINARY_SECRET}
       - DISABLE_REMINDER_CRON=${DISABLE_REMINDER_CRON}
       - DISABLE_IMAGE_CLEANUP_CRON=${DISABLE_IMAGE_CLEANUP_CRON}
-      - USE_MOTIA=${USE_MOTIA}
-      - MOTIA_URL=${MOTIA_URL}
+      - USE_MOTIA=true
+      - MOTIA_URL=http://zettanote-motia:3001
     depends_on:
       - mongodb
       - redis
