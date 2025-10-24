@@ -16,6 +16,9 @@ import {
   FiCode,
   FiMinus,
   FiStar,
+  FiChevronDown,
+  FiCopy,
+  FiClipboard,
 } from 'react-icons/fi';
 import { FaQuoteRight, FaListOl, FaStrikethrough, FaHighlighter } from 'react-icons/fa';
 import { BiCodeBlock, BiMath } from 'react-icons/bi';
@@ -23,36 +26,7 @@ import toast from 'react-hot-toast';
 import propTypes from 'prop-types';
 import 'highlight.js/styles/atom-one-dark.css';
 import { renderMarkdown } from '../../utils/markdownRenderer.js';
-
-// =============================================================================
-// DEVELOPER NOTES
-// =============================================================================
-// Note component - Main markdown editor with live preview.
-// Key features:
-// - Real-time markdown rendering and preview
-// - Undo/redo functionality with history management
-// - Keyboard shortcuts (Ctrl+B, Ctrl+I, Ctrl+Z, etc.)
-// - Auto-resizing textarea with line numbers
-// - Rich toolbar with formatting options
-// - Syntax highlighting in preview mode
-//
-// Performance considerations:
-// - Debounced content updates to parent
-// - Efficient history management (limited to 50 entries)
-// - Optimized re-renders with proper useEffect dependencies
-
-// =============================================================================
-// TODO
-// =============================================================================
-// - [ ] Add collaborative editing with real-time cursors
-// - [ ] Implement image upload and embedding
-// - [ ] Add table editing capabilities
-// - [ ] Implement spell checking
-// - [ ] Add find and replace functionality
-// - [ ] Support for custom markdown extensions
-// - [ ] Add export to PDF/HTML functionality
-// - [ ] Implement dark mode syntax highlighting themes
-// - [ ] Add voice-to-text input support
+import FloatingToolbar from './FloatingToolbar.jsx';
 
 const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const [editorContent, setEditorContent] = useState(content);
@@ -63,6 +37,21 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const editorRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const [lineCount, setLineCount] = useState(20);
+  // Floating right-click toolbar state
+  const [showToolbar, setShowToolbar] = useState(false);
+  const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
+  const [enableFloatingToolbar, setEnableFloatingToolbar] = useState(true);
+
+  // Table insertion modal state
+  const [showTableModal, setShowTableModal] = useState(false);
+  const [tableRowsInput, setTableRowsInput] = useState('3');
+  const [tableColsInput, setTableColsInput] = useState('3');
+  const [includeHeader, setIncludeHeader] = useState(true);
+  const [includeSerial, setIncludeSerial] = useState(true);
+  const modalContentRef = useRef(null);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [headerData, setHeaderData] = useState([]);
+  const [tableData, setTableData] = useState([]);
 
   const lastLoadedPageRef = useRef(null);
 
@@ -320,6 +309,241 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     input.click();
   };
 
+  // Right-click floating toolbar handlers
+  const handleEditorRightClick = (e) => {
+    if (!enableFloatingToolbar) return; // allow default context menu when disabled
+    e.preventDefault();
+    // Keep the current selection by focusing the textarea
+    if (editorRef.current) {
+      editorRef.current.focus();
+    }
+    setToolbarPos({ x: e.clientX, y: e.clientY });
+    setShowToolbar(true);
+  };
+
+  const handleToolbarAction = (action) => {
+    switch (action) {
+      case 'bold':
+        wrapSelectedText('**', '**', 'bold text');
+        break;
+      case 'italic':
+        wrapSelectedText('*', '*', 'italic text');
+        break;
+      case 'underline':
+        wrapSelectedText('<u>', '</u>', 'underlined text');
+        break;
+      case 'code':
+        wrapSelectedText('`', '`', 'code');
+        break;
+      case 'link':
+        wrapSelectedText('[', '](url)', 'Link text');
+        break;
+      case 'strikethrough':
+        wrapSelectedText('~~', '~~', 'strikethrough text');
+        break;
+      case 'highlight':
+        wrapSelectedText('==', '==', 'highlighted text');
+        break;
+      case 'undo':
+        handleUndo();
+        break;
+      case 'redo':
+        handleRedo();
+        break;
+      case 'h1':
+        insertAtCursor('\n# ', 2);
+        break;
+      case 'h2':
+        insertAtCursor('\n## ', 3);
+        break;
+      case 'h3':
+        insertAtCursor('\n### ', 4);
+        break;
+      case 'blockquote':
+        insertAtCursor('\n> ', 2);
+        break;
+      case 'codeblock':
+        insertAtCursor('\n```javascript\n\n```\n', 15);
+        break;
+      case 'hr':
+        insertAtCursor('\n---\n', 1);
+        break;
+      case 'ul':
+        insertAtCursor('\n- ', 2);
+        break;
+      case 'ol':
+        insertAtCursor('\n1. ', 3);
+        break;
+      case 'task':
+        insertAtCursor('\n- [ ] ', 6);
+        break;
+      case 'deflist':
+        insertAtCursor('\nTerm\n: Definition\n', 1);
+        break;
+      case 'table':
+        openTableModal();
+        break;
+      case 'image':
+        handleImageUpload();
+        break;
+      case 'math':
+        wrapSelectedText('$', '$', 'x^2 + y^2 = z^2');
+        break;
+      case 'copy':
+        handleCopy();
+        break;
+      case 'paste':
+        handlePaste();
+        break;
+      default:
+        break;
+    }
+    setShowToolbar(false);
+  };
+
+  const handleCopy = () => {
+    const ta = editorRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const selected = editorContent.substring(start, end);
+    if (!selected) {
+      toast('Nothing selected to copy', { icon: '⚠️' });
+      return;
+    }
+    navigator.clipboard
+      .writeText(selected)
+      .then(() => toast.success('Copied selection'))
+      .catch(() => toast.error('Copy failed'));
+  };
+
+  const handlePaste = async () => {
+    try {
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        toast.error('Paste not supported in this context');
+        return;
+      }
+      const text = await navigator.clipboard.readText();
+      if (!text) {
+        toast('Clipboard is empty', { icon: 'ℹ️' });
+        return;
+      }
+      insertAtCursor(text, text.length);
+    } catch {
+      toast.error('Paste failed');
+    }
+  };
+
+  useEffect(() => {
+    if (!showToolbar) return;
+    const hide = () => setShowToolbar(false);
+    window.addEventListener('scroll', hide, true);
+    window.addEventListener('resize', hide);
+    return () => {
+      window.removeEventListener('scroll', hide, true);
+      window.removeEventListener('resize', hide);
+    };
+  }, [showToolbar]);
+
+  // Table modal: helpers and effects
+  const openTableModal = () => {
+    setTableRowsInput('3');
+    setTableColsInput('3');
+    setIncludeHeader(true);
+    setIncludeSerial(true);
+    const r = 3;
+    const c = 3;
+    setHeaderData(Array.from({ length: c }, (_, i) => `Header ${i + 1}`));
+    setTableData(
+      Array.from({ length: r }, (_, ri) =>
+        Array.from({ length: c }, (_, ci) => `Cell ${ri * c + ci + 1}`)
+      )
+    );
+    setShowTableModal(true);
+  };
+
+  const closeTableModal = () => setShowTableModal(false);
+
+  useEffect(() => {
+    if (!showTableModal) return;
+    const update = () => {
+      const el = modalContentRef.current;
+      if (!el) return setShowScrollToBottom(false);
+      setShowScrollToBottom(el.scrollHeight > el.clientHeight + 8);
+    };
+    const t = setTimeout(update, 50);
+    window.addEventListener('resize', update);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', update);
+    };
+  }, [showTableModal, tableRowsInput, tableColsInput, includeHeader, includeSerial]);
+
+  const scrollModalToBottom = () => {
+    const el = modalContentRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  };
+
+  // Resize table data structures when inputs change
+  useEffect(() => {
+    const rows = Math.max(1, Math.min(20, parseInt(tableRowsInput || '1', 10)));
+    const cols = Math.max(1, Math.min(20, parseInt(tableColsInput || '1', 10)));
+    setHeaderData((prev) => {
+      const next = prev ? [...prev] : [];
+      for (let i = 0; i < cols; i++) if (next[i] === undefined) next[i] = `Header ${i + 1}`;
+      next.length = cols;
+      return next;
+    });
+    setTableData((prev) => {
+      const next = prev ? prev.map((r) => [...r]) : [];
+      for (let r = 0; r < rows; r++) {
+        if (!next[r]) next[r] = Array.from({ length: cols }, (_, c) => `Cell ${r * cols + c + 1}`);
+        for (let c = 0; c < cols; c++) if (next[r][c] === undefined) next[r][c] = `Cell ${r * cols + c + 1}`;
+        next[r].length = cols;
+      }
+      next.length = rows;
+      return next;
+    });
+  }, [tableRowsInput, tableColsInput]);
+
+  const confirmInsertTable = () => {
+    const rows = parseInt(tableRowsInput, 10);
+    const cols = parseInt(tableColsInput, 10);
+    if (Number.isNaN(rows) || Number.isNaN(cols) || rows < 1 || cols < 1) {
+      toast.error('Invalid table size. Rows and columns must be positive integers.');
+      return;
+    }
+    const MAX = 20;
+    const rClamped = Math.max(1, Math.min(MAX, rows));
+    const cClamped = Math.max(1, Math.min(MAX, cols));
+    const totalCols = (includeSerial ? 1 : 0) + cClamped;
+    const headerCells = [];
+    if (includeSerial) headerCells.push(includeHeader ? '#' : '');
+    for (let i = 0; i < cClamped; i++) {
+      const hv = headerData[i];
+      headerCells.push(includeHeader ? (hv ?? `Header ${i + 1}`) : '');
+    }
+    const headerRow = `| ${headerCells.join(' | ')} |`;
+    const separatorCells = Array.from({ length: totalCols }, () => '---');
+    const separatorRowStr = `| ${separatorCells.join(' | ')} |`;
+    const dataRows = [];
+    for (let r = 0; r < rClamped; r++) {
+      const rowCells = [];
+      if (includeSerial) rowCells.push(`${r + 1}`);
+      for (let c = 0; c < cClamped; c++) {
+        const val = tableData[r] && tableData[r][c] ? tableData[r][c] : `Cell ${r * cClamped + c + 1}`;
+        const safeVal = String(val).replace(/\|/g, '\\|');
+        rowCells.push(safeVal);
+      }
+      dataRows.push(`| ${rowCells.join(' | ')} |`);
+    }
+    const tableMarkdown = `\n${headerRow}\n${separatorRowStr}\n${dataRows.join('\n')}\n`;
+    insertAtCursor(tableMarkdown, 1);
+    toast.success('Table inserted');
+    closeTableModal();
+  };
+
   const toolbarGroups = [
     {
       name: 'History',
@@ -460,11 +684,7 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
         {
           icon: FiTable,
           title: 'Add Table',
-          onClick: () =>
-            insertAtCursor(
-              '\n| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Cell 1   | Cell 2   | Cell 3   |\n| Cell 4   | Cell 5   | Cell 6   |\n',
-              1
-            ),
+          onClick: openTableModal,
         },
         {
           icon: BiMath,
@@ -640,6 +860,17 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-primary rounded-full"></div>
                   <span className="text-sm text-base-content/60 font-medium">Editor Mode</span>
+                  {/* Toggle: enable/disable right-click floating toolbar */}
+                  <div className="flex items-center gap-2 ml-3">
+                    <span className="text-xs text-base-content/60 hidden sm:inline">Right-click toolbar</span>
+                    <input
+                      type="checkbox"
+                      className="toggle toggle-xs"
+                      checked={enableFloatingToolbar}
+                      onChange={(e) => setEnableFloatingToolbar(e.target.checked)}
+                      aria-label="Toggle right-click floating toolbar"
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-base-content/60">
                   <span className="flex items-center gap-1">
@@ -676,6 +907,7 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                   value={editorContent}
                   onChange={handleContentChange}
                   onKeyDown={handleKeyDown}
+                  onContextMenu={handleEditorRightClick}
                   placeholder="# Welcome to your note! ✨
 
 Start writing here... You can use Markdown for rich formatting:
@@ -703,6 +935,229 @@ Happy writing! 🚀"
           )}
         </div>
       </div>
+      {/* Floating right-click toolbar (using shared component) */}
+      <FloatingToolbar
+        visible={showToolbar}
+        x={toolbarPos.x}
+        y={toolbarPos.y}
+        onClose={() => setShowToolbar(false)}
+      >
+        <div className="grid grid-cols-8 gap-1 p-1">
+          {/* 24 actions arranged as 3 rows of 8 */}
+          <button className="btn btn-ghost btn-xs btn-square" title="Undo" disabled={historyIndex <= 0} onClick={() => handleToolbarAction('undo')}>
+            <FiRotateCcw className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Redo" disabled={historyIndex >= history.length - 1} onClick={() => handleToolbarAction('redo')}>
+            <FiRotateCw className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Bold" onClick={() => handleToolbarAction('bold')}>
+            <FiBold className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Italic" onClick={() => handleToolbarAction('italic')}>
+            <FiItalic className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Strikethrough" onClick={() => handleToolbarAction('strikethrough')}>
+            <FaStrikethrough className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Underline" onClick={() => handleToolbarAction('underline')}>
+            <FiUnderline className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Highlight" onClick={() => handleToolbarAction('highlight')}>
+            <FaHighlighter className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Inline Code" onClick={() => handleToolbarAction('code')}>
+            <FiCode className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Heading 1" onClick={() => handleToolbarAction('h1')}>
+            <FiType className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Heading 2" onClick={() => handleToolbarAction('h2')}>
+            <FiType className="w-3.5 h-3.5 opacity-80" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Heading 3" onClick={() => handleToolbarAction('h3')}>
+            <FiType className="w-3.5 h-3.5 opacity-60" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Blockquote" onClick={() => handleToolbarAction('blockquote')}>
+            <FaQuoteRight className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Code Block" onClick={() => handleToolbarAction('codeblock')}>
+            <BiCodeBlock className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Horizontal Rule" onClick={() => handleToolbarAction('hr')}>
+            <FiMinus className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Bullet List" onClick={() => handleToolbarAction('ul')}>
+            <FiList className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Numbered List" onClick={() => handleToolbarAction('ol')}>
+            <FaListOl className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Task List" onClick={() => handleToolbarAction('task')}>
+            <FiCheck className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Definition List" onClick={() => handleToolbarAction('deflist')}>
+            <FiStar className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Image" onClick={() => handleToolbarAction('image')}>
+            <FiImage className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Link" onClick={() => handleToolbarAction('link')}>
+            <FiLink className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Insert Table" onClick={() => handleToolbarAction('table')}>
+            <FiTable className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Math" onClick={() => handleToolbarAction('math')}>
+            <BiMath className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Copy" onClick={() => handleToolbarAction('copy')}>
+            <FiCopy className="w-3.5 h-3.5" />
+          </button>
+          <button className="btn btn-ghost btn-xs btn-square" title="Paste" onClick={() => handleToolbarAction('paste')}>
+            <FiClipboard className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </FloatingToolbar>
+
+      {/* Table insert modal */}
+      {showTableModal && (
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40">
+          <div className="bg-base-100 rounded-lg shadow-xl max-w-3xl w-full mx-4 relative flex flex-col max-h-[70vh]">
+            <div
+              ref={modalContentRef}
+              className="p-6 overflow-y-auto no-scrollbar flex-1"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+              <h3 className="font-bold text-lg">Insert Table</h3>
+              <p className="py-2 text-sm text-base-content/70">Specify rows and columns for your table.</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="flex flex-col text-sm">
+                  Rows (data rows):
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={tableRowsInput}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/[^0-9]/g, '');
+                      if (v === '') v = '1';
+                      let num = Math.max(1, Math.min(20, parseInt(v, 10)));
+                      setTableRowsInput(num.toString());
+                    }}
+                    className="input input-bordered mt-1"
+                  />
+                </label>
+                <label className="flex flex-col text-sm">
+                  Columns (data columns):
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={tableColsInput}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/[^0-9]/g, '');
+                      if (v === '') v = '1';
+                      let num = Math.max(1, Math.min(20, parseInt(v, 10)));
+                      setTableColsInput(num.toString());
+                    }}
+                    className="input input-bordered mt-1"
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center gap-4 mt-3">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={includeHeader}
+                    onChange={(e) => setIncludeHeader(e.target.checked)}
+                    className="checkbox"
+                  />
+                  <span className="text-sm">Include header row</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={includeSerial}
+                    onChange={(e) => setIncludeSerial(e.target.checked)}
+                    className="checkbox"
+                  />
+                  <span className="text-sm">Include serial column</span>
+                </label>
+              </div>
+
+              <div className="mt-4">
+                <div className="text-sm mb-2">Preview:</div>
+                <div className="overflow-auto overflow-x-auto border rounded">
+                  <table className="min-w-max table-auto text-sm whitespace-nowrap border border-base-300 border-collapse">
+                    <thead>
+                      {includeHeader && (
+                        <tr>
+                          {includeSerial && (
+                            <th className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">#</th>
+                          )}
+                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, i) => (
+                            <th key={i} className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">
+                              <input
+                                value={headerData[i] ?? `Header ${i + 1}`}
+                                onChange={(e) => {
+                                  const newHd = [...headerData];
+                                  newHd[i] = e.target.value;
+                                  setHeaderData(newHd);
+                                }}
+                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
+                              />
+                            </th>
+                          ))}
+                        </tr>
+                      )}
+                    </thead>
+                    <tbody>
+                      {Array.from({ length: Math.max(1, parseInt(tableRowsInput || '1', 10)) }, (_, r) => (
+                        <tr key={r}>
+                          {includeSerial && (
+                            <td className="border border-base-300 px-3 py-2 text-sm text-base-content">{r + 1}</td>
+                          )}
+                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, c) => (
+                            <td key={c} className="border border-base-300 px-3 py-2 text-sm">
+                              <input
+                                value={(tableData[r] && tableData[r][c]) ?? `Cell ${r * Math.max(1, parseInt(tableColsInput || '1', 10)) + c + 1}`}
+                                onChange={(e) => {
+                                  const newTd = tableData.map((row) => [...row]);
+                                  if (!newTd[r]) newTd[r] = [];
+                                  newTd[r][c] = e.target.value;
+                                  setTableData(newTd);
+                                }}
+                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t bg-base-100 flex justify-end gap-2">
+              <button className="btn btn-ghost" onClick={closeTableModal}>Cancel</button>
+              <button className="btn btn-primary" onClick={confirmInsertTable}>Insert Table</button>
+            </div>
+
+            {showScrollToBottom && (
+              <button
+                onClick={scrollModalToBottom}
+                title="Scroll to actions"
+                className="absolute right-4 bottom-16 btn btn-square btn-sm opacity-90"
+              >
+                <FiChevronDown className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
