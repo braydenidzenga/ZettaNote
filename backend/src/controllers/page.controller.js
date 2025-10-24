@@ -1,12 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import Page from '../models/Page.model.js';
 import User from '../models/User.model.js';
+import Image from '../models/Image.model.js';
 import { verifyToken } from '../utils/token.utils.js';
 import { STATUS_CODES } from '../constants/statusCodes.js';
 import { MESSAGES } from '../constants/messages.js';
 import { z } from 'zod';
 import logger from '../utils/logger.js';
 import { safeRedisCall } from '../config/redis.js';
+import { updateImageReferences, getContentImageIds } from '../utils/image.utils.js';
 import cloudinary from '../config/cloudinary.js';
 
 /**
@@ -361,9 +363,29 @@ export const savePage = async (req) => {
       };
     }
 
+    // Get current image IDs from the page content before updating
+    const previousImageIds = getContentImageIds(page.pageData);
+
     // Update page
     page.pageData = newPageData;
     await page.save();
+
+    // Handle image reference updates
+    const currentImageIds = getContentImageIds(newPageData);
+    const addedImages = currentImageIds.filter((id) => !previousImageIds.includes(id));
+    const removedImages = previousImageIds.filter((id) => !currentImageIds.includes(id));
+
+    if (addedImages.length > 0 || removedImages.length > 0) {
+      try {
+        await updateImageReferences(pageId, addedImages, removedImages);
+        logger.info(
+          `Updated image references for page ${pageId}: +${addedImages.length} -${removedImages.length}`
+        );
+      } catch (imageError) {
+        logger.error('Error updating image references:', imageError);
+        // Don't fail the save operation if image cleanup fails
+      }
+    }
 
     const pageKey = `page:${pageId}`;
     // Update cache in Redis
@@ -547,6 +569,9 @@ export const deletePage = async (req) => {
     // Store shared users before deletion for cache invalidation
     const sharedUserIds = [...(page.sharedTo || [])];
 
+    // Get image IDs from the page content before deletion
+    const pageImageIds = getContentImageIds(page.pageData);
+
     // Delete page
     const pageDeleted = await Page.findByIdAndDelete(pageId);
     if (!pageDeleted) {
@@ -559,6 +584,19 @@ export const deletePage = async (req) => {
     // Remove from user's pages
     user.pages.pull(page._id);
     await user.save();
+
+    // Handle image cleanup - remove references and mark for deletion if no longer used
+    if (pageImageIds.length > 0) {
+      try {
+        await updateImageReferences(pageId, [], pageImageIds); // Remove all references
+        logger.info(
+          `Marked ${pageImageIds.length} images for cleanup after page deletion: ${pageId}`
+        );
+      } catch (imageError) {
+        logger.error('Error cleaning up images after page deletion:', imageError);
+        // Don't fail the delete operation if image cleanup fails
+      }
+    }
 
     // Invalidate caches for all affected users (owner and shared users)
     const cacheInvalidations = [
@@ -948,12 +986,27 @@ export const uploadImage = async (req) => {
       public_id: `note_img_${uniqueId}`,
     });
 
+    // Save image metadata to database
+    const imageDoc = new Image({
+      publicId: cloudinaryRes.public_id,
+      url: cloudinaryRes.secure_url,
+      originalName: req.body.originalName || null,
+      size: cloudinaryRes.bytes || 0,
+      mimeType: cloudinaryRes.format ? `image/${cloudinaryRes.format}` : 'image/jpeg',
+      uploadedBy: user._id,
+      usedInPages: pageId ? [pageId] : [], // Associate with page if provided
+      referenceCount: pageId ? 1 : 0,
+    });
+
+    await imageDoc.save();
+
     return {
       resStatus: STATUS_CODES.OK,
       resMessage: {
         message: 'Image uploaded successfully',
         imageUrl: cloudinaryRes.secure_url,
         imageId: cloudinaryRes.public_id,
+        dbImageId: imageDoc._id, // Include database ID for tracking
       },
     };
   } catch (err) {

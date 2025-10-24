@@ -5,13 +5,13 @@ import {
   banUser,
   changeFirstPassword,
   createAdmin,
-  deleteAdmin,
   getAllAdmins,
   getAllUsers,
   getAnalytics,
   getTotalUsers,
   unbanUser,
   updateAdmin,
+  triggerImageCleanup,
 } from '../controllers/admin.controller.js';
 import {
   adminLoginLimiter,
@@ -222,16 +222,16 @@ router.put(
 );
 
 /**
- * DELETE /api/admin/admins/:adminId
- * @description    Delete admin
+ * POST /api/admin/system/cleanup-images
+ * @description    Trigger manual image cleanup
  * @access  Private (Super Admin)
  */
-router.delete(
-  '/admins/:adminId',
+router.post(
+  '/system/cleanup-images',
   authenticateAdmin,
   requireSuperAdmin,
   asyncHandler(async (req, res) => {
-    const { resStatus, resMessage } = await deleteAdmin(req);
+    const { resStatus, resMessage } = await triggerImageCleanup(req);
     res.status(resStatus).json(resMessage);
   })
 );
