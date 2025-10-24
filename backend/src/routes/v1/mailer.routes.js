@@ -4,9 +4,9 @@
  */
 
 import express from 'express';
-import { sendTestMail } from '../controllers/mailer.controller.js';
-import { asyncHandler } from '../middleware/error.middleware.js';
-import { authenticate } from '../middleware/auth.middleware.js';
+import { sendTestMail } from '../../controllers/v1/mailer.controller.js';
+import { asyncHandler } from '../../middleware/error.middleware.js';
+import { authenticate } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
 

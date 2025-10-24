@@ -27,10 +27,9 @@ export const handler: Handlers['ProcessPageSave'] = async (input, { logger, stat
     logger.info('Processing page save', { jobId, pageId, userId });
 
     // Call backend API to perform the actual page save
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
-
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
     const response = await axios.post(
-      `${backendUrl}/api/pages/save-async`,
+      `${backendUrl}/api/v2/pages/process-async-save`,
       {
         jobId,
         pageId,

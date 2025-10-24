@@ -1,16 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
-import Page from '../models/Page.model.js';
-import User from '../models/User.model.js';
-import Image from '../models/Image.model.js';
-import { verifyToken } from '../utils/token.utils.js';
-import { STATUS_CODES } from '../constants/statusCodes.js';
-import { MESSAGES } from '../constants/messages.js';
+import Page from '../../models/Page.model.js';
+import User from '../../models/User.model.js';
+import Image from '../../models/Image.model.js';
+import { verifyToken } from '../../utils/token.utils.js';
+import { STATUS_CODES } from '../../constants/statusCodes.js';
+import { MESSAGES } from '../../constants/messages.js';
 import { z } from 'zod';
-import logger from '../utils/logger.js';
-import { safeRedisCall } from '../config/redis.js';
-import { updateImageReferences, getContentImageIds } from '../utils/image.utils.js';
-import cloudinary from '../config/cloudinary.js';
-import { MOTIA_CONFIG, triggerAsyncPageSave } from '../utils/motia.utils.js';
+import logger from '../../utils/logger.js';
+import { safeRedisCall } from '../../config/redis.js';
+import { updateImageReferences, getContentImageIds } from '../../utils/image.utils.js';
+import cloudinary from '../../config/cloudinary.js';
 
 /**
  * Helper function to get page name and ID
@@ -364,30 +363,7 @@ export const savePage = async (req) => {
       };
     }
 
-    // Use Motia for async processing if enabled
-    if (MOTIA_CONFIG.enabled) {
-      logger.info('Using Motia for async page save', { pageId, userId: user._id });
-
-      const motiaResult = await triggerAsyncPageSave(pageId, newPageData, user._id.toString());
-
-      if (motiaResult.success) {
-        return {
-          resStatus: STATUS_CODES.ACCEPTED, // 202 - Accepted for processing
-          resMessage: {
-            message: 'Page save queued for processing',
-            jobId: motiaResult.jobId,
-          },
-        };
-      } else {
-        logger.warn('Motia async save failed, falling back to sync', {
-          pageId,
-          error: motiaResult.error,
-        });
-        // Fall back to synchronous processing if Motia fails
-      }
-    }
-
-    // Original synchronous save logic continues below...
+    // Synchronous save logic
     const previousImageIds = getContentImageIds(page.pageData);
 
     // Update page

@@ -10,7 +10,7 @@ import {
   checkTaskRemindersEndpoint,
   asyncPageSaveEndpoint,
   asyncImageUploadEndpoint,
-} from '../controllers/motia.controller.js';
+} from '../../controllers/v2/motia.controller.js';
 
 const router = express.Router();
 

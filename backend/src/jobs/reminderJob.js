@@ -6,7 +6,10 @@
 import cron from 'node-cron';
 import TaskModel from '../models/Task.model.js';
 import logger from '../utils/logger.js';
-import { sendTaskReminderEmail, sendTaskOverdueEmail } from '../controllers/mailer.controller.js';
+import {
+  sendTaskReminderEmail,
+  sendTaskOverdueEmail,
+} from '../controllers/v1/mailer.controller.js';
 
 /**
  * Check for tasks with approaching deadlines

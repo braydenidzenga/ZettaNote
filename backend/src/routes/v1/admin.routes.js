@@ -12,20 +12,20 @@ import {
   unbanUser,
   updateAdmin,
   triggerImageCleanup,
-} from '../controllers/admin.controller.js';
+} from '../../controllers/v1/admin.controller.js';
 import {
   adminLoginLimiter,
   adminApiLimiter,
   adminCreationLimiter,
   logSuspiciousActivity,
   securityHeaders,
-} from '../utils/security.utils.js';
-import { asyncHandler } from '../middleware/error.middleware.js';
+} from '../../utils/security.utils.js';
+import { asyncHandler } from '../../middleware/error.middleware.js';
 import {
   authenticateAdmin,
   requirePermission,
   requireSuperAdmin,
-} from '../middleware/admin.middleware.js';
+} from '../../middleware/admin.middleware.js';
 
 const router = express.Router();
 

@@ -24,7 +24,7 @@ export const handler: Handlers['CleanupOrphanedImages'] = async (input, { logger
     logger.info('Starting orphaned images detection', { jobId, cleanupType });
 
     // Call backend API to mark orphaned images
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
 
     const response = await axios.post(
       `${backendUrl}/api/cleanup/orphaned-images`,

@@ -1,14 +1,14 @@
 import { z } from 'zod';
-import { STATUS_CODES } from '../constants/statusCodes.js';
-import logger from '../utils/logger.js';
-import { cleanupMarkedImages, markOrphanedImages } from '../utils/image.utils.js';
-import { sendTaskReminderEmail, sendTaskOverdueEmail } from './mailer.controller.js';
-import TaskModel from '../models/Task.model.js';
-import Page from '../models/Page.model.js';
-import { updateImageReferences, getContentImageIds } from '../utils/image.utils.js';
-import { safeRedisCall } from '../config/redis.js';
-import cloudinary from '../config/cloudinary.js';
-import Image from '../models/Image.model.js';
+import { STATUS_CODES } from '../../constants/statusCodes.js';
+import logger from '../../utils/logger.js';
+import { cleanupMarkedImages, markOrphanedImages } from '../../utils/image.utils.js';
+import { sendTaskReminderEmail, sendTaskOverdueEmail } from '../v1/mailer.controller.js';
+import TaskModel from '../../models/Task.model.js';
+import Page from '../../models/Page.model.js';
+import { updateImageReferences, getContentImageIds } from '../../utils/image.utils.js';
+import { safeRedisCall } from '../../config/redis.js';
+import cloudinary from '../../config/cloudinary.js';
+import Image from '../../models/Image.model.js';
 
 /**
  * Cleanup Marked Images Endpoint (called by Motia)

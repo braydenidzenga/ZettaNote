@@ -24,7 +24,7 @@ export const handler: Handlers['SendTaskReminders'] = async (input, { logger, st
     logger.info('Starting task reminder check', { jobId, checkType });
 
     // Call backend API to check and send reminders
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3000';
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:4000';
 
     const response = await axios.post(
       `${backendUrl}/api/reminders/check`,

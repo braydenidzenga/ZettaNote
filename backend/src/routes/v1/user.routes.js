@@ -4,8 +4,8 @@ import {
   getUser,
   terminateAccount,
   updateUsername,
-} from '../controllers/user.controller.js';
-import { authenticate } from '../middleware/auth.middleware.js';
+} from '../../controllers/v1/user.controller.js';
+import { authenticate } from '../../middleware/auth.middleware.js';
 
 const router = express.Router();
 

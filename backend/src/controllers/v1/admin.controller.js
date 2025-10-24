@@ -4,15 +4,15 @@
  * Consolidated from 12 separate controller files
  */
 
-import AdminAccount from '../models/AdminAccount.model.js';
-import User from '../models/User.model.js';
-import Page from '../models/Page.model.js';
-import { generateAdminToken, verifyAdminToken } from '../utils/token.utils.js';
-import { generateMemorablePassword, validatePasswordStrength } from '../utils/password.utils.js';
-import { STATUS_CODES } from '../constants/statusCodes.js';
-import { MESSAGES } from '../constants/messages.js';
-import { triggerManualImageCleanup } from '../jobs/imageCleanupJob.js';
-import logger from '../utils/logger.js';
+import AdminAccount from '../../models/AdminAccount.model.js';
+import User from '../../models/User.model.js';
+import Page from '../../models/Page.model.js';
+import { generateAdminToken, verifyAdminToken } from '../../utils/token.utils.js';
+import { generateMemorablePassword, validatePasswordStrength } from '../../utils/password.utils.js';
+import { STATUS_CODES } from '../../constants/statusCodes.js';
+import { MESSAGES } from '../../constants/messages.js';
+import { triggerManualImageCleanup } from '../../jobs/imageCleanupJob.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Admin Login

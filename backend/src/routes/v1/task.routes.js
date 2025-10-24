@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import { asyncHandler } from '../middleware/error.middleware.js';
+import { asyncHandler } from '../../middleware/error.middleware.js';
 import {
   createTask,
   getAllTasks,
@@ -12,7 +12,7 @@ import {
   getTaskById,
   deleteTask,
   toggleTaskCompletion,
-} from '../controllers/task.controller.js';
+} from '../../controllers/v1/task.controller.js';
 
 const router = express.Router();
 

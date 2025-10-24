@@ -1,8 +1,8 @@
 import express from 'express';
 import passport from 'passport';
-import { generateToken } from '../utils/token.utils.js';
-import config from '../config/index.js';
-import logger from '../utils/logger.js';
+import { generateToken } from '../../utils/token.utils.js';
+import config from '../../config/index.js';
+import logger from '../../utils/logger.js';
 
 const router = express.Router();
 

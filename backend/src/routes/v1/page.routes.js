@@ -11,8 +11,8 @@ import {
   getPublicShare,
   removeUserFromSharedPage,
   uploadImage,
-} from '../controllers/page.controller.js';
-import { asyncHandler } from '../middleware/error.middleware.js';
+} from '../../controllers/v1/page.controller.js';
+import { asyncHandler } from '../../middleware/error.middleware.js';
 
 const router = express.Router();
 
