@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import FloatingToolbar from './FloatingToolbar';
 import {
   FiBold,
   FiItalic,
@@ -16,6 +17,9 @@ import {
   FiCode,
   FiMinus,
   FiStar,
+  FiChevronDown,
+  FiCopy,
+  FiClipboard,
 } from 'react-icons/fi';
 import { FaQuoteRight, FaListOl, FaStrikethrough, FaHighlighter } from 'react-icons/fa';
 import { BiCodeBlock, BiMath } from 'react-icons/bi';
@@ -61,12 +65,26 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isUpdatingFromHistory, setIsUpdatingFromHistory] = useState(false);
+  // Floating toolbar state
+  const [floatingToolbarEnabled, setFloatingToolbarEnabled] = useState(true);
+  const [toolbarVisible, setToolbarVisible] = useState(false);
+  const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
   const editorRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const [lineCount, setLineCount] = useState(20);
   const [, setIsUploadingImage] = useState(false);
 
   const lastLoadedPageRef = useRef(null);
+  // Table modal state
+  const [showTableModal, setShowTableModal] = useState(false);
+  const [tableRowsInput, setTableRowsInput] = useState('3');
+  const [tableColsInput, setTableColsInput] = useState('3');
+  const [includeHeader, setIncludeHeader] = useState(true);
+  const [includeSerial, setIncludeSerial] = useState(true);
+  const modalContentRef = useRef(null);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [headerData, setHeaderData] = useState([]);
+  const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
     if (content !== editorContent && !isUpdatingFromHistory) {
@@ -100,6 +118,25 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     const requiredLines = Math.max(1, Math.floor(ta.scrollHeight / approxLineHeight));
     setLineCount(requiredLines);
   }, [editorContent, activePage?.id]);
+
+  // Update visibility of the scroll-to-bottom button when modal content changes
+  useEffect(() => {
+    if (!showTableModal) return;
+    const update = () => {
+      const el = modalContentRef.current;
+      if (!el) {
+        setShowScrollToBottom(false);
+        return;
+      }
+      setShowScrollToBottom(el.scrollHeight > el.clientHeight + 8);
+    };
+    const t = setTimeout(update, 50);
+    window.addEventListener('resize', update);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('resize', update);
+    };
+  }, [showTableModal, tableRowsInput, tableColsInput, includeHeader, includeSerial]);
 
   const addToHistory = useCallback(
     (newContent) => {
@@ -305,6 +342,94 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
 
       setTimeout(() => setIsUpdatingFromHistory(false), 0);
     }
+  };
+
+  const scrollModalToBottom = () => {
+    const el = modalContentRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+  };
+
+  const openTableModal = () => {
+    setTableRowsInput('3');
+    setTableColsInput('3');
+    setIncludeHeader(true);
+    setIncludeSerial(true);
+    const r = 3;
+    const c = 3;
+    setHeaderData(Array.from({ length: c }, (_, i) => `Header ${i + 1}`));
+    setTableData(
+      Array.from({ length: r }, (_, ri) =>
+        Array.from({ length: c }, (_, ci) => `Cell ${ri * c + ci + 1}`)
+      )
+    );
+    setShowTableModal(true);
+  };
+
+  // When rows or cols inputs change, clamp to max 20 and resize header/table data accordingly
+  useEffect(() => {
+    const rows = Math.max(1, Math.min(20, parseInt(tableRowsInput || '1', 10)));
+    const cols = Math.max(1, Math.min(20, parseInt(tableColsInput || '1', 10)));
+
+    setHeaderData((prev) => {
+      const next = prev ? [...prev] : [];
+      for (let i = 0; i < cols; i++) if (next[i] === undefined) next[i] = `Header ${i + 1}`;
+      next.length = cols;
+      return next;
+    });
+
+    setTableData((prev) => {
+      const next = prev ? prev.map((r) => [...r]) : [];
+      for (let r = 0; r < rows; r++) {
+        if (!next[r]) next[r] = Array.from({ length: cols }, (_, c) => `Cell ${r * cols + c + 1}`);
+        for (let c = 0; c < cols; c++) if (next[r][c] === undefined) next[r][c] = `Cell ${r * cols + c + 1}`;
+        next[r].length = cols;
+      }
+      next.length = rows;
+      return next;
+    });
+  }, [tableRowsInput, tableColsInput]);
+
+  const closeTableModal = () => setShowTableModal(false);
+
+  const confirmInsertTable = () => {
+    const rows = parseInt(tableRowsInput, 10);
+    const cols = parseInt(tableColsInput, 10);
+    if (Number.isNaN(rows) || Number.isNaN(cols) || rows < 1 || cols < 1) {
+      toast.error('Invalid table size. Rows and columns must be positive integers.');
+      return;
+    }
+    const MAX = 20;
+    const rClamped = Math.max(1, Math.min(MAX, rows));
+    const cClamped = Math.max(1, Math.min(MAX, cols));
+    const totalCols = (includeSerial ? 1 : 0) + cClamped;
+
+    const headerCells = [];
+    if (includeSerial) headerCells.push(includeHeader ? '#' : '');
+    for (let i = 0; i < cClamped; i++) {
+      const hv = headerData[i];
+      headerCells.push(includeHeader ? hv ?? `Header ${i + 1}` : '');
+    }
+    const headerRow = `| ${headerCells.join(' | ')} |`;
+    const separatorCells = Array.from({ length: totalCols }, () => '---');
+    const separatorRowStr = `| ${separatorCells.join(' | ')} |`;
+
+    const dataRows = [];
+    for (let r = 0; r < rClamped; r++) {
+      const rowCells = [];
+      if (includeSerial) rowCells.push(`${r + 1}`);
+      for (let c = 0; c < cClamped; c++) {
+        const val = tableData[r] && tableData[r][c] ? tableData[r][c] : `Cell ${r * cClamped + c + 1}`;
+        const safeVal = String(val).replace(/\|/g, '\\|');
+        rowCells.push(safeVal);
+      }
+      dataRows.push(`| ${rowCells.join(' | ')} |`);
+    }
+
+    const tableMarkdown = `\n${headerRow}\n${separatorRowStr}\n${dataRows.join('\n')}\n`;
+    insertAtCursor(tableMarkdown, 1);
+    toast.success('Table inserted');
+    closeTableModal();
   };
 
   // Handle clipboard paste events
@@ -640,11 +765,7 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
         {
           icon: FiTable,
           title: 'Add Table',
-          onClick: () =>
-            insertAtCursor(
-              '\n| Header 1 | Header 2 | Header 3 |\n|----------|----------|----------|\n| Cell 1   | Cell 2   | Cell 3   |\n| Cell 4   | Cell 5   | Cell 6   |\n',
-              1
-            ),
+          onClick: openTableModal,
         },
         {
           icon: BiMath,
@@ -678,6 +799,115 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
 
   return (
     <div className="flex-1 flex flex-col bg-base-100">
+      {/* Floating Toolbar for right-click */}
+      <FloatingToolbar
+        visible={toolbarVisible}
+        x={toolbarPos.x}
+        y={toolbarPos.y}
+        onClose={() => setToolbarVisible(false)}
+      >
+        {(() => {
+          const allButtons = toolbarGroups.flatMap((group) => group.buttons);
+          const rows = [allButtons.slice(0, 8), allButtons.slice(8, 16), allButtons.slice(16, 22)];
+          // Add Copy and Paste buttons to the last row
+          const copyPasteIcons = [
+            {
+              title: 'Copy',
+              icon: FiCopy,
+              onClick: async () => {
+                try {
+                  const textarea = editorRef.current;
+                  let textToCopy = editorContent;
+                  if (textarea) {
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    if (start !== end) {
+                      textToCopy = editorContent.substring(start, end);
+                    }
+                  }
+                  await navigator.clipboard.writeText(textToCopy);
+                  toast.success('Copied to clipboard');
+                } catch {
+                  toast.error('Copy failed');
+                }
+                setToolbarVisible(false);
+              },
+            },
+            {
+              title: 'Paste',
+              icon: FiClipboard,
+              onClick: async () => {
+                try {
+                  const text = await navigator.clipboard.readText();
+                  insertAtCursor(text);
+                  toast.success('Pasted from clipboard');
+                } catch {
+                  toast.error('Paste failed');
+                }
+                setToolbarVisible(false);
+              },
+            },
+          ];
+          const thirdRow = [...rows[2], ...copyPasteIcons];
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2 justify-center">
+                {rows[0].map((btn, idx) => (
+                  <button
+                    key={btn.title + '-' + idx}
+                    className={`btn btn-square btn-sm flex items-center justify-center ${
+                      btn.icon === FiTable ? 'btn-primary' : 'btn-ghost'
+                    }`}
+                    title={btn.title}
+                    onClick={() => {
+                      setToolbarVisible(false);
+                      btn.onClick();
+                    }}
+                    disabled={btn.disabled}
+                    style={{ minWidth: 36, minHeight: 36 }}
+                  >
+                    {btn.icon && <btn.icon className="w-5 h-5" />}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 justify-center">
+                {rows[1].map((btn, idx) => (
+                  <button
+                    key={btn.title + '-' + idx}
+                    className={`btn btn-square btn-sm flex items-center justify-center ${
+                      btn.icon === FiTable ? 'btn-primary' : 'btn-ghost'
+                    }`}
+                    title={btn.title}
+                    onClick={() => {
+                      setToolbarVisible(false);
+                      btn.onClick();
+                    }}
+                    disabled={btn.disabled}
+                    style={{ minWidth: 36, minHeight: 36 }}
+                  >
+                    {btn.icon && <btn.icon className="w-5 h-5" />}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2 justify-center">
+                {thirdRow.map((btn, idx) => (
+                  <button
+                    key={btn.title + '-' + idx}
+                    className={`btn btn-square btn-sm flex items-center justify-center ${
+                      btn.icon === FiTable ? 'btn-primary' : 'btn-ghost'
+                    }`}
+                    title={btn.title}
+                    onClick={btn.onClick}
+                    style={{ minWidth: 36, minHeight: 36 }}
+                  >
+                    {btn.icon && <btn.icon className="w-5 h-5" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+      </FloatingToolbar>
       {/* Enhanced Toolbar */}
       <div className="border-b border-base-300/60 bg-base-100/80 backdrop-blur-xl sticky top-28 lg:top-32 z-20 shadow-sm">
         <div className="p-2 lg:p-4">
@@ -827,12 +1057,27 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                     Markdown Enabled
                   </span>
                   <span>Auto-save: On</span>
+                  <label className="flex items-center gap-2 cursor-pointer select-none ml-4">
+                    <input
+                      type="checkbox"
+                      checked={floatingToolbarEnabled}
+                      onChange={(e) => setFloatingToolbarEnabled(e.target.checked)}
+                      className="toggle toggle-xs toggle-primary"
+                    />
+                    <span className="text-xs font-medium">Floating Toolbar</span>
+                  </label>
                 </div>
               </div>
 
               {/* Enhanced Editor */}
               <div
                 onClick={handleContainerClick}
+                onContextMenu={(e) => {
+                  if (!floatingToolbarEnabled) return;
+                  e.preventDefault();
+                  setToolbarPos({ x: e.clientX, y: e.clientY });
+                  setToolbarVisible(true);
+                }}
                 className="bg-base-100 rounded-2xl border border-base-300 shadow-lg overflow-x-hidden overflow-y-auto max-h-[70vh] min-h-[70vh] relative flex note-container-scrollable"
               >
                 {/* Line Numbers */}
@@ -883,6 +1128,149 @@ Happy writing! 🚀"
           )}
         </div>
       </div>
+      {/* Global modal overlay for table insertion to avoid clipping by sticky toolbar */}
+      {showTableModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
+          <div className="bg-base-100 rounded-lg shadow-xl max-w-3xl w-full mx-4 relative flex flex-col max-h-[70vh]">
+            {/* Scrollable content area */}
+            <div
+              ref={modalContentRef}
+              className="p-6 overflow-y-auto no-scrollbar flex-1"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
+              <h3 className="font-bold text-lg">Insert Table</h3>
+              <p className="py-2 text-sm text-base-content/70">Specify rows and columns for your table.</p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <label className="flex flex-col text-sm">
+                  Rows (data rows):
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={tableRowsInput}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/[^0-9]/g, '');
+                      if (v === '') v = '1';
+                      let num = Math.max(1, Math.min(20, parseInt(v, 10)));
+                      setTableRowsInput(num.toString());
+                    }}
+                    className="input input-bordered mt-1"
+                  />
+                </label>
+                <label className="flex flex-col text-sm">
+                  Columns (data columns):
+                  <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={tableColsInput}
+                    onChange={(e) => {
+                      let v = e.target.value.replace(/[^0-9]/g, '');
+                      if (v === '') v = '1';
+                      let num = Math.max(1, Math.min(20, parseInt(v, 10)));
+                      setTableColsInput(num.toString());
+                    }}
+                    className="input input-bordered mt-1"
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center gap-4 mt-3">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={includeHeader}
+                    onChange={(e) => setIncludeHeader(e.target.checked)}
+                    className="checkbox"
+                  />
+                  <span className="text-sm">Include header row</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={includeSerial}
+                    onChange={(e) => setIncludeSerial(e.target.checked)}
+                    className="checkbox"
+                  />
+                  <span className="text-sm">Include serial column</span>
+                </label>
+              </div>
+
+              {/* Live preview grid */}
+              <div className="mt-4">
+                <div className="text-sm mb-2">Preview:</div>
+                <div className="overflow-auto overflow-x-auto border rounded">
+                  <table className="min-w-max table-auto text-sm whitespace-nowrap border border-base-300 border-collapse">
+                    <thead>
+                      {includeHeader && (
+                        <tr>
+                          {includeSerial && (
+                            <th className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">#</th>
+                          )}
+                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, i) => (
+                            <th key={i} className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">
+                              <input
+                                value={headerData[i] ?? `Header ${i + 1}`}
+                                onChange={(e) => {
+                                  const newHd = [...headerData];
+                                  newHd[i] = e.target.value;
+                                  setHeaderData(newHd);
+                                }}
+                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
+                              />
+                            </th>
+                          ))}
+                        </tr>
+                      )}
+                    </thead>
+                    <tbody>
+                      {Array.from({ length: Math.max(1, parseInt(tableRowsInput || '1', 10)) }, (_, r) => (
+                        <tr key={r}>
+                          {includeSerial && (
+                            <td className="border border-base-300 px-3 py-2 text-sm text-base-content">{r + 1}</td>
+                          )}
+                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, c) => (
+                            <td key={c} className="border border-base-300 px-3 py-2 text-sm">
+                              <input
+                                value={(tableData[r] && tableData[r][c]) ?? `Cell ${r * Math.max(1, parseInt(tableColsInput || '1', 10)) + c + 1}`}
+                                onChange={(e) => {
+                                  const newTd = tableData.map((row) => [...row]);
+                                  if (!newTd[r]) newTd[r] = [];
+                                  newTd[r][c] = e.target.value;
+                                  setTableData(newTd);
+                                }}
+                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
+                              />
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* modal actions */}
+            <div className="p-4 border-t bg-base-100 flex justify-end gap-2">
+              <button className="btn btn-ghost" onClick={closeTableModal}>Cancel</button>
+              <button className="btn btn-primary" onClick={confirmInsertTable}>Insert Table</button>
+            </div>
+
+            {/* Scroll-to-bottom button shown when content overflows; positioned above actions */}
+            {showScrollToBottom && (
+              <button
+                onClick={scrollModalToBottom}
+                title="Scroll to actions"
+                className="absolute right-4 bottom-16 btn btn-square btn-sm opacity-90"
+              >
+                <FiChevronDown className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
