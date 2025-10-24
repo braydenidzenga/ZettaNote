@@ -910,7 +910,7 @@ export const uploadImage = async (req) => {
     }
 
     const { image, pageId } = req.body;
-    
+
     if (!image) {
       return {
         resStatus: STATUS_CODES.BAD_REQUEST,

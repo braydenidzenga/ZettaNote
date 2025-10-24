@@ -61,7 +61,6 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const [history, setHistory] = useState([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isUpdatingFromHistory, setIsUpdatingFromHistory] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const editorRef = useRef(null);
   const lineNumbersRef = useRef(null);
   const [lineCount, setLineCount] = useState(20);
@@ -299,7 +298,13 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   useEffect(() => {
     const handlePaste = async (e) => {
       // Only process if we have an active page and the textarea is focused
-      if (!activePage || !activePage.id || !editorRef.current || document.activeElement !== editorRef.current) return;
+      if (
+        !activePage ||
+        !activePage.id ||
+        !editorRef.current ||
+        document.activeElement !== editorRef.current
+      )
+        return;
 
       // Check if the clipboard contains image data
       const items = e.clipboardData && e.clipboardData.items;
@@ -314,28 +319,29 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
           hasImageItem = true;
           // Prevent default paste behavior
           e.preventDefault();
-          
+
           // Get the image blob
           const blob = item.getAsFile();
           if (!blob) continue;
 
           try {
             setIsUploadingImage(true);
-            
+
             // Show a loading toast
             const loadingToast = toast.loading('Uploading pasted image...');
-            
+
             // Insert temporary placeholder at cursor position
             const position = editorRef.current.selectionStart;
             const tempPlaceholder = '![Uploading image...]()';
-            
-            const newContent = editorContent.substring(0, position) + 
-                              tempPlaceholder + 
-                              editorContent.substring(position);
-            
+
+            const newContent =
+              editorContent.substring(0, position) +
+              tempPlaceholder +
+              editorContent.substring(position);
+
             setEditorContent(newContent);
             if (onContentChange) onContentChange(newContent);
-            
+
             // Convert blob to base64
             const reader = new FileReader();
             reader.readAsDataURL(blob);
@@ -343,52 +349,52 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
               try {
                 // Upload the image
                 const response = await pagesAPI.uploadImage(reader.result, activePage.id);
-                
+
                 if (response.status === 200 && response.data && response.data.imageUrl) {
                   // Replace the placeholder with actual image markdown
                   const imageMarkdown = `![Image](${response.data.imageUrl})`;
                   const updatedContent = newContent.replace(tempPlaceholder, imageMarkdown);
-                  
+
                   setEditorContent(updatedContent);
                   addToHistory(updatedContent);
-                  
+
                   if (onContentChange) onContentChange(updatedContent);
-                  
+
                   toast.dismiss(loadingToast);
                   toast.success('Image uploaded successfully');
                 } else {
-                  throw new Error(response.data && response.data.message || 'Upload failed');
+                  throw new Error((response.data && response.data.message) || 'Upload failed');
                 }
               } catch (error) {
                 // Remove placeholder on error
                 const updatedContent = newContent.replace(tempPlaceholder, '');
                 setEditorContent(updatedContent);
                 if (onContentChange) onContentChange(updatedContent);
-                
+
                 toast.dismiss(loadingToast);
                 toast.error(`Failed to upload image: ${error.message || 'Unknown error'}`);
                 console.error('Image upload error:', error);
               }
             };
-            
+
             reader.onerror = () => {
               // Remove placeholder on error
               const updatedContent = newContent.replace(tempPlaceholder, '');
               setEditorContent(updatedContent);
               if (onContentChange) onContentChange(updatedContent);
-              
+
               toast.dismiss(loadingToast);
               toast.error('Failed to read image data');
             };
           } finally {
             setIsUploadingImage(false);
           }
-          
+
           // Only process the first image
           break;
         }
       }
-      
+
       // If no image was found in clipboard, let the default paste behavior occur
       if (!hasImageItem) return;
     };
@@ -415,18 +421,21 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       try {
         setIsUploadingImage(true);
         const loadingToast = toast.loading(`Uploading ${file.name}...`);
-        
+
         // Insert temporary placeholder
-        const cursorPos = editorRef.current ? editorRef.current.selectionStart : editorContent.length;
+        const cursorPos = editorRef.current
+          ? editorRef.current.selectionStart
+          : editorContent.length;
         const tempPlaceholder = `![Uploading ${file.name}...]()`;
-        
-        const newContent = editorContent.substring(0, cursorPos) + 
-                          tempPlaceholder + 
-                          editorContent.substring(cursorPos);
-        
+
+        const newContent =
+          editorContent.substring(0, cursorPos) +
+          tempPlaceholder +
+          editorContent.substring(cursorPos);
+
         setEditorContent(newContent);
         if (onContentChange) onContentChange(newContent);
-        
+
         // Convert file to base64
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -434,40 +443,40 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
           try {
             // Upload the image
             const response = await pagesAPI.uploadImage(reader.result, activePage.id);
-            
+
             if (response.status === 200 && response.data && response.data.imageUrl) {
               // Replace placeholder with actual image markdown
               const imageMarkdown = `![${file.name}](${response.data.imageUrl})`;
               const updatedContent = newContent.replace(tempPlaceholder, imageMarkdown);
-              
+
               setEditorContent(updatedContent);
               addToHistory(updatedContent);
-              
+
               if (onContentChange) onContentChange(updatedContent);
-              
+
               toast.dismiss(loadingToast);
               toast.success('Image uploaded successfully');
             } else {
-              throw new Error(response.data && response.data.message || 'Upload failed');
+              throw new Error((response.data && response.data.message) || 'Upload failed');
             }
           } catch (error) {
             // Remove placeholder on error
             const updatedContent = newContent.replace(tempPlaceholder, '');
             setEditorContent(updatedContent);
             if (onContentChange) onContentChange(updatedContent);
-            
+
             toast.dismiss(loadingToast);
             toast.error(`Failed to upload image: ${error.message || 'Unknown error'}`);
             console.error('Image upload error:', error);
           }
         };
-        
+
         reader.onerror = () => {
           // Remove placeholder on error
           const updatedContent = newContent.replace(tempPlaceholder, '');
           setEditorContent(updatedContent);
           if (onContentChange) onContentChange(updatedContent);
-          
+
           toast.dismiss(loadingToast);
           toast.error('Failed to read image file');
         };
