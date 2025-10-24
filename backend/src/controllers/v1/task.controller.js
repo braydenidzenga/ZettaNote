@@ -1,14 +1,14 @@
-import { STATUS_CODES } from '../constants/statusCodes.js';
-import TaskModel from '../models/Task.model.js';
-import { MESSAGES } from '../constants/messages.js';
-import { verifyToken } from '../utils/token.utils.js';
-import logger from '../utils/logger.js';
+import { STATUS_CODES } from '../../constants/statusCodes.js';
+import TaskModel from '../../models/Task.model.js';
+import { MESSAGES } from '../../constants/messages.js';
+import { verifyToken } from '../../utils/token.utils.js';
+import logger from '../../utils/logger.js';
 import {
   createTaskSchema,
   updateTaskSchema,
   getTaskIdSchema,
   toggleTaskCompletionSchema,
-} from '../utils/validator.utils.js';
+} from '../../utils/validator.utils.js';
 
 /**
  * Create a new task

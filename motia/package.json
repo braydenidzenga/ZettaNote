@@ -1,0 +1,26 @@
+{
+  "name": "motia",
+  "description": "",
+  "scripts": {
+    "postinstall": "motia install",
+    "dev": "motia dev",
+    "start": "motia start --port 3001",
+    "generate-types": "motia generate-types",
+    "build": "motia build",
+    "clean": "rm -rf dist node_modules python_modules .motia .mermaid"
+  },
+  "keywords": [
+    "motia"
+  ],
+  "dependencies": {
+    "axios": "^1.12.2",
+    "motia": "^0.8.2-beta.139",
+    "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.1",
+    "@types/react": "^18.3.18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  }
+}

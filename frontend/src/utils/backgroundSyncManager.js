@@ -135,8 +135,8 @@ class BackgroundSyncManager {
     try {
       const response = await pagesAPI.savePage(item.pageId, item.data.content);
 
-      if (response.status === 200 || response.status === 201) {
-        // Update cache with synced status
+      if (response.status === 200 || response.status === 201 || response.status === 202) {
+        // Update cache with synced status (202 means queued for async processing)
         await indexedDBCache.setPage(item.pageId, item.data.content, Date.now(), 'synced');
         return true;
       }

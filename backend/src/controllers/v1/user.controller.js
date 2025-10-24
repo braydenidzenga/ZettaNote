@@ -1,8 +1,8 @@
-import cloudinary from '../config/cloudinary.js';
-import MESSAGES from '../constants/messages.js';
-import STATUS_CODES from '../constants/statusCodes.js';
-import User from '../models/User.model.js';
-import logger from '../utils/logger.js';
+import cloudinary from '../../config/cloudinary.js';
+import MESSAGES from '../../constants/messages.js';
+import STATUS_CODES from '../../constants/statusCodes.js';
+import User from '../../models/User.model.js';
+import logger from '../../utils/logger.js';
 
 export const getUser = async (req, res) => {
   try {

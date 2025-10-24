@@ -247,7 +247,7 @@ const Dashboard = () => {
       // Direct server call for save
       const response = await pagesAPI.savePage(activePage.id, content);
 
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 200 || response.status === 201 || response.status === 202) {
         const serverTimestamp = new Date().toISOString();
         setLastSaved(serverTimestamp);
         setSaveStatus('synced');

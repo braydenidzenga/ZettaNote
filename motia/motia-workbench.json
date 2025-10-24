@@ -1,0 +1,19 @@
+[
+  {
+    "id": "task-management",
+    "config": {
+      "steps/trigger-task-reminders.step.ts": {
+        "x": -154,
+        "y": 21
+      },
+      "steps/send-task-reminders.step.ts": {
+        "x": 421,
+        "y": 105
+      },
+      "steps/scheduled-task-reminders.step.ts": {
+        "x": -118,
+        "y": 206
+      }
+    }
+  }
+]

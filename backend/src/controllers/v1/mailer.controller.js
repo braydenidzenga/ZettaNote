@@ -3,10 +3,10 @@
  * Handles email sending operations
  */
 
-import { sendMail } from '../mailers/resend.client.js';
-import { STATUS_CODES } from '../constants/statusCodes.js';
-import { MESSAGES } from '../constants/messages.js';
-import logger from '../utils/logger.js';
+import { sendMail } from '../../mailers/resend.client.js';
+import { STATUS_CODES } from '../../constants/statusCodes.js';
+import { MESSAGES } from '../../constants/messages.js';
+import logger from '../../utils/logger.js';
 
 /**
  * Send Test/Generic Email
@@ -134,7 +134,9 @@ export const sendTaskReminderEmail = async (task, timeUntil) => {
 													<table class="heading_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
 														<tr>
 															<td class="pad">
-																<h1 style="margin: 0; color: #101010; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 50px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 60px;">⏰ Task Reminder: "${task.taskName}"</h1>
+																<h1 style="margin: 0; color: #101010; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 50px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 60px;">⏰ Task Reminder: "${
+                                  task.taskName
+                                }"</h1>
 															</td>
 														</tr>
 													</table>
@@ -143,8 +145,14 @@ export const sendTaskReminderEmail = async (task, timeUntil) => {
 															<td class="pad" style="padding-bottom:25px;padding-left:10px;padding-right:10px;padding-top:10px;">
 																<div style="color:#101010;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:27px;">
 																	<div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 16px; margin: 16px 0;">
-																		<h3 style="margin: 0 0 12px 0; color: #856404; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;">Task: ${task.taskName}</h3>
-																		${task.taskDescription ? `<p style="margin: 8px 0; color: #6c757d;"><strong>Description:</strong> ${task.taskDescription}</p>` : ''}
+																		<h3 style="margin: 0 0 12px 0; color: #856404; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;">Task: ${
+                                      task.taskName
+                                    }</h3>
+																		${
+                                      task.taskDescription
+                                        ? `<p style="margin: 8px 0; color: #6c757d;"><strong>Description:</strong> ${task.taskDescription}</p>`
+                                        : ''
+                                    }
 																		<p style="margin: 8px 0; color: #6c757d;"><strong>Deadline:</strong> ${deadlineFormatted}</p>
 																		<p style="margin: 8px 0; color: #856404;"><strong>Time remaining:</strong> ${timeUntil}</p>
 																	</div>
@@ -308,7 +316,9 @@ export const sendTaskOverdueEmail = async (task) => {
 													<table class="heading_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
 														<tr>
 															<td class="pad">
-																<h1 style="margin: 0; color: #dc3545; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 50px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 60px;">🚨 Task Overdue: "${task.taskName}"</h1>
+																<h1 style="margin: 0; color: #dc3545; direction: ltr; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif; font-size: 50px; font-weight: 700; letter-spacing: normal; line-height: 1.2; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 60px;">🚨 Task Overdue: "${
+                                  task.taskName
+                                }"</h1>
 															</td>
 														</tr>
 													</table>
@@ -317,10 +327,18 @@ export const sendTaskOverdueEmail = async (task) => {
 															<td class="pad" style="padding-bottom:25px;padding-left:10px;padding-right:10px;padding-top:10px;">
 																<div style="color:#101010;direction:ltr;font-family:Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;font-size:18px;font-weight:400;letter-spacing:0px;line-height:1.5;text-align:left;mso-line-height-alt:27px;">
 																	<div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 16px; margin: 16px 0;">
-																		<h3 style="margin: 0 0 12px 0; color: #721c24; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;">Task: ${task.taskName}</h3>
-																		${task.taskDescription ? `<p style="margin: 8px 0; color: #6c757d;"><strong>Description:</strong> ${task.taskDescription}</p>` : ''}
+																		<h3 style="margin: 0 0 12px 0; color: #721c24; font-family: Fira Sans, Lucida Sans Unicode, Lucida Grande, sans-serif;">Task: ${
+                                      task.taskName
+                                    }</h3>
+																		${
+                                      task.taskDescription
+                                        ? `<p style="margin: 8px 0; color: #6c757d;"><strong>Description:</strong> ${task.taskDescription}</p>`
+                                        : ''
+                                    }
 																		<p style="margin: 8px 0; color: #6c757d;"><strong>Was due:</strong> ${deadlineFormatted}</p>
-																		<p style="margin: 8px 0; color: #721c24;"><strong>Overdue by:</strong> ${overdueDays} day${overdueDays !== 1 ? 's' : ''}</p>
+																		<p style="margin: 8px 0; color: #721c24;"><strong>Overdue by:</strong> ${overdueDays} day${
+                                      overdueDays !== 1 ? 's' : ''
+                                    }</p>
 																	</div>
 																	<p style="margin: 0; margin-bottom: 16px;">This task is now <strong>overdue</strong>. Don't let it slip further!</p>
 																	<p style="margin: 0; margin-bottom: 16px;">Please log in to your <a href="https://www.zettanote.tech" target="_blank" style="text-decoration: underline; color: #7747ff;" rel="noopener"><strong>ZettaNote Dashboard</strong></a> to complete or reschedule this task.</p>

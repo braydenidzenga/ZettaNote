@@ -1,16 +1,16 @@
 import bcrypt from 'bcryptjs';
-import User from '../models/User.model.js';
-import { generateToken, verifyToken } from '../utils/token.utils.js';
-import { validatePassword } from '../utils/password.utils.js';
+import User from '../../models/User.model.js';
+import { generateToken, verifyToken } from '../../utils/token.utils.js';
+import { validatePassword } from '../../utils/password.utils.js';
 import {
   validate,
   signupSchema,
   loginSchema,
   changePasswordSchema,
-} from '../utils/validator.utils.js';
-import { STATUS_CODES } from '../constants/statusCodes.js';
-import { MESSAGES } from '../constants/messages.js';
-import logger from '../utils/logger.js';
+} from '../../utils/validator.utils.js';
+import { STATUS_CODES } from '../../constants/statusCodes.js';
+import { MESSAGES } from '../../constants/messages.js';
+import logger from '../../utils/logger.js';
 
 /**
  * User Signup Controller

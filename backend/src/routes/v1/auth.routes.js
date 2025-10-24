@@ -6,9 +6,9 @@ import {
   changePassword,
   deleteUser,
   getUserById,
-} from '../controllers/auth.controller.js';
-import { asyncHandler } from '../middleware/error.middleware.js';
-import { userAuthLimiter } from '../utils/security.utils.js';
+} from '../../controllers/v1/auth.controller.js';
+import { asyncHandler } from '../../middleware/error.middleware.js';
+import { userAuthLimiter } from '../../utils/security.utils.js';
 
 const router = express.Router();
 

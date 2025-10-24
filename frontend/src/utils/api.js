@@ -76,7 +76,8 @@ export const authAPI = {
 export const pagesAPI = {
   getPage: (pageId) => api.post('/api/pages/getpage', { pageId }),
 
-  savePage: (pageId, content) => api.post('/api/pages/savepage', { pageId, newPageData: content }),
+  savePage: (pageId, content) =>
+    api.post('/api/v2/pages/savepage', { pageId, newPageData: content }),
 
   createPage: (pageData) => api.post('/api/pages/createpage', pageData),
 

@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
-import Page from '../models/Page.model.js';
-import User from '../models/User.model.js';
-import Image from '../models/Image.model.js';
-import { verifyToken } from '../utils/token.utils.js';
-import { STATUS_CODES } from '../constants/statusCodes.js';
-import { MESSAGES } from '../constants/messages.js';
+import Page from '../../models/Page.model.js';
+import User from '../../models/User.model.js';
+import Image from '../../models/Image.model.js';
+import { verifyToken } from '../../utils/token.utils.js';
+import { STATUS_CODES } from '../../constants/statusCodes.js';
+import { MESSAGES } from '../../constants/messages.js';
 import { z } from 'zod';
-import logger from '../utils/logger.js';
-import { safeRedisCall } from '../config/redis.js';
-import { updateImageReferences, getContentImageIds } from '../utils/image.utils.js';
-import cloudinary from '../config/cloudinary.js';
+import logger from '../../utils/logger.js';
+import { safeRedisCall } from '../../config/redis.js';
+import { updateImageReferences, getContentImageIds } from '../../utils/image.utils.js';
+import cloudinary from '../../config/cloudinary.js';
 
 /**
  * Helper function to get page name and ID
@@ -363,7 +363,7 @@ export const savePage = async (req) => {
       };
     }
 
-    // Get current image IDs from the page content before updating
+    // Synchronous save logic
     const previousImageIds = getContentImageIds(page.pageData);
 
     // Update page

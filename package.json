@@ -4,11 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "install:all": "pnpm install && cd backend && pnpm install && cd ../frontend && pnpm install && cd ../",
+    "install:all": "pnpm install && cd backend && pnpm install && cd ../frontend && pnpm install && cd ../motia && pnpm install && cd ../",
     "start:backend": "cd backend && pnpm dev",
     "start:frontend": "cd frontend && pnpm dev",
-    "start": "concurrently -n \"🔵 Backend,🟡 Frontend\" -c \"blue,yellow\" \"pnpm start:backend\" \"pnpm start:frontend\"",
-    "dev": "concurrently -n \"🔵 Backend,🟡 Frontend\" -c \"blue,yellow\" \"pnpm start:backend\" \"pnpm start:frontend\""
+    "start:motia": "cd motia && pnpm dev",
+    "start": "concurrently -n \"🔵 Backend,🟡 Frontend,🟠 Motia\" -c \"blue,yellow,red\" \"pnpm start:backend\" \"pnpm start:frontend\" \"pnpm start:motia\"",
+    "dev": "concurrently -n \"🔵 Backend,🟡 Frontend,🟠 Motia\" -c \"blue,yellow,red\" \"pnpm start:backend\" \"pnpm start:frontend\" \"pnpm start:motia\"",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
   },
   "keywords": [],
   "author": "",
