@@ -696,8 +696,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                       window.innerWidth < 1024 && groupIndex > 2
                         ? 1
                         : window.innerWidth < 768 && groupIndex > 1
-                        ? 2
-                        : group.buttons.length
+                          ? 2
+                          : group.buttons.length
                     )
                     .map((button, buttonIndex) => {
                       const Icon = button.icon;
@@ -718,8 +718,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
                               button.variant === 'h2'
                                 ? 'scale-90'
                                 : button.variant === 'h3'
-                                ? 'scale-75'
-                                : ''
+                                  ? 'scale-75'
+                                  : ''
                             }`}
                           />
 
