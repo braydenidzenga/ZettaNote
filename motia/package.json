@@ -4,7 +4,7 @@
   "scripts": {
     "postinstall": "motia install",
     "dev": "motia dev",
-    "start": "motia start",
+    "start": "motia start --port 3001",
     "generate-types": "motia generate-types",
     "build": "motia build",
     "clean": "rm -rf dist node_modules python_modules .motia .mermaid"
