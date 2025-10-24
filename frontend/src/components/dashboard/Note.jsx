@@ -7,6 +7,7 @@ import {
   FiList,
   FiCheck,
   FiLink,
+  FiChevronDown,
   FiTable,
   FiType,
   FiRotateCcw,
@@ -309,241 +310,6 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     input.click();
   };
 
-  // Right-click floating toolbar handlers
-  const handleEditorRightClick = (e) => {
-    if (!enableFloatingToolbar) return; // allow default context menu when disabled
-    e.preventDefault();
-    // Keep the current selection by focusing the textarea
-    if (editorRef.current) {
-      editorRef.current.focus();
-    }
-    setToolbarPos({ x: e.clientX, y: e.clientY });
-    setShowToolbar(true);
-  };
-
-  const handleToolbarAction = (action) => {
-    switch (action) {
-      case 'bold':
-        wrapSelectedText('**', '**', 'bold text');
-        break;
-      case 'italic':
-        wrapSelectedText('*', '*', 'italic text');
-        break;
-      case 'underline':
-        wrapSelectedText('<u>', '</u>', 'underlined text');
-        break;
-      case 'code':
-        wrapSelectedText('`', '`', 'code');
-        break;
-      case 'link':
-        wrapSelectedText('[', '](url)', 'Link text');
-        break;
-      case 'strikethrough':
-        wrapSelectedText('~~', '~~', 'strikethrough text');
-        break;
-      case 'highlight':
-        wrapSelectedText('==', '==', 'highlighted text');
-        break;
-      case 'undo':
-        handleUndo();
-        break;
-      case 'redo':
-        handleRedo();
-        break;
-      case 'h1':
-        insertAtCursor('\n# ', 2);
-        break;
-      case 'h2':
-        insertAtCursor('\n## ', 3);
-        break;
-      case 'h3':
-        insertAtCursor('\n### ', 4);
-        break;
-      case 'blockquote':
-        insertAtCursor('\n> ', 2);
-        break;
-      case 'codeblock':
-        insertAtCursor('\n```javascript\n\n```\n', 15);
-        break;
-      case 'hr':
-        insertAtCursor('\n---\n', 1);
-        break;
-      case 'ul':
-        insertAtCursor('\n- ', 2);
-        break;
-      case 'ol':
-        insertAtCursor('\n1. ', 3);
-        break;
-      case 'task':
-        insertAtCursor('\n- [ ] ', 6);
-        break;
-      case 'deflist':
-        insertAtCursor('\nTerm\n: Definition\n', 1);
-        break;
-      case 'table':
-        openTableModal();
-        break;
-      case 'image':
-        handleImageUpload();
-        break;
-      case 'math':
-        wrapSelectedText('$', '$', 'x^2 + y^2 = z^2');
-        break;
-      case 'copy':
-        handleCopy();
-        break;
-      case 'paste':
-        handlePaste();
-        break;
-      default:
-        break;
-    }
-    setShowToolbar(false);
-  };
-
-  const handleCopy = () => {
-    const ta = editorRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const selected = editorContent.substring(start, end);
-    if (!selected) {
-      toast('Nothing selected to copy', { icon: '⚠️' });
-      return;
-    }
-    navigator.clipboard
-      .writeText(selected)
-      .then(() => toast.success('Copied selection'))
-      .catch(() => toast.error('Copy failed'));
-  };
-
-  const handlePaste = async () => {
-    try {
-      if (!navigator.clipboard || !navigator.clipboard.readText) {
-        toast.error('Paste not supported in this context');
-        return;
-      }
-      const text = await navigator.clipboard.readText();
-      if (!text) {
-        toast('Clipboard is empty', { icon: 'ℹ️' });
-        return;
-      }
-      insertAtCursor(text, text.length);
-    } catch {
-      toast.error('Paste failed');
-    }
-  };
-
-  useEffect(() => {
-    if (!showToolbar) return;
-    const hide = () => setShowToolbar(false);
-    window.addEventListener('scroll', hide, true);
-    window.addEventListener('resize', hide);
-    return () => {
-      window.removeEventListener('scroll', hide, true);
-      window.removeEventListener('resize', hide);
-    };
-  }, [showToolbar]);
-
-  // Table modal: helpers and effects
-  const openTableModal = () => {
-    setTableRowsInput('3');
-    setTableColsInput('3');
-    setIncludeHeader(true);
-    setIncludeSerial(true);
-    const r = 3;
-    const c = 3;
-    setHeaderData(Array.from({ length: c }, (_, i) => `Header ${i + 1}`));
-    setTableData(
-      Array.from({ length: r }, (_, ri) =>
-        Array.from({ length: c }, (_, ci) => `Cell ${ri * c + ci + 1}`)
-      )
-    );
-    setShowTableModal(true);
-  };
-
-  const closeTableModal = () => setShowTableModal(false);
-
-  useEffect(() => {
-    if (!showTableModal) return;
-    const update = () => {
-      const el = modalContentRef.current;
-      if (!el) return setShowScrollToBottom(false);
-      setShowScrollToBottom(el.scrollHeight > el.clientHeight + 8);
-    };
-    const t = setTimeout(update, 50);
-    window.addEventListener('resize', update);
-    return () => {
-      clearTimeout(t);
-      window.removeEventListener('resize', update);
-    };
-  }, [showTableModal, tableRowsInput, tableColsInput, includeHeader, includeSerial]);
-
-  const scrollModalToBottom = () => {
-    const el = modalContentRef.current;
-    if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
-  };
-
-  // Resize table data structures when inputs change
-  useEffect(() => {
-    const rows = Math.max(1, Math.min(20, parseInt(tableRowsInput || '1', 10)));
-    const cols = Math.max(1, Math.min(20, parseInt(tableColsInput || '1', 10)));
-    setHeaderData((prev) => {
-      const next = prev ? [...prev] : [];
-      for (let i = 0; i < cols; i++) if (next[i] === undefined) next[i] = `Header ${i + 1}`;
-      next.length = cols;
-      return next;
-    });
-    setTableData((prev) => {
-      const next = prev ? prev.map((r) => [...r]) : [];
-      for (let r = 0; r < rows; r++) {
-        if (!next[r]) next[r] = Array.from({ length: cols }, (_, c) => `Cell ${r * cols + c + 1}`);
-        for (let c = 0; c < cols; c++) if (next[r][c] === undefined) next[r][c] = `Cell ${r * cols + c + 1}`;
-        next[r].length = cols;
-      }
-      next.length = rows;
-      return next;
-    });
-  }, [tableRowsInput, tableColsInput]);
-
-  const confirmInsertTable = () => {
-    const rows = parseInt(tableRowsInput, 10);
-    const cols = parseInt(tableColsInput, 10);
-    if (Number.isNaN(rows) || Number.isNaN(cols) || rows < 1 || cols < 1) {
-      toast.error('Invalid table size. Rows and columns must be positive integers.');
-      return;
-    }
-    const MAX = 20;
-    const rClamped = Math.max(1, Math.min(MAX, rows));
-    const cClamped = Math.max(1, Math.min(MAX, cols));
-    const totalCols = (includeSerial ? 1 : 0) + cClamped;
-    const headerCells = [];
-    if (includeSerial) headerCells.push(includeHeader ? '#' : '');
-    for (let i = 0; i < cClamped; i++) {
-      const hv = headerData[i];
-      headerCells.push(includeHeader ? (hv ?? `Header ${i + 1}`) : '');
-    }
-    const headerRow = `| ${headerCells.join(' | ')} |`;
-    const separatorCells = Array.from({ length: totalCols }, () => '---');
-    const separatorRowStr = `| ${separatorCells.join(' | ')} |`;
-    const dataRows = [];
-    for (let r = 0; r < rClamped; r++) {
-      const rowCells = [];
-      if (includeSerial) rowCells.push(`${r + 1}`);
-      for (let c = 0; c < cClamped; c++) {
-        const val = tableData[r] && tableData[r][c] ? tableData[r][c] : `Cell ${r * cClamped + c + 1}`;
-        const safeVal = String(val).replace(/\|/g, '\\|');
-        rowCells.push(safeVal);
-      }
-      dataRows.push(`| ${rowCells.join(' | ')} |`);
-    }
-    const tableMarkdown = `\n${headerRow}\n${separatorRowStr}\n${dataRows.join('\n')}\n`;
-    insertAtCursor(tableMarkdown, 1);
-    toast.success('Table inserted');
-    closeTableModal();
-  };
-
   const toolbarGroups = [
     {
       name: 'History',
@@ -695,6 +461,98 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     },
   ];
 
+  const renderMarkdown = (text) => {
+    // Table conversion: find markdown tables and convert to HTML tables
+    let html = text;
+    // Convert block tables first
+    html = html.replace(
+      /(?:^|\n)(\|.+\|\n\|[ -:|]+\|\n(?:\|.*\|\n?)*)/gm,
+      (match) => {
+        const lines = match.trim().split(/\n/);
+        if (lines.length < 2) return match;
+        // Header row
+        const headerCells = lines[0]
+          .slice(1, -1)
+          .split('|')
+          .map((cell) => cell.trim());
+        // Separator row
+        // Data rows
+        const dataRows = lines.slice(2).map((row) => {
+          const cells = row.slice(1, -1).split('|').map((cell) => cell.trim());
+          return `<tr>${cells.map((cell) => `<td class="border border-base-300 px-3 py-2">${cell}</td>`).join('')}</tr>`;
+        });
+        return (
+          `<table class="border border-base-300 rounded-lg my-4 min-w-max overflow-auto">
+            <thead>
+              <tr>${headerCells.map((cell) => `<th class="bg-base-200 border border-base-300 px-3 py-2 font-semibold">${cell}</th>`).join('')}</tr>
+            </thead>
+            <tbody>
+              ${dataRows.join('')}
+            </tbody>
+          </table>`
+        );
+      }
+    );
+    // Continue with other markdown conversions
+    html = html
+      .replace(/^### (.*$)/gm, '<h3 class="text-xl font-bold mt-6 mb-3">$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold mt-8 mb-4">$1</h2>')
+      .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold mt-8 mb-6">$1</h1>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-primary">$1</strong>')
+      .replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em class="italic">$1</em>')
+      .replace(/~~(.*?)~~/g, '<del class="line-through opacity-75">$1</del>')
+      .replace(/==(.*?)==/g, '<mark class="bg-yellow-200 px-1 rounded">$1</mark>')
+      .replace(/<u>(.*?)<\/u>/g, '<u class="underline">$1</u>')
+      // Code
+      .replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+        const highlighted = lang
+          ? hljs.highlight(code, { language: lang, ignoreIllegals: true }).value
+          : hljs.highlightAuto(code).value;
+        return `<pre class="bg-base-200 p-4 rounded-lg overflow-auto my-4"><code class="text-sm font-mono language-${lang || 'auto'}">${highlighted}</code></pre>`;
+      })
+      .replace(/`([^`]+)`/g, (match, code) => {
+        const highlighted = hljs.highlightAuto(code).value;
+        return `<code class="bg-base-200 text-primary px-2 py-1 rounded text-sm font-mono">${highlighted}</code>`;
+      })
+      .replace(
+        /^> (.*$)/gm,
+        '<blockquote class="border-l-4 border-primary pl-4 italic my-4 text-base-content/80">$1</blockquote>'
+      )
+      .replace(
+        /^- \[x\] (.*$)/gm,
+        '<li class="flex items-center gap-2 my-1"><input type="checkbox" checked disabled class="checkbox checkbox-primary checkbox-sm"> <span class="line-through opacity-75">$1</span></li>'
+      )
+      .replace(
+        /^- \[ \] (.*$)/gm,
+        '<li class="flex items-center gap-2 my-1"><input type="checkbox" disabled class="checkbox checkbox-sm"> $1</li>'
+      )
+      .replace(
+        /^- (.*$)/gm,
+        '<li class="flex items-start gap-2 my-1"><span class="text-primary">•</span> $1</li>'
+      )
+      .replace(/^[0-9]+\. (.*$)/gm, '<li class="flex items-start gap-2 my-1 ml-4">$1</li>')
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" target="_blank" class="text-primary hover:underline font-medium">$1</a>'
+      )
+      .replace(
+        /!\[([^\]]*)\]\(([^)]+)\)/g,
+        '<img src="$2" alt="$1" class="max-w-full h-auto rounded-lg shadow-md my-4">'
+      )
+      .replace(/^---$/gm, '<hr class="border-base-300 my-8">')
+      .replace(
+        /\$\$(.*?)\$\$/g,
+        '<div class="bg-base-200 p-4 rounded-lg text-center font-mono my-4">$1</div>'
+      )
+      .replace(
+        /\$([^$]+)\$/g,
+        '<span class="bg-base-200 px-2 py-1 rounded font-mono text-sm">$1</span>'
+      );
+    // Paragraphs and line breaks, but avoid inside tables
+    html = html.replace(/\n\n/g, '</p><p class="mb-4">').replace(/\n/g, '<br>');
+    return html;
+  };
+
   if (!activePage) {
     return (
       <div className="flex-1 flex items-center justify-center bg-base-100">
@@ -802,6 +660,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
               </button>
             </div>
           </div>
+
+          {/* Table insert modal (moved to top-level to avoid clipping) */}
 
           {/* Status Bar */}
           <div className="flex items-center justify-between text-xs text-base-content/60">
@@ -935,229 +795,6 @@ Happy writing! 🚀"
           )}
         </div>
       </div>
-      {/* Floating right-click toolbar (using shared component) */}
-      <FloatingToolbar
-        visible={showToolbar}
-        x={toolbarPos.x}
-        y={toolbarPos.y}
-        onClose={() => setShowToolbar(false)}
-      >
-        <div className="grid grid-cols-8 gap-1 p-1">
-          {/* 24 actions arranged as 3 rows of 8 */}
-          <button className="btn btn-ghost btn-xs btn-square" title="Undo" disabled={historyIndex <= 0} onClick={() => handleToolbarAction('undo')}>
-            <FiRotateCcw className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Redo" disabled={historyIndex >= history.length - 1} onClick={() => handleToolbarAction('redo')}>
-            <FiRotateCw className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Bold" onClick={() => handleToolbarAction('bold')}>
-            <FiBold className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Italic" onClick={() => handleToolbarAction('italic')}>
-            <FiItalic className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Strikethrough" onClick={() => handleToolbarAction('strikethrough')}>
-            <FaStrikethrough className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Underline" onClick={() => handleToolbarAction('underline')}>
-            <FiUnderline className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Highlight" onClick={() => handleToolbarAction('highlight')}>
-            <FaHighlighter className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Inline Code" onClick={() => handleToolbarAction('code')}>
-            <FiCode className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Heading 1" onClick={() => handleToolbarAction('h1')}>
-            <FiType className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Heading 2" onClick={() => handleToolbarAction('h2')}>
-            <FiType className="w-3.5 h-3.5 opacity-80" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Heading 3" onClick={() => handleToolbarAction('h3')}>
-            <FiType className="w-3.5 h-3.5 opacity-60" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Blockquote" onClick={() => handleToolbarAction('blockquote')}>
-            <FaQuoteRight className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Code Block" onClick={() => handleToolbarAction('codeblock')}>
-            <BiCodeBlock className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Horizontal Rule" onClick={() => handleToolbarAction('hr')}>
-            <FiMinus className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Bullet List" onClick={() => handleToolbarAction('ul')}>
-            <FiList className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Numbered List" onClick={() => handleToolbarAction('ol')}>
-            <FaListOl className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Task List" onClick={() => handleToolbarAction('task')}>
-            <FiCheck className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Definition List" onClick={() => handleToolbarAction('deflist')}>
-            <FiStar className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Image" onClick={() => handleToolbarAction('image')}>
-            <FiImage className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Link" onClick={() => handleToolbarAction('link')}>
-            <FiLink className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Insert Table" onClick={() => handleToolbarAction('table')}>
-            <FiTable className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Math" onClick={() => handleToolbarAction('math')}>
-            <BiMath className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Copy" onClick={() => handleToolbarAction('copy')}>
-            <FiCopy className="w-3.5 h-3.5" />
-          </button>
-          <button className="btn btn-ghost btn-xs btn-square" title="Paste" onClick={() => handleToolbarAction('paste')}>
-            <FiClipboard className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </FloatingToolbar>
-
-      {/* Table insert modal */}
-      {showTableModal && (
-        <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/40">
-          <div className="bg-base-100 rounded-lg shadow-xl max-w-3xl w-full mx-4 relative flex flex-col max-h-[70vh]">
-            <div
-              ref={modalContentRef}
-              className="p-6 overflow-y-auto no-scrollbar flex-1"
-              style={{ WebkitOverflowScrolling: 'touch' }}
-            >
-              <h3 className="font-bold text-lg">Insert Table</h3>
-              <p className="py-2 text-sm text-base-content/70">Specify rows and columns for your table.</p>
-
-              <div className="grid grid-cols-2 gap-3">
-                <label className="flex flex-col text-sm">
-                  Rows (data rows):
-                  <input
-                    type="number"
-                    min="1"
-                    max="20"
-                    value={tableRowsInput}
-                    onChange={(e) => {
-                      let v = e.target.value.replace(/[^0-9]/g, '');
-                      if (v === '') v = '1';
-                      let num = Math.max(1, Math.min(20, parseInt(v, 10)));
-                      setTableRowsInput(num.toString());
-                    }}
-                    className="input input-bordered mt-1"
-                  />
-                </label>
-                <label className="flex flex-col text-sm">
-                  Columns (data columns):
-                  <input
-                    type="number"
-                    min="1"
-                    max="20"
-                    value={tableColsInput}
-                    onChange={(e) => {
-                      let v = e.target.value.replace(/[^0-9]/g, '');
-                      if (v === '') v = '1';
-                      let num = Math.max(1, Math.min(20, parseInt(v, 10)));
-                      setTableColsInput(num.toString());
-                    }}
-                    className="input input-bordered mt-1"
-                  />
-                </label>
-              </div>
-
-              <div className="flex items-center gap-4 mt-3">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={includeHeader}
-                    onChange={(e) => setIncludeHeader(e.target.checked)}
-                    className="checkbox"
-                  />
-                  <span className="text-sm">Include header row</span>
-                </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={includeSerial}
-                    onChange={(e) => setIncludeSerial(e.target.checked)}
-                    className="checkbox"
-                  />
-                  <span className="text-sm">Include serial column</span>
-                </label>
-              </div>
-
-              <div className="mt-4">
-                <div className="text-sm mb-2">Preview:</div>
-                <div className="overflow-auto overflow-x-auto border rounded">
-                  <table className="min-w-max table-auto text-sm whitespace-nowrap border border-base-300 border-collapse">
-                    <thead>
-                      {includeHeader && (
-                        <tr>
-                          {includeSerial && (
-                            <th className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">#</th>
-                          )}
-                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, i) => (
-                            <th key={i} className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">
-                              <input
-                                value={headerData[i] ?? `Header ${i + 1}`}
-                                onChange={(e) => {
-                                  const newHd = [...headerData];
-                                  newHd[i] = e.target.value;
-                                  setHeaderData(newHd);
-                                }}
-                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
-                              />
-                            </th>
-                          ))}
-                        </tr>
-                      )}
-                    </thead>
-                    <tbody>
-                      {Array.from({ length: Math.max(1, parseInt(tableRowsInput || '1', 10)) }, (_, r) => (
-                        <tr key={r}>
-                          {includeSerial && (
-                            <td className="border border-base-300 px-3 py-2 text-sm text-base-content">{r + 1}</td>
-                          )}
-                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, c) => (
-                            <td key={c} className="border border-base-300 px-3 py-2 text-sm">
-                              <input
-                                value={(tableData[r] && tableData[r][c]) ?? `Cell ${r * Math.max(1, parseInt(tableColsInput || '1', 10)) + c + 1}`}
-                                onChange={(e) => {
-                                  const newTd = tableData.map((row) => [...row]);
-                                  if (!newTd[r]) newTd[r] = [];
-                                  newTd[r][c] = e.target.value;
-                                  setTableData(newTd);
-                                }}
-                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
-                              />
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 border-t bg-base-100 flex justify-end gap-2">
-              <button className="btn btn-ghost" onClick={closeTableModal}>Cancel</button>
-              <button className="btn btn-primary" onClick={confirmInsertTable}>Insert Table</button>
-            </div>
-
-            {showScrollToBottom && (
-              <button
-                onClick={scrollModalToBottom}
-                title="Scroll to actions"
-                className="absolute right-4 bottom-16 btn btn-square btn-sm opacity-90"
-              >
-                <FiChevronDown className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
