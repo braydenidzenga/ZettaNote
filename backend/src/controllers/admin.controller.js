@@ -11,6 +11,7 @@ import { generateAdminToken, verifyAdminToken } from '../utils/token.utils.js';
 import { generateMemorablePassword, validatePasswordStrength } from '../utils/password.utils.js';
 import { STATUS_CODES } from '../constants/statusCodes.js';
 import { MESSAGES } from '../constants/messages.js';
+import { triggerManualImageCleanup } from '../jobs/imageCleanupJob.js';
 import logger from '../utils/logger.js';
 
 /**
@@ -1105,6 +1106,51 @@ export async function getAnalytics(req) {
       resMessage: {
         success: false,
         message: MESSAGES.GENERAL.INTERNAL_ERROR,
+      },
+    };
+  }
+}
+
+/**
+ * Trigger Manual Image Cleanup
+ * @param {object} req - Express request object
+ * @returns {object} Response status and cleanup results
+ */
+export async function triggerImageCleanup(req) {
+  try {
+    // Add audit log for admin action
+    if (req.admin) {
+      const admin = await AdminAccount.findById(req.admin._id);
+      if (admin) {
+        admin.addAuditLog('MANUAL_IMAGE_CLEANUP', req.ip, req.get('User-Agent'), {
+          triggeredBy: req.admin.email,
+          timestamp: new Date(),
+        });
+        await admin.save();
+      }
+    }
+
+    logger.info(`Manual image cleanup triggered by admin: ${req.admin?.email || 'unknown'}`);
+
+    // Trigger the cleanup
+    const cleanupResult = await triggerManualImageCleanup();
+
+    return {
+      resStatus: STATUS_CODES.OK,
+      resMessage: {
+        success: true,
+        message: 'Image cleanup completed successfully',
+        results: cleanupResult,
+      },
+    };
+  } catch (error) {
+    logger.error('Trigger image cleanup error', error);
+    return {
+      resStatus: STATUS_CODES.INTERNAL_SERVER_ERROR,
+      resMessage: {
+        success: false,
+        message: 'Failed to trigger image cleanup',
+        error: error.message,
       },
     };
   }

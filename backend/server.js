@@ -9,6 +9,7 @@ import config from './src/config/index.js';
 import logger from './src/utils/logger.js';
 import { ConnectRedis } from './src/config/redis.js';
 import { startReminderCronJob, stopReminderCronJob } from './src/jobs/reminderJob.js';
+import { startImageCleanupCronJob, stopImageCleanupCronJob } from './src/jobs/imageCleanupJob.js';
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
@@ -51,14 +52,27 @@ const startServer = async () => {
       logger.info('⏰ Reminder cron job disabled via configuration');
     }
 
+    // Start image cleanup cron job (if enabled)
+    let imageCleanupTasks = null;
+    if (config.cron.imageCleanupJobEnabled) {
+      imageCleanupTasks = startImageCleanupCronJob();
+      logger.info('🖼️ Image cleanup cron job started');
+    } else {
+      logger.info('🖼️ Image cleanup cron job disabled via configuration');
+    }
+
     // Graceful shutdown
     const shutdown = async (signal) => {
       logger.info(`\n${signal} received. Starting graceful shutdown...`);
 
-      // Stop cron job (if it was started)
+      // Stop cron jobs (if they were started)
       if (reminderTask) {
         stopReminderCronJob(reminderTask);
         logger.info('⏰ Reminder cron job stopped');
+      }
+      if (imageCleanupTasks) {
+        stopImageCleanupCronJob(imageCleanupTasks);
+        logger.info('🖼️ Image cleanup cron job stopped');
       }
 
       server.close(async () => {

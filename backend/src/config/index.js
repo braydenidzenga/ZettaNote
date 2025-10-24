@@ -72,6 +72,7 @@ const config = {
   // Cron Job Configuration
   cron: {
     reminderJobEnabled: process.env.DISABLE_REMINDER_CRON !== 'true',
+    imageCleanupJobEnabled: process.env.DISABLE_IMAGE_CLEANUP_CRON !== 'true',
   },
 };
 
