@@ -96,6 +96,10 @@ export const pagesAPI = {
     api.post('/api/pages/sharepage/remove-user', { gmail: email, id: pageId }),
 
   getPublicPage: (publicShareId) => api.get(`/api/pages/share/${publicShareId}`),
+
+  // New method for image uploads
+  uploadImage: (imageData, pageId) =>
+    api.post('/api/pages/upload-image', { image: imageData, pageId }),
 };
 
 // Tasks API

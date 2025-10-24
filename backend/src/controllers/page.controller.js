@@ -7,6 +7,7 @@ import { MESSAGES } from '../constants/messages.js';
 import { z } from 'zod';
 import logger from '../utils/logger.js';
 import { safeRedisCall } from '../config/redis.js';
+import cloudinary from '../config/cloudinary.js';
 
 /**
  * Helper function to get page name and ID
@@ -883,6 +884,87 @@ export const removeUserFromSharedPage = async (req, id, gmail) => {
   }
 };
 
+/**
+ * Upload Image Controller
+ * Uploads an image to Cloudinary and returns the URL
+ * @param {object} req - Express request object
+ * @returns {object} Response status and image URL if successful
+ */
+export const uploadImage = async (req) => {
+  try {
+    const token = req.cookies?.token;
+    if (!token) {
+      return {
+        resStatus: STATUS_CODES.UNAUTHORIZED,
+        resMessage: { message: MESSAGES.AUTH.UNAUTHORIZED },
+      };
+    }
+
+    // Verify user
+    const user = await verifyToken(token);
+    if (!user) {
+      return {
+        resStatus: STATUS_CODES.UNAUTHORIZED,
+        resMessage: { message: MESSAGES.AUTH.INVALID_TOKEN },
+      };
+    }
+
+    const { image, pageId } = req.body;
+
+    if (!image) {
+      return {
+        resStatus: STATUS_CODES.BAD_REQUEST,
+        resMessage: { message: 'Image data is required' },
+      };
+    }
+
+    // Check if page exists and user has access to it
+    if (pageId) {
+      const page = await Page.findById(pageId);
+      if (!page) {
+        return {
+          resStatus: STATUS_CODES.NOT_FOUND,
+          resMessage: { message: MESSAGES.PAGE.NOT_FOUND },
+        };
+      }
+
+      // Check permissions
+      const isOwner = page.owner.equals(user._id);
+      const isShared = (page.sharedTo || []).some((id) => id.equals(user._id));
+
+      if (!isOwner && !isShared) {
+        return {
+          resStatus: STATUS_CODES.FORBIDDEN,
+          resMessage: { message: MESSAGES.PAGE.ACCESS_DENIED },
+        };
+      }
+    }
+
+    // Upload image to Cloudinary
+    const timestamp = new Date().getTime();
+    const uniqueId = `${user._id}_${timestamp}`;
+    const cloudinaryRes = await cloudinary.uploader.upload(image, {
+      folder: 'notes',
+      public_id: `note_img_${uniqueId}`,
+    });
+
+    return {
+      resStatus: STATUS_CODES.OK,
+      resMessage: {
+        message: 'Image uploaded successfully',
+        imageUrl: cloudinaryRes.secure_url,
+        imageId: cloudinaryRes.public_id,
+      },
+    };
+  } catch (err) {
+    logger.error('Image upload error', err);
+    return {
+      resStatus: STATUS_CODES.INTERNAL_SERVER_ERROR,
+      resMessage: { message: MESSAGES.GENERAL.SERVER_ERROR },
+    };
+  }
+};
+
 export default {
   createPage,
   getPage,
@@ -894,4 +976,5 @@ export default {
   publicShare,
   getPublicShare,
   removeUserFromSharedPage,
+  uploadImage,
 };
