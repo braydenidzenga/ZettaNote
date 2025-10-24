@@ -15,11 +15,13 @@ ZettaNote is a modern, feature-rich note-taking application built with React and
 - **Icons**: Lucide React & React Icons
 - **Notifications**: React Hot Toast
 - **Syntax Highlighting**: Highlight.js
+- **Math Rendering**: KaTeX
+- **Markdown Processing**: Markdown-it with custom extensions
 - **Build Tool**: Vite 6.0
 
 ## Project Structure
 
-```
+```bash
 frontend/
 ├── public/
 │   ├── index.html
@@ -108,8 +110,20 @@ VITE_API_URL=http://localhost:4000/api
 
 - **Real-time Auto-save**: Content automatically saves every 2 seconds
 - **Rich Text Editor**: Markdown-based note editing with syntax highlighting
+- **Live Preview**: Toggle between edit and preview modes
+- **Advanced Markdown Support**:
+  - Standard formatting (bold, italic, headers, lists)
+  - Task lists with checkboxes
+  - Definition lists
+  - Strikethrough and highlighting
+  - Inline math with KaTeX
+  - Code blocks with syntax highlighting
+  - Tables, blockquotes, and horizontal rules
+- **Keyboard Shortcuts**: Full shortcut support (Ctrl+B, Ctrl+I, Ctrl+Z, etc.)
+- **Undo/Redo**: History management with 50-entry buffer
+- **Line Numbers**: Optional line numbering in editor
 - **Page Organization**: Hierarchical page structure with sidebar navigation
-- **Page Sharing**: Public sharing with unique URLs
+- **Public Sharing**: Secure page sharing with unique URLs
 - **Page Operations**: Create, rename, delete, and organize pages
 
 ### User Interface
@@ -189,7 +203,7 @@ All API calls use Axios with the following configuration:
 
 The application uses Tailwind CSS v4.0 with DaisyUI component library:
 
-```jsx
+```javascript
 // Example component styling
 <div className="bg-base-100 text-base-content p-4 rounded-lg shadow-lg">
   <h2 className="text-2xl font-bold mb-4">Title</h2>

@@ -65,13 +65,19 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   const lineNumbersRef = useRef(null);
   const [lineCount, setLineCount] = useState(20);
 
+  const lastLoadedPageRef = useRef(null);
+
   useEffect(() => {
-    if (content !== editorContent) {
+    if (content !== editorContent && !isUpdatingFromHistory) {
       setEditorContent(content);
-      setHistory([content]);
-      setHistoryIndex(0);
+      // Only reset history when switching to a different page
+      if (lastLoadedPageRef.current !== activePage?.id) {
+        setHistory([content]);
+        setHistoryIndex(0);
+        lastLoadedPageRef.current = activePage?.id;
+      }
     }
-  }, [content, activePage?.id, editorContent]);
+  }, [content, activePage?.id, editorContent, isUpdatingFromHistory]);
 
   // useEffect(() => { if (isPreview) hljs.highlightAll(); }, [isPreview, editorContent]);
 
@@ -99,18 +105,26 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       if (isUpdatingFromHistory) return;
 
       setHistory((prev) => {
+        // Remove any history after current index (for when user types after undo)
         const newHistory = prev.slice(0, historyIndex + 1);
         newHistory.push(newContent);
+
+        // Limit history to 50 entries
         if (newHistory.length > 50) {
           newHistory.shift();
-          setHistoryIndex(newHistory.length - 1);
           return newHistory;
         }
-        setHistoryIndex(newHistory.length - 1);
+
         return newHistory;
       });
+
+      setHistoryIndex((prev) => {
+        const newIndex = prev + 1;
+        // Adjust index if we limited history size
+        return history.length >= 50 ? 49 : newIndex;
+      });
     },
-    [historyIndex, isUpdatingFromHistory]
+    [historyIndex, isUpdatingFromHistory, history.length]
   );
 
   // Clicking the outer editor container's empty space should move the cursor there.
@@ -273,7 +287,6 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       }
 
       setTimeout(() => setIsUpdatingFromHistory(false), 0);
-      toast.success('Undone');
     }
   };
 
@@ -290,7 +303,6 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       }
 
       setTimeout(() => setIsUpdatingFromHistory(false), 0);
-      toast.success('Redone');
     }
   };
 

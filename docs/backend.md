@@ -29,7 +29,7 @@ ZettaNote Backend is a robust Node.js/Express API server that powers the note-ta
 
 ## Project Structure
 
-```
+```bash
 backend/
 ├── src/
 │   ├── config/              # Configuration management
@@ -208,12 +208,16 @@ app.use(errorHandler);
 | POST   | `/api/admin/ban-user`  | Ban user      | Admin         |
 | GET    | `/api/admin/analytics` | Get analytics | Admin         |
 
-### Email Routes
+### Task Management Routes
 
-| Method | Endpoint           | Description     | Auth Required |
-| ------ | ------------------ | --------------- | ------------- |
-| POST   | `/api/mailer/send` | Send email      | Yes           |
-| POST   | `/api/mailer/test` | Send test email | Yes           |
+| Method | Endpoint                     | Description                  |
+| ------ | ---------------------------- | ---------------------------- |
+| POST   | `/api/task/createTask`       | Create new task/subtask      |
+| PUT    | `/api/task/updateTask`       | Update task details          |
+| GET    | `/api/task/getAllTasks`      | Get all user tasks (grouped) |
+| GET    | `/api/task/getTaskById`      | Get specific task            |
+| DELETE | `/api/task/deleteTask`       | Delete task + subtasks       |
+| PUT    | `/api/task/toggleCompletion` | Toggle completion status     |
 
 ## Security Features
 
