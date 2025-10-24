@@ -215,7 +215,7 @@ The frontend is built with:
 4. **Create default admin user**
    ```bash
    cd ZettaNote/backend
-   node createFirstAdmin.js
+   npm run create-admin
    ```
 
 ---
