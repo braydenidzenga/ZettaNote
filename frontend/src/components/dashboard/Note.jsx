@@ -382,7 +382,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       const next = prev ? prev.map((r) => [...r]) : [];
       for (let r = 0; r < rows; r++) {
         if (!next[r]) next[r] = Array.from({ length: cols }, (_, c) => `Cell ${r * cols + c + 1}`);
-        for (let c = 0; c < cols; c++) if (next[r][c] === undefined) next[r][c] = `Cell ${r * cols + c + 1}`;
+        for (let c = 0; c < cols; c++)
+          if (next[r][c] === undefined) next[r][c] = `Cell ${r * cols + c + 1}`;
         next[r].length = cols;
       }
       next.length = rows;
@@ -408,7 +409,7 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
     if (includeSerial) headerCells.push(includeHeader ? '#' : '');
     for (let i = 0; i < cClamped; i++) {
       const hv = headerData[i];
-      headerCells.push(includeHeader ? hv ?? `Header ${i + 1}` : '');
+      headerCells.push(includeHeader ? (hv ?? `Header ${i + 1}`) : '');
     }
     const headerRow = `| ${headerCells.join(' | ')} |`;
     const separatorCells = Array.from({ length: totalCols }, () => '---');
@@ -419,7 +420,8 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
       const rowCells = [];
       if (includeSerial) rowCells.push(`${r + 1}`);
       for (let c = 0; c < cClamped; c++) {
-        const val = tableData[r] && tableData[r][c] ? tableData[r][c] : `Cell ${r * cClamped + c + 1}`;
+        const val =
+          tableData[r] && tableData[r][c] ? tableData[r][c] : `Cell ${r * cClamped + c + 1}`;
         const safeVal = String(val).replace(/\|/g, '\\|');
         rowCells.push(safeVal);
       }
@@ -1139,7 +1141,9 @@ Happy writing! 🚀"
               style={{ WebkitOverflowScrolling: 'touch' }}
             >
               <h3 className="font-bold text-lg">Insert Table</h3>
-              <p className="py-2 text-sm text-base-content/70">Specify rows and columns for your table.</p>
+              <p className="py-2 text-sm text-base-content/70">
+                Specify rows and columns for your table.
+              </p>
 
               <div className="grid grid-cols-2 gap-3">
                 <label className="flex flex-col text-sm">
@@ -1206,46 +1210,65 @@ Happy writing! 🚀"
                       {includeHeader && (
                         <tr>
                           {includeSerial && (
-                            <th className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">#</th>
-                          )}
-                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, i) => (
-                            <th key={i} className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">
-                              <input
-                                value={headerData[i] ?? `Header ${i + 1}`}
-                                onChange={(e) => {
-                                  const newHd = [...headerData];
-                                  newHd[i] = e.target.value;
-                                  setHeaderData(newHd);
-                                }}
-                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
-                              />
+                            <th className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content">
+                              #
                             </th>
-                          ))}
+                          )}
+                          {Array.from(
+                            { length: Math.max(1, parseInt(tableColsInput || '1', 10)) },
+                            (_, i) => (
+                              <th
+                                key={i}
+                                className="border border-base-300 px-3 py-2 bg-base-200 text-sm font-medium text-base-content"
+                              >
+                                <input
+                                  value={headerData[i] ?? `Header ${i + 1}`}
+                                  onChange={(e) => {
+                                    const newHd = [...headerData];
+                                    newHd[i] = e.target.value;
+                                    setHeaderData(newHd);
+                                  }}
+                                  className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
+                                />
+                              </th>
+                            )
+                          )}
                         </tr>
                       )}
                     </thead>
                     <tbody>
-                      {Array.from({ length: Math.max(1, parseInt(tableRowsInput || '1', 10)) }, (_, r) => (
-                        <tr key={r}>
-                          {includeSerial && (
-                            <td className="border border-base-300 px-3 py-2 text-sm text-base-content">{r + 1}</td>
-                          )}
-                          {Array.from({ length: Math.max(1, parseInt(tableColsInput || '1', 10)) }, (_, c) => (
-                            <td key={c} className="border border-base-300 px-3 py-2 text-sm">
-                              <input
-                                value={(tableData[r] && tableData[r][c]) ?? `Cell ${r * Math.max(1, parseInt(tableColsInput || '1', 10)) + c + 1}`}
-                                onChange={(e) => {
-                                  const newTd = tableData.map((row) => [...row]);
-                                  if (!newTd[r]) newTd[r] = [];
-                                  newTd[r][c] = e.target.value;
-                                  setTableData(newTd);
-                                }}
-                                className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
-                              />
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
+                      {Array.from(
+                        { length: Math.max(1, parseInt(tableRowsInput || '1', 10)) },
+                        (_, r) => (
+                          <tr key={r}>
+                            {includeSerial && (
+                              <td className="border border-base-300 px-3 py-2 text-sm text-base-content">
+                                {r + 1}
+                              </td>
+                            )}
+                            {Array.from(
+                              { length: Math.max(1, parseInt(tableColsInput || '1', 10)) },
+                              (_, c) => (
+                                <td key={c} className="border border-base-300 px-3 py-2 text-sm">
+                                  <input
+                                    value={
+                                      (tableData[r] && tableData[r][c]) ??
+                                      `Cell ${r * Math.max(1, parseInt(tableColsInput || '1', 10)) + c + 1}`
+                                    }
+                                    onChange={(e) => {
+                                      const newTd = tableData.map((row) => [...row]);
+                                      if (!newTd[r]) newTd[r] = [];
+                                      newTd[r][c] = e.target.value;
+                                      setTableData(newTd);
+                                    }}
+                                    className="bg-transparent border-none p-0 text-sm w-full focus:outline-none"
+                                  />
+                                </td>
+                              )
+                            )}
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -1254,8 +1277,12 @@ Happy writing! 🚀"
 
             {/* modal actions */}
             <div className="p-4 border-t bg-base-100 flex justify-end gap-2">
-              <button className="btn btn-ghost" onClick={closeTableModal}>Cancel</button>
-              <button className="btn btn-primary" onClick={confirmInsertTable}>Insert Table</button>
+              <button className="btn btn-ghost" onClick={closeTableModal}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={confirmInsertTable}>
+                Insert Table
+              </button>
             </div>
 
             {/* Scroll-to-bottom button shown when content overflows; positioned above actions */}

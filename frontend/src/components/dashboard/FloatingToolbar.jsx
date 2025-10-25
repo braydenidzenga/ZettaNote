@@ -44,7 +44,6 @@ const FloatingToolbar = ({ visible, x, y, onClose, children }) => {
   );
 };
 
-
 FloatingToolbar.propTypes = {
   visible: PropTypes.bool.isRequired,
   x: PropTypes.number.isRequired,
