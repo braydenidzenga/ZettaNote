@@ -40,7 +40,7 @@ Ensure you have the following installed:
 
 - **Node.js** (v18+ recommended)
 - **MongoDB** (local or cloud instance)
-- **npm** or **yarn**
+- **pnpm** (recommended) or npm
 
 ---
 
@@ -56,7 +56,7 @@ Ensure you have the following installed:
 2. **Install dependencies**
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Configure environment variables**
@@ -68,15 +68,15 @@ Ensure you have the following installed:
 
 4. **Start the backend server**
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 #### 📮 Test APIs with Postman
 
 1. Open **Postman**
 2. Click **Import**
-3. Select `backend/docs/postman_collection.json`
-4. Start testing endpoints (ensure backend is running at `http://localhost:5000`)
+3. Select `backend/postman_collection_for_api_testing.json`
+4. Start testing endpoints (ensure backend is running at `http://localhost:4000`)
 
 ---
 
@@ -91,18 +91,19 @@ Ensure you have the following installed:
 2. **Install dependencies**
 
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Update configuration**
 
    ```bash
-   # Edit config.js to point to your backend instance
+   # Create .env file and add your backend URL
+   echo "VITE_API_URL=http://localhost:4000" > .env
    ```
 
 4. **Start the development server**
    ```bash
-   npm start
+   pnpm dev
    ```
 
 ---
@@ -137,3 +138,7 @@ When you're ready to contribute code:
 ---
 
 Thank you for your interest in making ZettaNote better!
+
+### About force-pushing and rebasing
+
+When working on branches, avoid using `git push --force` (force-push) unless you're explicitly rebasing your branch to clean up history or otherwise required to rewrite commits. In most cases you do not need to worry about preserving every intermediate commit — we use squash merges for pull requests, so the final merged commit will be a single clean commit.

@@ -3,8 +3,8 @@
     "id": "task-management",
     "config": {
       "steps/trigger-task-reminders.step.ts": {
-        "x": -154,
-        "y": 21
+        "x": -293,
+        "y": 39
       },
       "steps/send-task-reminders.step.ts": {
         "x": 421,
