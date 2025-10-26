@@ -432,7 +432,7 @@ const Reminder = ({ isOpen, onClose }) => {
                     type="date"
                     className="input input-bordered w-full"
                     value={newReminder.dueDate}
-                    min={new Date().toISOString().split("T")[0]}
+                    min={new Date().toISOString().split('T')[0]}
                     onChange={(e) =>
                       setNewReminder((prev) => ({ ...prev, dueDate: e.target.value }))
                     }
