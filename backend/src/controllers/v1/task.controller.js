@@ -30,11 +30,30 @@ export const createTask = async (req) => {
     if (!parseResult.success) {
       return {
         resStatus: STATUS_CODES.BAD_REQUEST,
-        resMessage: { message: parseResult.error.errors.map((e) => e.message).join(', ') },
+        resMessage: {
+          message: parseResult.error.errors.map((e) => e.message).join(', '),
+        },
       };
     }
 
     const { taskName, taskDescription, taskDeadline, parentTaskId } = parseResult.data;
+
+    if (taskDeadline) {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      const deadlineDate = new Date(taskDeadline);
+      deadlineDate.setHours(0, 0, 0, 0);
+
+      if (deadlineDate < now) {
+        return {
+          resStatus: STATUS_CODES.BAD_REQUEST,
+          resMessage: {
+            message: 'Deadline cannot be in the past.',
+          },
+        };
+      }
+    }
 
     const user = await verifyToken(token);
     if (!user) {
@@ -104,12 +123,31 @@ export const updateTask = async (req) => {
     if (!parseResult.success) {
       return {
         resStatus: STATUS_CODES.BAD_REQUEST,
-        resMessage: { message: parseResult.error.errors.map((e) => e.message).join(', ') },
+        resMessage: {
+          message: parseResult.error.errors.map((e) => e.message).join(', '),
+        },
       };
     }
 
     const { taskId, taskName, taskDescription, taskDeadline, isTaskCompleted } = parseResult.data;
     logger.info(JSON.stringify(parseResult.data));
+
+    if (taskDeadline) {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+
+      const deadlineDate = new Date(taskDeadline);
+      deadlineDate.setHours(0, 0, 0, 0);
+
+      if (deadlineDate < now) {
+        return {
+          resStatus: STATUS_CODES.BAD_REQUEST,
+          resMessage: {
+            message: 'Deadline cannot be in the past.',
+          },
+        };
+      }
+    }
 
     const user = await verifyToken(token);
     if (!user) {
