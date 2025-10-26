@@ -1,159 +1,1133 @@
 {
   "info": {
-    "name": "MyApp API Collection",
-    "_postman_id": "abcd1234-5678-efgh-9101-ijklmnop",
-    "description": "This collection allows testing all backend API endpoints quickly, including authentication routes.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "ZettaNote API Collection",
+    "_postman_id": "zettanote-api-collection-2025",
+    "description": "Complete API collection for ZettaNote application including authentication, page management, admin functions, tasks, and email services.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "zettanote-team"
   },
   "item": [
     {
-      "name": "Auth Routes",
+      "name": "Health Check",
       "item": [
         {
-          "name": "Register User",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"testuser@example.com\",\n  \"password\": \"test123\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:4000/api/auth/register",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "4000",
-              "path": ["api", "auth", "register"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Login User",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"testuser@example.com\",\n  \"password\": \"test123\"\n}"
-            },
-            "url": {
-              "raw": "http://localhost:4000/api/auth/login",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "4000",
-              "path": ["api", "auth", "login"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get User",
+          "name": "Server Health Check",
           "request": {
             "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "type": "text"
-              }
-            ],
+            "header": [],
             "url": {
-              "raw": "http://localhost:4000/api/auth/getuser",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "4000",
-              "path": ["api", "auth", "user"]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Logout User",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "http://localhost:4000/api/auth/logout",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "4000",
-              "path": ["api", "auth", "logout"]
-            }
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "Check if the server is running and healthy"
           },
           "response": []
         }
       ]
     },
     {
-      "name": "Get All Users",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:4000/api/users",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4000",
-          "path": ["api", "users"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Get Single User",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:4000/api/users/1",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4000",
-          "path": ["api", "users", "1"]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Create New User",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"123456\"\n}"
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "User Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/signup",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "signup"]
+            },
+            "description": "Register a new user account"
+          },
+          "response": []
         },
-        "url": {
-          "raw": "http://localhost:4000/api/users",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "4000",
-          "path": ["api", "users"]
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"password\": \"SecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticate user and receive JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/getuser",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "getuser"]
+            },
+            "description": "Get current authenticated user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"SecurePass123!\",\n  \"newPassword\": \"NewSecurePass456!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/changepassword",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "changepassword"]
+            },
+            "description": "Change user password"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"507f1f77bcf86cd799439011\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/getuserbyid",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "getuserbyid"]
+            },
+            "description": "Get user information by user ID"
+          },
+          "response": []
+        },
+        {
+          "name": "User Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout user and clear session"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/deleteUser",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "deleteUser"]
+            },
+            "description": "Permanently delete user account"
+          },
+          "response": []
         }
-      },
-      "response": []
+      ]
+    },
+    {
+      "name": "OAuth Authentication",
+      "item": [
+        {
+          "name": "Google OAuth Login",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/google",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "google"]
+            },
+            "description": "Initiate Google OAuth login flow"
+          },
+          "response": []
+        },
+        {
+          "name": "GitHub OAuth Login",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/github",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "github"]
+            },
+            "description": "Initiate GitHub OAuth login flow"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Page Management",
+      "item": [
+        {
+          "name": "Get All Pages",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/getpages",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "getpages"]
+            },
+            "description": "Get all pages owned and shared with the user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"507f1f77bcf86cd799439011\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/getpage",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "getpage"]
+            },
+            "description": "Get content of a specific page"
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageName\": \"My New Note\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/createpage",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "createpage"]
+            },
+            "description": "Create a new page/note"
+          },
+          "response": []
+        },
+        {
+          "name": "Save Page Content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"507f1f77bcf86cd799439011\",\n  \"pageData\": \"# My Note\\n\\nThis is the content of my note.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/savepage",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "savepage"]
+            },
+            "description": "Save/update page content"
+          },
+          "response": []
+        },
+        {
+          "name": "Rename Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"507f1f77bcf86cd799439011\",\n  \"pageName\": \"Updated Note Title\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/renamepage",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "renamepage"]
+            },
+            "description": "Rename an existing page"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Page",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"507f1f77bcf86cd799439011\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/deletepage",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "deletepage"]
+            },
+            "description": "Delete a page permanently"
+          },
+          "response": []
+        },
+        {
+          "name": "Share Page with User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"507f1f77bcf86cd799439011\",\n  \"userId\": \"507f1f77bcf86cd799439012\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/sharepage",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "sharepage"]
+            },
+            "description": "Share a page with another user"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Public Share Link",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"507f1f77bcf86cd799439011\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/publicshare",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "publicshare"]
+            },
+            "description": "Generate a public share link for the page"
+          },
+          "response": []
+        },
+        {
+          "name": "Access Public Shared Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pages/share/:shareId",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "share", ":shareId"],
+              "variable": [
+                {
+                  "key": "shareId",
+                  "value": "abc123def456",
+                  "description": "The public share ID"
+                }
+              ]
+            },
+            "description": "Access a publicly shared page (no authentication required)"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove User from Shared Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"507f1f77bcf86cd799439011\",\n  \"gmail\": \"user@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/sharepage/remove-user",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "sharepage", "remove-user"]
+            },
+            "description": "Remove a user from page sharing permissions"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "description": "Image file to upload"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/pages/upload-image",
+              "host": ["{{base_url}}"],
+              "path": ["pages", "upload-image"]
+            },
+            "description": "Upload an image to Cloudinary for use in pages"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Task Management",
+      "item": [
+        {
+          "name": "Get All Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/task/getAllTasks",
+              "host": ["{{base_url}}"],
+              "path": ["task", "getAllTasks"]
+            },
+            "description": "Get all tasks and subtasks for the authenticated user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Task by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/task/getTaskById?id=:taskId",
+              "host": ["{{base_url}}"],
+              "path": ["task", "getTaskById"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "507f1f77bcf86cd799439011",
+                  "description": "Task ID to retrieve"
+                }
+              ]
+            },
+            "description": "Get a specific task by its ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Complete project documentation\",\n  \"description\": \"Write comprehensive API documentation\",\n  \"dueDate\": \"2025-11-01T10:00:00.000Z\",\n  \"priority\": \"high\",\n  \"parentId\": null\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/task/createTask",
+              "host": ["{{base_url}}"],
+              "path": ["task", "createTask"]
+            },
+            "description": "Create a new task or subtask"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"507f1f77bcf86cd799439011\",\n  \"title\": \"Updated task title\",\n  \"description\": \"Updated description\",\n  \"dueDate\": \"2025-11-02T10:00:00.000Z\",\n  \"priority\": \"medium\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/task/updateTask",
+              "host": ["{{base_url}}"],
+              "path": ["task", "updateTask"]
+            },
+            "description": "Update an existing task"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Task Completion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"507f1f77bcf86cd799439011\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/task/toggleCompletion",
+              "host": ["{{base_url}}"],
+              "path": ["task", "toggleCompletion"]
+            },
+            "description": "Toggle the completion status of a task"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"507f1f77bcf86cd799439011\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/task/deleteTask",
+              "host": ["{{base_url}}"],
+              "path": ["task", "deleteTask"]
+            },
+            "description": "Delete a task and all its subtasks"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin Panel",
+      "item": [
+        {
+          "name": "Admin Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@zettanote.tech\",\n  \"password\": \"AdminSecurePass123!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/login",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "login"]
+            },
+            "description": "Authenticate admin user"
+          },
+          "response": []
+        },
+        {
+          "name": "Change First Admin Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@zettanote.tech\",\n  \"newPassword\": \"NewAdminPass456!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/change-first-password",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "change-first-password"]
+            },
+            "description": "Change password for newly created admin account"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current Admin Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/me",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "me"]
+            },
+            "description": "Get current admin user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/logout",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "logout"]
+            },
+            "description": "Logout admin user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Analytics Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics"]
+            },
+            "description": "Get comprehensive analytics data"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Total Users Count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/analytics/total-users",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "analytics", "total-users"]
+            },
+            "description": "Get total number of registered users"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/users?limit=50&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of users per page"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number"
+                }
+              ]
+            },
+            "description": "Get paginated list of all users"
+          },
+          "response": []
+        },
+        {
+          "name": "Ban User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Violation of terms of service\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/:userId/ban",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users", ":userId", "ban"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "507f1f77bcf86cd799439011",
+                  "description": "User ID to ban"
+                }
+              ]
+            },
+            "description": "Ban a user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Unban User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/users/:userId/unban",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "users", ":userId", "unban"],
+              "variable": [
+                {
+                  "key": "userId",
+                  "value": "507f1f77bcf86cd799439011",
+                  "description": "User ID to unban"
+                }
+              ]
+            },
+            "description": "Unban a user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Create New Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Admin\",\n  \"email\": \"jane.admin@zettanote.tech\",\n  \"role\": \"moderator\",\n  \"permissions\": [\"read_users\", \"ban_users\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/create",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "create"]
+            },
+            "description": "Create a new admin account (Super Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Admins",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/admins",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "admins"]
+            },
+            "description": "Get list of all admin accounts (Super Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Admin",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Admin Name\",\n  \"role\": \"admin\",\n  \"permissions\": [\"read_analytics\", \"read_users\", \"ban_users\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/admins/:adminId",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "admins", ":adminId"],
+              "variable": [
+                {
+                  "key": "adminId",
+                  "value": "507f1f77bcf86cd799439011",
+                  "description": "Admin ID to update"
+                }
+              ]
+            },
+            "description": "Update admin account details (Super Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Trigger Image Cleanup",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/system/cleanup-images",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "system", "cleanup-images"]
+            },
+            "description": "Manually trigger image cleanup process (Super Admin only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Email Services",
+      "item": [
+        {
+          "name": "Send Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"recipient@example.com\",\n  \"subject\": \"Test Email from ZettaNote\",\n  \"html\": \"<h1>Hello!</h1><p>This is a test email from ZettaNote.</p>\",\n  \"text\": \"Hello! This is a test email from ZettaNote.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mailer/send",
+              "host": ["{{base_url}}"],
+              "path": ["mailer", "send"]
+            },
+            "description": "Send an email via Resend API"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Test Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"to\": \"test@example.com\",\n  \"subject\": \"Test Email\",\n  \"html\": \"<p>This is a test email.</p>\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/mailer/test",
+              "host": ["{{base_url}}"],
+              "path": ["mailer", "test"]
+            },
+            "description": "Send a test email for debugging purposes"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/getuser",
+              "host": ["{{base_url}}"],
+              "path": ["user", "getuser"]
+            },
+            "description": "Get current user profile information"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Username",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newUsername\": \"newusername123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/user/update-username",
+              "host": ["{{base_url}}"],
+              "path": ["user", "update-username"]
+            },
+            "description": "Update user username"
+          },
+          "response": []
+        },
+        {
+          "name": "Add/Update Avatar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "description": "Avatar image file"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/user/add-avatar",
+              "host": ["{{base_url}}"],
+              "path": ["user", "add-avatar"]
+            },
+            "description": "Upload or update user avatar"
+          },
+          "response": []
+        },
+        {
+          "name": "Terminate Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/user/terminate-account",
+              "host": ["{{base_url}}"],
+              "path": ["user", "terminate-account"]
+            },
+            "description": "Permanently delete user account and all data"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Motia Integration (Internal)",
+      "item": [
+        {
+          "name": "Cleanup Marked Images",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"batchSize\": 50\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/motia/cleanup/marked-images",
+              "host": ["{{base_url}}"],
+              "path": ["motia", "cleanup", "marked-images"]
+            },
+            "description": "Internal endpoint for Motia to cleanup marked images"
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Orphaned Images",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/motia/cleanup/orphaned-images",
+              "host": ["{{base_url}}"],
+              "path": ["motia", "cleanup", "orphaned-images"]
+            },
+            "description": "Internal endpoint for Motia to mark orphaned images"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Task Reminders",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/motia/reminders/check",
+              "host": ["{{base_url}}"],
+              "path": ["motia", "reminders", "check"]
+            },
+            "description": "Internal endpoint for Motia to check and send task reminders"
+          },
+          "response": []
+        },
+        {
+          "name": "Async Page Save",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pageId\": \"507f1f77bcf86cd799439011\",\n  \"pageData\": \"Updated content\",\n  \"userId\": \"507f1f77bcf86cd799439012\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/motia/pages/save-async",
+              "host": ["{{base_url}}"],
+              "path": ["motia", "pages", "save-async"]
+            },
+            "description": "Internal endpoint for Motia async page saving"
+          },
+          "response": []
+        },
+        {
+          "name": "Async Image Upload",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"imageData\": \"base64encodedimage\",\n  \"fileName\": \"image.jpg\",\n  \"userId\": \"507f1f77bcf86cd799439012\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/motia/images/upload-async",
+              "host": ["{{base_url}}"],
+              "path": ["motia", "images", "upload-async"]
+            },
+            "description": "Internal endpoint for Motia async image uploading"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:4000",
+      "type": "string"
     }
   ]
 }
