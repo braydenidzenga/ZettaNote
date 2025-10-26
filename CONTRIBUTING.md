@@ -137,3 +137,7 @@ When you're ready to contribute code:
 ---
 
 Thank you for your interest in making ZettaNote better!
+
+### About force-pushing and rebasing
+
+When working on branches, avoid using `git push --force` (force-push) unless you're explicitly rebasing your branch to clean up history or otherwise required to rewrite commits. In most cases you do not need to worry about preserving every intermediate commit — we use squash merges for pull requests, so the final merged commit will be a single clean commit.
