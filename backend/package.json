@@ -2,12 +2,14 @@
   "name": "zettanote-backend",
   "version": "4.3.0",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
     "lint": "eslint . --ext .js",
     "prod": "node server.js",
-    "create-admin": "node scripts/createFirstAdmin.js"
+    "create-admin": "node scripts/createFirstAdmin.js",
+    "test": "set NODE_OPTIONS=--experimental-vm-modules && jest --forceExit --detectOpenHandles"
   },
   "keywords": [],
   "author": "",
@@ -35,14 +37,17 @@
     "winston": "^3.18.3",
     "zod": "^4.1.11"
   },
-  "type": "module",
   "devDependencies": {
+    "@babel/preset-env": "^7.28.5",
     "@eslint/js": "^9.37.0",
     "@types/express": "^5.0.3",
     "@types/redis": "^4.0.11",
+    "babel-jest": "^30.2.0",
     "eslint": "^9.37.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsdoc": "^61.1.0",
-    "globals": "^16.4.0"
+    "globals": "^16.4.0",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4"
   }
 }
