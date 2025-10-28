@@ -1,3 +1,11 @@
 node_modules
 .env
 .env.example
+.git
+.gitignore
+.DS_Store
+*.md
+Dockerfile
+.dockerignore
+eslint.config.js
+postman_collection_for_api_testing.json

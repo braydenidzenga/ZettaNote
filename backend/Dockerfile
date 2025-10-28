@@ -8,11 +8,14 @@ RUN npm install -g pnpm
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
 
-# Install dependencies (production only)
-RUN pnpm install --prod 
+# Install dependencies and clear cache
+RUN pnpm install --prod --frozen-lockfile && \
+    pnpm store prune
 
-# Copy application code
-COPY . .
+# Copy necessary application code
+COPY server.js ./
+COPY src ./src
+COPY scripts ./scripts
 
 # Environment variables (these will be overridden by Coolify)
 ENV NODE_ENV=production
