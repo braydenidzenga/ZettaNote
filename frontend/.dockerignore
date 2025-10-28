@@ -1,1 +1,12 @@
 node_modules
+dist
+.env
+.env.example
+.git
+.gitignore
+.DS_Store
+*.md
+Dockerfile
+.dockerignore
+eslint.config.js
+package-lock.json

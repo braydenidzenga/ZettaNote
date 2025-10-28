@@ -10,11 +10,14 @@ RUN npm install -g pnpm
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies and clear cache
+RUN pnpm install --frozen-lockfile && \
+    pnpm store prune
 
-# Copy source code
-COPY . .
+# Copy necessary source code
+COPY index.html vite.config.js ./
+COPY public ./public
+COPY src ./src
 
 # Build argument for API URL
 ARG VITE_API_URL=http://localhost:4000
