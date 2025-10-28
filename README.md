@@ -417,17 +417,17 @@ We welcome contributions from the community!
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/shourya2006">
-                    <img src="https://avatars.githubusercontent.com/u/75479705?v=4" width="100;" alt="shourya2006"/>
-                    <br />
-                    <sub><b>shourya2006</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/kaushalyap">
                     <img src="https://avatars.githubusercontent.com/u/24698778?v=4" width="100;" alt="kaushalyap"/>
                     <br />
                     <sub><b>kaushalyap</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/shourya2006">
+                    <img src="https://avatars.githubusercontent.com/u/75479705?v=4" width="100;" alt="shourya2006"/>
+                    <br />
+                    <sub><b>shourya2006</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -505,6 +505,13 @@ We welcome contributions from the community!
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/amilliiee">
+                    <img src="https://avatars.githubusercontent.com/u/94198758?v=4" width="100;" alt="amilliiee"/>
+                    <br />
+                    <sub><b>amilliiee</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/uniquepersun">
                     <img src="https://avatars.githubusercontent.com/u/109142198?v=4" width="100;" alt="uniquepersun"/>
                     <br />
@@ -518,6 +525,8 @@ We welcome contributions from the community!
                     <sub><b>tvnmvy66</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/siddxharth1">
                     <img src="https://avatars.githubusercontent.com/u/91618085?v=4" width="100;" alt="siddxharth1"/>
@@ -525,8 +534,6 @@ We welcome contributions from the community!
                     <sub><b>siddxharth1</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Riya922003">
                     <img src="https://avatars.githubusercontent.com/u/139098932?v=4" width="100;" alt="Riya922003"/>
@@ -562,6 +569,8 @@ We welcome contributions from the community!
                     <sub><b>manumay1962</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/mahiptiwari1000">
                     <img src="https://avatars.githubusercontent.com/u/37294583?v=4" width="100;" alt="mahiptiwari1000"/>
@@ -569,8 +578,6 @@ We welcome contributions from the community!
                     <sub><b>mahiptiwari1000</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/mahenoorsalat">
                     <img src="https://avatars.githubusercontent.com/u/167444338?v=4" width="100;" alt="mahenoorsalat"/>
@@ -606,6 +613,8 @@ We welcome contributions from the community!
                     <sub><b>theboringguy07</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/AsadAhmedSaiyed">
                     <img src="https://avatars.githubusercontent.com/u/166991578?v=4" width="100;" alt="AsadAhmedSaiyed"/>
@@ -613,8 +622,6 @@ We welcome contributions from the community!
                     <sub><b>AsadAhmedSaiyed</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/M1CTIAN">
                     <img src="https://avatars.githubusercontent.com/u/93432521?v=4" width="100;" alt="M1CTIAN"/>
