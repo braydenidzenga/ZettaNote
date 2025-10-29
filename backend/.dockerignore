@@ -9,3 +9,10 @@ Dockerfile
 .dockerignore
 eslint.config.js
 postman_collection_for_api_testing.json
+README.md
+.babelrc
+tests
+jest.config.js
+tests/setup.js
+*.test.js
+*.spec.js

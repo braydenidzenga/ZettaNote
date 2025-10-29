@@ -65,7 +65,6 @@ const startServer = async () => {
     const shutdown = async (signal) => {
       logger.info(`\n${signal} received. Starting graceful shutdown...`);
 
-      // Stop cron jobs (if they were started)
       if (reminderTask) {
         stopReminderCronJob(reminderTask);
         logger.info('⏰ Reminder cron job stopped');
@@ -79,7 +78,6 @@ const startServer = async () => {
         logger.info('✅ HTTP server closed');
 
         try {
-          // Close database connection
           const mongoose = (await import('mongoose')).default;
           await mongoose.connection.close();
           logger.info('✅ Database connection closed');
@@ -90,14 +88,12 @@ const startServer = async () => {
         }
       });
 
-      // Force shutdown after 10 seconds
       setTimeout(() => {
         logger.error('⚠️ Forcing shutdown after timeout');
         process.exit(1);
       }, 10000);
     };
 
-    // Handle shutdown signals
     process.on('SIGTERM', () => shutdown('SIGTERM'));
     process.on('SIGINT', () => shutdown('SIGINT'));
   } catch (error) {
@@ -114,5 +110,12 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-// Start the server
-startServer();
+// START SERVER ONLY WHEN NOT IN TEST ENV
+// Jest sets NODE_ENV === 'test' automatically when running tests
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+// Export for testing (app for Supertest, startServer if you want to start/stop manually in tests)
+export default app;
+export { startServer };
