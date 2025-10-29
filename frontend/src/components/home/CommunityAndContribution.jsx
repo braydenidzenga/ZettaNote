@@ -7,7 +7,7 @@ const CommunityAndContribution = () => {
   return (
     <div>
       {/* COMMUNITY & CONTRIBUTION */}
-      <section className="community-section third max-w-4xl mx-auto mt-12 bg-[color:var(--color-base-200)] border border-[color:var(--color-base-300)] rounded-xl p-6">
+      <section className="community-section third max-w-6xl mx-auto mt-12 bg-[color:var(--color-base-200)] border border-[color:var(--color-base-300)] rounded-xl p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="flex -space-x-3">
             <div className="float w-10 h-10 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 border-2 border-white flex items-center justify-center">
