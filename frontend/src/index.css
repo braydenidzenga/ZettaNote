@@ -1,6 +1,37 @@
 @import 'tailwindcss';
 @plugin "daisyui";
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* prevent side scroll & layout shift */
+  -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Root app container centering */
+#root, .App, .main-container {
+  width: 100%;
+  max-width: 1200px; /* adjust to your layout width */
+  margin-left: auto;
+  margin-right: auto;
+  padding-inline: 16px;
+}
+
+/* Prevent height reflow on mobile when address bar hides */
+.full-height {
+  min-height: 100dvh; /* better than 100vh on mobile */
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
