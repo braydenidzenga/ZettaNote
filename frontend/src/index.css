@@ -1,7 +1,8 @@
 @import 'tailwindcss';
 @plugin "daisyui";
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -10,7 +11,9 @@ html, body {
   box-sizing: border-box;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: inherit;
   transition:
     background-color 0.3s ease,
@@ -19,7 +22,9 @@ html, body {
 }
 
 /* Root app container centering */
-#root, .App, .main-container {
+#root,
+.App,
+.main-container {
   width: 100%;
   max-width: 1200px; /* adjust to your layout width */
   margin-left: auto;

@@ -242,7 +242,11 @@ const Navbar = () => {
 
       {/* Drawer Sidebar */}
       <div className="drawer-side z-50">
-        <label htmlFor="mobile-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
+        <label
+          htmlFor="mobile-drawer"
+          aria-label="close sidebar"
+          className="drawer-overlay"
+        ></label>
         <div className="menu bg-base-100 min-h-full w-80 p-4">
           {/* Sidebar Header */}
           <div className="mb-6 px-3">
