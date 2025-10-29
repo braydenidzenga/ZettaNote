@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import BackToTop from './components/BackToTop';
 import { Navigate, Routes, useLocation } from 'react-router-dom';
 import { Route } from 'react-router-dom';
 import Home from './pages/Home';
@@ -59,6 +60,9 @@ const App = () => {
         location.pathname !== '/signup' &&
         location.pathname !== '/dashboard' &&
         !location.pathname.startsWith('/public/') && <Footer />}
+      {location.pathname !== '/login' &&
+        location.pathname !== '/signup' &&
+        !location.pathname.startsWith('/public/') && <BackToTop />}
       <Toaster
         position="bottom-right"
         toastOptions={{
