@@ -3,14 +3,13 @@
  * Works in test mode (no errors), and in dev/prod normally.
  */
 
-import winston from "winston";
-import path from "path";
-import { fileURLToPath } from "url";
+import winston from 'winston';
+import path from 'path';
 
 let logger; // <-- we'll assign it based on environment
 
 // ✅ 1. Skip full setup when testing
-if (process.env.NODE_ENV === "test") {
+if (process.env.NODE_ENV === 'test') {
   logger = {
     info: () => {},
     warn: () => {},
@@ -24,8 +23,8 @@ if (process.env.NODE_ENV === "test") {
   };
 } else {
   // ✅ 2. Real logger for dev/prod
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
+  // Use a simple fallback for directory resolution
+  const __dirname = process.cwd();
 
   const logLevels = {
     error: 0,
@@ -36,24 +35,24 @@ if (process.env.NODE_ENV === "test") {
   };
 
   const logColors = {
-    error: "red",
-    warn: "yellow",
-    info: "cyan",
-    http: "magenta",
-    debug: "white",
+    error: 'red',
+    warn: 'yellow',
+    info: 'cyan',
+    http: 'magenta',
+    debug: 'white',
   };
 
   winston.addColors(logColors);
 
   const logFormat = winston.format.combine(
-    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
     winston.format.json()
   );
 
   const consoleFormat = winston.format.combine(
-    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.colorize({ all: true }),
     winston.format.printf(({ timestamp, level, message, ...metadata }) => {
       let msg = `[${timestamp}] ${level}: ${message}`;
@@ -64,20 +63,18 @@ if (process.env.NODE_ENV === "test") {
     })
   );
 
-  const transports = [
-    new winston.transports.Console({ format: consoleFormat }),
-  ];
+  const transports = [new winston.transports.Console({ format: consoleFormat })];
 
-  if (process.env.NODE_ENV === "production") {
-    const logsDir = path.join(__dirname, "../../logs");
+  if (process.env.NODE_ENV === 'production') {
+    const logsDir = path.join(__dirname, '../../logs');
     transports.push(
       new winston.transports.File({
-        filename: path.join(logsDir, "error.log"),
-        level: "error",
+        filename: path.join(logsDir, 'error.log'),
+        level: 'error',
         format: logFormat,
       }),
       new winston.transports.File({
-        filename: path.join(logsDir, "combined.log"),
+        filename: path.join(logsDir, 'combined.log'),
         format: logFormat,
       })
     );
@@ -85,13 +82,15 @@ if (process.env.NODE_ENV === "test") {
 
   const winstonLogger = winston.createLogger({
     levels: logLevels,
-    level:
-      process.env.LOG_LEVEL ||
-      (process.env.NODE_ENV === "production" ? "info" : "debug"),
+    level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
     transports,
     exitOnError: false,
   });
 
+  /**
+   * Logger Class
+   * Provides structured logging methods
+   */
   class Logger {
     error(message, error = null) {
       if (error instanceof Error) {
@@ -120,7 +119,7 @@ if (process.env.NODE_ENV === "test") {
     request(req) {
       this.http(`${req.method} ${req.originalUrl}`, {
         ip: req.ip,
-        userAgent: req.get("user-agent"),
+        userAgent: req.get('user-agent'),
       });
     }
     db(operation, collection, metadata = null) {

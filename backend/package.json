@@ -9,7 +9,7 @@
     "lint": "eslint . --ext .js",
     "prod": "node server.js",
     "create-admin": "node scripts/createFirstAdmin.js",
-    "test": "set NODE_OPTIONS=--experimental-vm-modules && jest --forceExit --detectOpenHandles"
+    "test": "jest --forceExit --detectOpenHandles"
   },
   "keywords": [],
   "author": "",
