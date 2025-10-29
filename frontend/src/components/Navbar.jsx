@@ -89,7 +89,7 @@ const Navbar = () => {
       <input id="mobile-drawer" type="checkbox" className="drawer-toggle" />
 
       <div className="drawer-content">
-        <nav className="navbar fixed top-0 bg-base-100 shadow-md px-6 lg:px-10 border-b border-base-300 z-50">
+        <nav className="navbar fixed top-0 left-0 right-0 bg-base-100 shadow-md px-6 lg:px-10 border-b border-base-300 z-50 w-full">
           {/* Mobile menu button */}
           <div className="navbar-start">
             <label htmlFor="mobile-drawer" className="btn btn-ghost btn-circle lg:hidden">
@@ -135,7 +135,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="navbar-center hidden lg:flex">
+          <div className="navbar-center hidden lg:flex justify-center">
             <ul className="menu menu-horizontal gap-2">
               {mainNavItems.map((item) => (
                 <li key={item.name}>
@@ -220,7 +220,7 @@ const Navbar = () => {
                 />
                 {/* Sun icon */}
                 <svg
-                  className="swap-off h-6 w-6 fill-current"
+                  className="swap-off h-6 w-6 fill-current text-black"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                 >
@@ -228,7 +228,7 @@ const Navbar = () => {
                 </svg>
                 {/* Moon icon */}
                 <svg
-                  className="swap-on h-6 w-6 fill-current"
+                  className="swap-on h-6 w-6 fill-current text-gray-300"
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                 >
