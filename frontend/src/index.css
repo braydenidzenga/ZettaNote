@@ -21,15 +21,28 @@ body {
     border-color 0.3s ease;
 }
 
-/* Root app container centering */
-#root,
+/* Root app container - responsive layout */
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* More flexible layout for notes app */
 .App,
 .main-container {
   width: 100%;
-  max-width: 1200px; /* adjust to your layout width */
+  max-width: none; /* Allow full width utilization */
   margin-left: auto;
   margin-right: auto;
-  padding-inline: 16px;
+  padding-inline: clamp(16px, 4vw, 32px); /* Responsive padding */
+}
+
+/* For very large screens, add some reasonable max-width */
+@media (min-width: 1920px) {
+  .App,
+  .main-container {
+    max-width: 1800px;
+  }
 }
 
 /* Prevent height reflow on mobile when address bar hides */

@@ -89,7 +89,7 @@ const Navbar = () => {
       <input id="mobile-drawer" type="checkbox" className="drawer-toggle" />
 
       <div className="drawer-content">
-        <nav className="navbar fixed top-0 left-0 right-0 bg-base-100 shadow-md px-6 lg:px-10 border-b border-base-300 z-50 mx-auto max-w-7xl">
+        <nav className="navbar fixed top-0 left-0 right-0 bg-base-100 shadow-md px-6 lg:px-10 border-b border-base-300 z-50 w-full">
           {/* Mobile menu button */}
           <div className="navbar-start">
             <label htmlFor="mobile-drawer" className="btn btn-ghost btn-circle lg:hidden">
