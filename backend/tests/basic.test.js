@@ -23,7 +23,7 @@ describe('ZettaNote Backend - Authentication API', () => {
 
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('message');
-    expect(res.body.message).toContain('User created successfully');
+    expect(res.body.message).toContain('Account created successfully');
   });
 
   it('should return 400 for invalid signup data', async () => {
