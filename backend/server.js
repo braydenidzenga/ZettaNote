@@ -110,12 +110,10 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-// START SERVER ONLY WHEN NOT IN TEST ENV
-// Jest sets NODE_ENV === 'test' automatically when running tests
+
 if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
 
-// Export for testing (app for Supertest, startServer if you want to start/stop manually in tests)
 export default app;
 export { startServer };
