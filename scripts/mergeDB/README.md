@@ -2,6 +2,6 @@
 
 ## How to run
 
-* copy .env.example as .env
-* fill in the variables
-* npm run start
+- copy .env.example as .env
+- fill in the variables
+- npm run start

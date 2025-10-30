@@ -1,12 +1,12 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
 dotenv.config();
 const SOURCE_URI = process.env.OLD_DB;
 const TARGET_URI = process.env.NEW_DB;
 
 async function migrateDatabase() {
-  console.log("🚀 Starting migration...");
+  console.log('🚀 Starting migration...');
 
   const sourceConn = mongoose.createConnection(SOURCE_URI, {
     useNewUrlParser: true,
@@ -20,11 +20,11 @@ async function migrateDatabase() {
 
   // ✅ Wait until both connections are open before proceeding
   await Promise.all([
-    new Promise((resolve) => sourceConn.once("open", resolve)),
-    new Promise((resolve) => targetConn.once("open", resolve)),
+    new Promise((resolve) => sourceConn.once('open', resolve)),
+    new Promise((resolve) => targetConn.once('open', resolve)),
   ]);
 
-  console.log("✅ Connected to both databases");
+  console.log('✅ Connected to both databases');
 
   // ✅ Now it's safe to access .db
   const collections = await sourceConn.db.listCollections().toArray();
@@ -61,7 +61,7 @@ async function migrateDatabase() {
 
       if (sourceStr !== targetStr) {
         conflictCount++;
-        await targetConn.collection("migration_conflicts").insertOne({
+        await targetConn.collection('migration_conflicts').insertOne({
           collection: name,
           _id: doc._id,
           source: doc,
@@ -84,11 +84,10 @@ async function migrateDatabase() {
   await sourceConn.close();
   await targetConn.close();
 
-  console.log("\n🎉 Migration complete!");
+  console.log('\n🎉 Migration complete!');
 }
 
 migrateDatabase().catch((err) => {
-  console.error("❌ Migration failed:", err);
+  console.error('❌ Migration failed:', err);
   process.exit(1);
 });
-
