@@ -139,7 +139,7 @@ const Login = () => {
       </div>
 
       <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-12 lg:px-16 py-5 relative">
-        <div className="w-full flex items-center justify-between mb-4">
+        <div className="w-full flex items-center justify-between mb-8 -mt-16">
           <div>
             <Link
               to="#"
