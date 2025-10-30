@@ -21,7 +21,7 @@ const md = new MarkdownIt({
         return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
       }
       return hljs.highlightAuto(code).value;
-    } catch (err) {
+    } catch  {
       return code;
     }
   },
@@ -137,7 +137,7 @@ md.inline.ruler.push('math_inline', (state) => {
 
     state.pos = end + 1;
     return true;
-  } catch (err) {
+  } catch  {
     return false;
   }
 });
