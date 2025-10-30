@@ -40,18 +40,27 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <nav className="col-span-2 grid grid-cols-2 gap-6 md:gap-8" aria-label="Footer navigation">
+          <nav
+            className="col-span-2 grid grid-cols-2 gap-6 md:gap-8"
+            aria-label="Footer navigation"
+          >
             <div>
               <h3 className="text-xs uppercase tracking-wide text-base-content/60">Product</h3>
               <ul className="mt-2 space-y-1">
                 <li>
-                  <a href="/" className="hover:text-primary">Home</a>
+                  <a href="/" className="hover:text-primary">
+                    Home
+                  </a>
                 </li>
                 <li>
-                  <a href="/dashboard" className="hover:text-primary">Dashboard</a>
+                  <a href="/dashboard" className="hover:text-primary">
+                    Dashboard
+                  </a>
                 </li>
                 <li>
-                  <a href="/signup" className="hover:text-primary">Get Started</a>
+                  <a href="/signup" className="hover:text-primary">
+                    Get Started
+                  </a>
                 </li>
               </ul>
             </div>
@@ -97,10 +106,18 @@ const Footer = () => {
             <h3 className="text-xs uppercase tracking-wide text-base-content/60">Support</h3>
             <ul className="mt-2 space-y-1 flex flex-col items-center md:items-start">
               <li>
-                <a href="tel:+1234567890" className="hover:text-primary" aria-label="Call Support">+1 (234) 567-890</a>
+                <a href="tel:+1234567890" className="hover:text-primary" aria-label="Call Support">
+                  +1 (234) 567-890
+                </a>
               </li>
               <li>
-                <a href="https://goo.gl/maps/KcKevU7nDVC2" target="_blank" rel="noopener noreferrer" className="hover:text-primary" aria-label="View address on map">
+                <a
+                  href="https://goo.gl/maps/KcKevU7nDVC2"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-primary"
+                  aria-label="View address on map"
+                >
                   1234 Note Ave, City, Country
                 </a>
               </li>
@@ -156,10 +173,18 @@ const Footer = () => {
             © {new Date().getFullYear()} ZettaNote. All rights reserved.
           </p>
           <div className="flex flex-wrap items-center justify-center md:justify-end gap-4">
-            <a href="/privacy" className="hover:text-primary">Privacy</a>
-            <span className="hidden md:inline" aria-hidden>•</span>
-            <a href="/terms" className="hover:text-primary">Terms</a>
-            <span className="hidden md:inline" aria-hidden>•</span>
+            <a href="/privacy" className="hover:text-primary">
+              Privacy
+            </a>
+            <span className="hidden md:inline" aria-hidden>
+              •
+            </span>
+            <a href="/terms" className="hover:text-primary">
+              Terms
+            </a>
+            <span className="hidden md:inline" aria-hidden>
+              •
+            </span>
             <span>
               Contributions welcome on{' '}
               <a
