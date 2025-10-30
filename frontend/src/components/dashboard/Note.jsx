@@ -188,41 +188,75 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   };
 
   const handleKeyDown = (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      switch (e.key.toLowerCase()) {
-        case 'z':
-          if (e.shiftKey) {
-            e.preventDefault();
-            handleRedo();
-          } else {
-            e.preventDefault();
-            handleUndo();
-          }
-          break;
-        case 'y':
+  // 🔹 Auto-insert bullet or number on new line for lists
+  if (e.key === 'Enter') {
+    const textarea = e.target;
+    const { selectionStart, selectionEnd, value } = textarea;
+
+    // Get current line text before cursor
+    const beforeCursor = value.substring(0, selectionStart);
+    const currentLine = beforeCursor.split('\n').pop();
+
+    // Match bullet (-, *, +) or numbered list (1.)
+    const match = currentLine.match(/^(\s*[-*+]|\s*\d+\.)\s+/);
+
+    if (match) {
+      e.preventDefault();
+      const bullet = match[0];
+      const newValue =
+        value.substring(0, selectionStart) +
+        `\n${bullet}` +
+        value.substring(selectionEnd);
+
+      setEditorContent(newValue);
+      addToHistory(newValue);
+
+      // Move cursor to the right position after the bullet
+      requestAnimationFrame(() => {
+        const newPos = selectionStart + bullet.length + 1;
+        textarea.selectionStart = textarea.selectionEnd = newPos;
+      });
+      return; // Stop further key handling
+    }
+  }
+
+  // 🔹 Handle keyboard shortcuts (undo, redo, bold, italic, save)
+  if (e.ctrlKey || e.metaKey) {
+    switch (e.key.toLowerCase()) {
+      case 'z':
+        if (e.shiftKey) {
           e.preventDefault();
           handleRedo();
-          break;
-        case 'b':
+        } else {
           e.preventDefault();
-          wrapSelectedText('**', '**', 'bold text');
-          break;
-        case 'i':
-          e.preventDefault();
-          wrapSelectedText('*', '*', 'italic text');
-          break;
-        case 's':
-          e.preventDefault();
-          if (onSave) {
-            onSave();
-            toast.success('Note saved!');
-          }
-          break;
-        default:
-          break;
-      }
+          handleUndo();
+        }
+        break;
+      case 'y':
+        e.preventDefault();
+        handleRedo();
+        break;
+      case 'b':
+        e.preventDefault();
+        wrapSelectedText('**', '**', 'bold text');
+        break;
+      case 'i':
+        e.preventDefault();
+        wrapSelectedText('*', '*', 'italic text');
+        break;
+      case 's':
+        e.preventDefault();
+        if (onSave) {
+          onSave();
+          toast.success('Note saved!');
+        }
+        break;
+      default:
+        break;
     }
-  };
+  }
+};
+
 
   const handleContentChange = (e) => {
     const newContent = e.target.value;

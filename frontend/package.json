@@ -20,6 +20,7 @@
     "lucide-react": "^0.545.0",
     "markdown-it": "^14.1.0",
     "markdown-it-deflist": "^3.0.0",
+    "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-task-lists": "^2.1.1",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",

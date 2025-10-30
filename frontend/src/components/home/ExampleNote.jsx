@@ -59,11 +59,11 @@ const ExampleNote = () => {
           Private • Edited {timeAgo}
         </div>
       </div>
-      <p
-        className="mt-3 text-sm text-[color:var(--color-neutral-content)] leading-relaxed h-38 overflow-y-auto"
-        contentEditable={isEditing}
-        suppressContentEditableWarning={true}
-      >
+     <p
+  className="mt-3 text-sm text-[color:var(--color-neutral-content)] leading-relaxed min-h-48 max-h-80 overflow-y-auto p-3 rounded-md border border-[color:var(--color-base-300)] bg-[color:var(--color-base-200)]"
+  contentEditable={isEditing}
+  suppressContentEditableWarning={true}
+>
         Quick summary: Decide migration plan for the frontend — start with a Vite parallel folder,
         migrate auth pages first, then dashboard. Public share will be read-only links.
       </p>
