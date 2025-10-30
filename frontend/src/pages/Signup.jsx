@@ -166,7 +166,8 @@ const Signup = () => {
             to="#"
             onClick={(e) => {
               e.preventDefault();
-              navigate(-1);
+              if (window.history.length > 1) navigate(-1);
+              else navigate('/');
             }}
             className="flex items-center gap-2 text-base-content/70 hover:text-base-content transition-colors"
           >
