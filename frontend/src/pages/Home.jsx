@@ -241,7 +241,7 @@ const Home = () => {
     <main
       ref={containerRef}
       className="min-h-screen mt-20 p-6 lg:p-12"
-      style={{ background: 'color:var(--color-base-100)' }}
+      style={{ backgroundColor: 'var(--color-base-100)' }}
     >
       <Heading />
       <Hero />
