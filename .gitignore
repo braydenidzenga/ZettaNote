@@ -11,5 +11,7 @@ admin-portal/node_modules
 admin-portal/build
 admin-portal/.env
 
+scripts/DBMigration/.env
+scripts/DBMigration/node_modules
 
 **/package-lock.json
