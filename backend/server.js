@@ -116,6 +116,5 @@ if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
 
-// Export for testing (app for Supertest, startServer if you want to start/stop manually in tests)
 export default app;
 export { startServer };
