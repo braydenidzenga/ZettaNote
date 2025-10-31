@@ -110,6 +110,8 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
+// START SERVER ONLY WHEN NOT IN TEST ENV
+// Jest sets NODE_ENV === 'test' automatically when running tests
 if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
