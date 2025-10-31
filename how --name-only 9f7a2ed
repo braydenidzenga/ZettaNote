@@ -1,0 +1,145 @@
+[33m9f7a2ed[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfix-auto-list[m[33m, [m[1;31morigin/fix-auto-list[m[33m, [m[1;32mmain[m[33m)[m fix: auto bullet continuation and removed stray '>' before list items
+[33ma352224[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m [docs] Update the documentation to include latest changes + endpoints (#217)
+[33mdcf3383[m docs: update contributors list
+[33mc64a525[m bug(#204): fix date selection experience in the add reminder modal (#216)
+[33mf610260[m feat(frontend): add floating toolbar and custom table insertion modal… (#213)
+[33m005d640[m versioning of api + motia (#214)
+[33m11f9546[m Mannu/rm unused images (#211)
+[33m1a7db7a[m docs: update contributors list
+[33mc89f2d1[m  Add image paste and upload functionality with Cloudinary integration (#209)
+[33m948ba0d[m 📝 docs: fix command for creating first admin user (#210)
+[33m2996327[m update docs
+[33m331b8e8[m update docs + add issues and todos (AI wrote these docs) (#207)
+[33mf79ef22[m fix: undo-redo logics and limitations + removed that toast (#206)
+[33mceae276[m Bump v4.2 -> v4.3
+[33mea009f6[m fix: wrong api routes
+[33m7b55158[m optimizations for frontend & backend (#203)
+[33m7311ccd[m Optimize Search queries using frontend & backend caching & page indexing (#198)
+[33m0700444[m Mannu/fix production (#201)
+[33m9352f92[m ✨ Feat: PRofile update routes added (#200)
+[33ma49852b[m docs: update contributors list
+[33m15102f8[m remove admin build check in prs (#199)
+[33m6cd6512[m Markdown Parser using markdown-it  (#187)
+[33m6baa78f[m Added Rate Limiter for Signup and Login (#196)
+[33md0d3b4f[m fix: environment
+[33mc415181[m build nginx
+[33md305784[m docs: update contributors list
+[33mf3d764e[m Mannu/nginx (#197)
+[33m3ac1ce2[m Add the Frontend for Tasks (#193)
+[33m8093966[m Public link fixed (#191)
+[33m185d5ef[m fix: wrong links in greet texts (#188)
+[33mf77f609[m 📚 docs: frontend & backend (#184)
+[33me862e27[m feat: delete modal (#183)
+[33m76a5b99[m docs: update contributors list
+[33mb4539b9[m 💄 style: refactor create new note modal (#182)
+[33m989e1c1[m docs: update contributors list
+[33m10874b5[m docs: update contributors list
+[33m5fd019f[m docs
+[33m781e008[m docs: update contributors list
+[33mbcb7048[m Implement complete task management system with email reminders (#179)
+[33mf83ab1f[m docs: update contributors list
+[33m0beea24[m Dashboard UI upgrade (#178)
+[33m01c51cf[m added animations in features-section-on-hover (#177)
+[33mbc2a1c9[m Bump v4.1 -> v4.2
+[33mdf3ff51[m Cache pages in redis (#169)
+[33m5bca02f[m docs: update contributors list
+[33ma5a0064[m Fix: download button remains visible after disabling Allow Download (#174)
+[33m283c28c[m ✨ Drawer used instead of hamburger in small devices (#166)
+[33ma002977[m docs: update contributors list
+[33m206cba0[m Resolved [BUG] while making new note, the popup for filling name of the note opens up in the side section,  issue no. #164 (#167)
+[33ma75738e[m docs: update contributors list
+[33ma4de08c[m feat(navbar): add new mobile menu design (#161)
+[33mb134c95[m Fix: User Adding themself in shared users of a page  (#157)
+[33me299269[m Add permissions for welcome-new-contributor job
+[33m659a031[m Fail Prettier Check on bad formatting  (#147)
+[33m6583e11[m docs: update contributors list
+[33mfc51d1f[m Reorder code block parsing with Syntax Highlighting (#156)
+[33me4a467e[m docs: update contributors list
+[33m4aed5fa[m Fixed offcenter dot for Markdown bullet (#155)
+[33m81085f2[m rm -rf .archive ♻
+[33mf8fca1c[m docs: update contributors list
+[33mb0cd5e2[m UI/UX Enhancement for homepage  (#151)
+[33md55524f[m docs: update contributors list
+[33m06c1ef8[m Merge pull request #148 from ikeshav26/feat/backend
+[33m2cff0d6[m use consts
+[33mc079639[m fix: lint error fixed
+[33m811e7ce[m Changes fixed
+[33mcc7c543[m ✨ Feat: Remove shared page from user API endpoint added and connected to frontend
+[33m8cadd6a[m Merge pull request #145 from AmjustGettingStarted/core-features-card-height
+[33m9315574[m fix: enforce equal height for feature cards
+[33mf3cf396[m Bump to v 4.1
+[33mbcf71fc[m docs: update contributors list
+[33mfceb64d[m Merge pull request #129 from RabindranathChanda/added-rules-for-debug-statements
+[33ma7ca306[m lint admin page
+[33mfa1ff24[m update workflow to work with latest changes
+[33m4e386a2[m update workflow to work with latest changes
+[33m3d7ebf2[m update workflow to work with latest changes
+[33m94b16f0[m lint: frontend
+[33m41ad29e[m lint: backend
+[33me9c214a[m added dependencies
+[33mc50d93c[m Added More Improvements
+[33mf42c8cc[m Keeping the branch updated.
+[33m1aabaa8[m Updated the Rules and Workflows
+[33maf09744[m docs: update contributors list
+[33md82a88f[m fix: missing example env
+[33mc097cc7[m docs: update contributors list
+[33m1ff58eb[m Merge branch 'dev' into added-rules-for-debug-statements
+[33meffacc7[m Merge pull request #140 from shourya2006/main
+[33m7dceead[m Merge pull request #132 from kleberson154/main
+[33m9e53fe0[m Keeping this branch updated
+[33m56e031a[m Merge branch 'braydenidzenga:main' into main
+[33mc290b97[m Merge branch 'hybrid-auth'
+[33m4aae9bd[m update docker-compose file
+[33m82c026d[m Refactor: Creation of the Input Component for refactoring in login and signup. [#133]
+[33m1e2b422[m Merge branch 'main' into main
+[33m0adb5d1[m Added Private Sharing
+[33m704440f[m [Hybrid auth] Add github and google login (#139)
+[33md1c5306[m Merge branch 'braydenidzenga:main' into main
+[33mbbafcb7[m security fixes
+[33m4b0a940[m chore: make oauth buttons as components
+[33m4731901[m Implement google and github login
+[33m6a07e1c[m feat: oauth backend
+[33m598d613[m docs: update contributors list
+[33m1df8d92[m [FIX] Note Editor container grows indefinitely, creating unusable space and double scrollbars (#137) (#137)
+[33mcca7af0[m ✨ Fixes for toast (#138)
+[33m2ca2f66[m ✨ Fixes for toast
+[33m29e688e[m docs: update contributors list
+[33mf730c47[m Enhance the UI/UX of the navbar (#135)
+[33ma38b3c1[m Improved workflows to depend on Lint
+[33m4dc7822[m Improved & Added ESLint support for backend and only run checks or builds on chnages.
+[33mc7e20af[m fix: testing input bug and removing focus border [#118]
+[33mff0c5d2[m fix/127-added-rules-fordebug-statement
+[33m6df528c[m Merge pull request #125 from RabindranathChanda/fix/remove-debugLogs
+[33m8aed0c0[m fix/124-remove-debugLogs
+[33mf10e869[m docs: update contributors list
+[33m4779931[m Merge pull request #123 from ikeshav26/feat/vite-setup
+[33m4c713db[m fix:frontend folder name corrected
+[33mbe44c1f[m Merge branch 'braydenidzenga:main' into feat/vite-setup
+[33m9c625ab[m Fixes done
+[33m5eb49fc[m fix: wrong /deletepage method
+[33m44f9b99[m ✨ Doc updated and Github path fixed
+[33m0c89aee[m docs: update contributors list
+[33mf06f016[m Merge pull request #122 from AnirbanNath-dev/fix/share-page
+[33m35c327a[m Fix user undefined when signed up
+[33m160f11a[m Fix edit page by shared user
+[33mbd9b99a[m Merge pull request #121 from komalsathvik/footer-issue
+[33m3dcc921[m Delete package-lock.json
+[33m48d1358[m issue fixed
+[33mc620a8e[m move backend archive to .archive
+[33mfe7aa2f[m docs: update contributors list
+[33mc3eec8e[m fix: don't make direct commit on main
+[33mfcfb66b[m docs(contributor): contrib-readme-action has updated readme
+[33m88e9f05[m Merge pull request #119 from MannuVilasara/feat/readme-contributors
+[33m6798f09[m Add contributors to README
+[33m81d3d4c[m Auth-routes-added-Postman collection (#116)
+[33m62c330b[m CI
+[33m96e33ea[m API URL FIX
+[33m6a148af[m dockerfile fix
+[33m49dea83[m Merge pull request #96 from ikeshav26/feat/vite-setup
+[33ma538547[m workflow checks fix
+[33md7c763d[m archive
+[33mf9bd4c3[m create deployment
+[33mb1287c7[m ✨ feat:Protecting routes and enhancing UI
+[33m4478823[m ✨ Feat: Immprovements and share feat added
+[33m40ccb28[m ✨ Feat: Dashboard te create page and add content
+[33ma0f8fbf[m ✨ Improvement 
