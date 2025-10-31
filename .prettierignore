@@ -99,3 +99,7 @@ docs/build/
 # Temporary folders
 tmp/
 temp/
+
+# Ignore Docker-related files for Prettier
+motia/Dockerfile
+motia/.dockerignore
