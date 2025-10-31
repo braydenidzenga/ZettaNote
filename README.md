@@ -352,6 +352,13 @@ We welcome contributions from the community!
 		</tr>
 		<tr>
             <td align="center">
+                <a href="https://github.com/bhavanisaw">
+                    <img src="https://avatars.githubusercontent.com/u/146553498?v=4" width="100;" alt="bhavanisaw"/>
+                    <br />
+                    <sub><b>bhavanisaw</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/kleberson154">
                     <img src="https://avatars.githubusercontent.com/u/79817657?v=4" width="100;" alt="kleberson154"/>
                     <br />
@@ -370,13 +377,6 @@ We welcome contributions from the community!
                     <img src="https://avatars.githubusercontent.com/u/149818412?v=4" width="100;" alt="SudharsanSaravanan"/>
                     <br />
                     <sub><b>SudharsanSaravanan</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/bhavanisaw">
-                    <img src="https://avatars.githubusercontent.com/u/146553498?v=4" width="100;" alt="bhavanisaw"/>
-                    <br />
-                    <sub><b>bhavanisaw</b></sub>
                 </a>
             </td>
             <td align="center">
