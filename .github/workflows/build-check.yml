@@ -212,12 +212,16 @@ jobs:
         with:
           node-version: 20
 
-      - name: setup pnpm
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
 
-      - name: Copy envvironment variables
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: ./backend
+
+      - name: Copy environment variables
         run: cp .env.example .env
         working-directory: ./backend
 
