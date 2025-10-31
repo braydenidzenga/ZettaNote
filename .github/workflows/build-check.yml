@@ -217,7 +217,7 @@ jobs:
         with:
           version: 8
 
-      - name: Copy env example to .env
+      - name: Copy envvironment variables
         run: cp .env.example .env
         working-directory: ./backend
 
