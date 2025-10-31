@@ -1,0 +1,17 @@
+{
+  "name": "mergedb",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "mongoose": "^8.19.2"
+  }
+}
