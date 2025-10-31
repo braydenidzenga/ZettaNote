@@ -9,7 +9,7 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies (production only)
-RUN pnpm install --prod
+RUN pnpm install --prod && pnpm store prune
 
 # Copy application code
 COPY . .
