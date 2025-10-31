@@ -221,6 +221,68 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
         default:
           break;
       }
+    } else if (e.key === 'Enter') {
+      // Handle list continuation
+      const textarea = editorRef.current;
+      if (!textarea) return;
+
+      const cursorPos = textarea.selectionStart;
+      const text = editorContent;
+
+      // Find the start of the current line
+      let lineStart = cursorPos;
+      while (lineStart > 0 && text[lineStart - 1] !== '\n') {
+        lineStart--;
+      }
+
+      // Get the current line
+      let lineEnd = cursorPos;
+      while (lineEnd < text.length && text[lineEnd] !== '\n') {
+        lineEnd++;
+      }
+      const currentLine = text.substring(lineStart, lineEnd);
+
+      // Check for list patterns
+      const bulletMatch = currentLine.match(/^(\s*)-(\s*.*)?$/);
+      const numberedMatch = currentLine.match(/^(\s*)(\d+)\.(\s*.*)?$/);
+      const taskMatch = currentLine.match(/^(\s*)-(\s*)\[([ x])\](\s*.*)?$/);
+
+      if (bulletMatch) {
+        e.preventDefault();
+        const indent = bulletMatch[1];
+        const hasContent = bulletMatch[2] && bulletMatch[2].trim();
+        if (hasContent) {
+          // Continue bullet list
+          insertAtCursor(`\n${indent}- `, 2);
+        } else {
+          // Exit list - insert newline with space
+          insertAtCursor('\n ', 1);
+        }
+      } else if (numberedMatch) {
+        e.preventDefault();
+        const indent = numberedMatch[1];
+        const number = parseInt(numberedMatch[2], 10);
+        const hasContent = numberedMatch[3] && numberedMatch[3].trim();
+        if (hasContent) {
+          // Continue numbered list with next number
+          insertAtCursor(`\n${indent}${number + 1}. `, 3);
+        } else {
+          // Exit list
+          insertAtCursor('\n ', 1);
+        }
+      } else if (taskMatch) {
+        e.preventDefault();
+        const indent = taskMatch[1];
+        const hasContent = taskMatch[4] && taskMatch[4].trim();
+        if (hasContent) {
+          // Continue task list
+          insertAtCursor(`\n${indent}- [ ] `, 6);
+        } else {
+          // Exit list
+          insertAtCursor('\n ', 1);
+        }
+      }
+      // If not a list, let default behavior happen
     }
   };
 
