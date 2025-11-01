@@ -14,6 +14,24 @@ const config = {
   // Redis Configuration
   redis: {
     url: process.env.REDIS_URL || 'redis://localhost:6379',
+    host: (() => {
+      const url = process.env.REDIS_URL || 'redis://localhost:6379';
+      try {
+        const parsed = new URL(url);
+        return parsed.hostname;
+      } catch {
+        return 'localhost';
+      }
+    })(),
+    port: (() => {
+      const url = process.env.REDIS_URL || 'redis://localhost:6379';
+      try {
+        const parsed = new URL(url);
+        return parseInt(parsed.port || '6379', 10);
+      } catch {
+        return 6379;
+      }
+    })(),
   },
 
   // Database Configuration

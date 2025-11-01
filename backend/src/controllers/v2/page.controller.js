@@ -6,7 +6,7 @@ import { z } from 'zod';
 import logger from '../../utils/logger.js';
 import { safeRedisCall } from '../../config/redis.js';
 import { updateImageReferences, getContentImageIds } from '../../utils/image.utils.js';
-import { MOTIA_CONFIG, triggerAsyncPageSave } from '../../utils/motia.utils.js';
+import { pageSaveQueue } from '../../config/queue.js';
 
 /**
  * Helper function to get page name and ID
@@ -80,27 +80,33 @@ export const savePage = async (req) => {
       };
     }
 
-    // Use Motia for async processing if enabled
-    if (MOTIA_CONFIG.enabled) {
-      logger.info('Using Motia for async page save', { pageId, userId: user._id });
+    // Use BullMQ for async processing if available
+    if (pageSaveQueue) {
+      try {
+        logger.info('Queueing page save job', { pageId, userId: user._id });
 
-      const motiaResult = await triggerAsyncPageSave(pageId, newPageData, user._id.toString());
+        const job = await pageSaveQueue.add('page-save', {
+          pageId,
+          newPageData,
+          userId: user._id.toString(),
+        });
 
-      if (motiaResult.success) {
         return {
           resStatus: STATUS_CODES.ACCEPTED, // 202 - Accepted for processing
           resMessage: {
             message: 'Page save queued for processing',
-            jobId: motiaResult.jobId,
+            jobId: job.id,
           },
         };
-      } else {
-        logger.warn('Motia async save failed, falling back to sync', {
+      } catch (queueError) {
+        logger.warn('Failed to queue page save, falling back to sync', {
           pageId,
-          error: motiaResult.error,
+          error: queueError.message,
         });
-        // Fall back to synchronous processing if Motia fails
+        // Fall back to synchronous processing if queue fails
       }
+    } else {
+      logger.debug('BullMQ not available, processing page save synchronously');
     }
 
     // Synchronous save logic

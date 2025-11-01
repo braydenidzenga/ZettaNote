@@ -36,7 +36,6 @@ import mailerRoutes from './v1/mailer.routes.js';
 import oauthRoutes from './v1/oauth.routes.js';
 import taskRoutes from './v1/task.routes.js';
 import userRoutes from './v1/user.routes.js';
-import motiaRoutes from './v2/motia.routes.js';
 
 router.use('/auth', authRoutes);
 router.use('/auth', oauthRoutes);
@@ -45,6 +44,5 @@ router.use('/admin', adminRoutes);
 router.use('/mailer', mailerRoutes);
 router.use('/task', taskRoutes);
 router.use('/user', userRoutes);
-router.use('/motia', motiaRoutes);
 
 export default router;
