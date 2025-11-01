@@ -8,8 +8,12 @@ import { connectDatabase, getDatabaseStatus } from './src/config/database.js';
 import config from './src/config/index.js';
 import logger from './src/utils/logger.js';
 import { ConnectRedis } from './src/config/redis.js';
-import { startReminderCronJob, stopReminderCronJob } from './src/jobs/reminderJob.js';
-import { startImageCleanupCronJob, stopImageCleanupCronJob } from './src/jobs/imageCleanupJob.js';
+import { initializeQueues, closeQueues } from './src/config/queue.js';
+import { initializeScheduledJobs } from './src/config/schedulers.js';
+import createPageSaveWorker from './src/workers/pageSave.worker.js';
+import createImageUploadWorker from './src/workers/imageUpload.worker.js';
+import createImageCleanupWorker from './src/workers/imageCleanup.worker.js';
+import createTaskReminderWorker from './src/workers/taskReminder.worker.js';
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
@@ -34,44 +38,72 @@ const startServer = async () => {
     const dbStatus = getDatabaseStatus();
     logger.info(`📊 Database Status: ${dbStatus.status}`);
 
+    // Initialize BullMQ (optional - will warn if Redis unavailable)
+    let workers = null;
+    try {
+      await initializeQueues();
+
+      // Start BullMQ workers
+      workers = {
+        pageSave: createPageSaveWorker(),
+        imageUpload: createImageUploadWorker(),
+        imageCleanup: createImageCleanupWorker(),
+        taskReminder: createTaskReminderWorker(),
+      };
+      logger.info('✅ All BullMQ workers started');
+
+      // Initialize scheduled jobs (if enabled)
+      if (config.cron.reminderJobEnabled && config.cron.imageCleanupJobEnabled) {
+        await initializeScheduledJobs();
+      } else {
+        if (!config.cron.reminderJobEnabled) {
+          logger.info('⏰ Task reminder scheduled job disabled via configuration');
+        }
+        if (!config.cron.imageCleanupJobEnabled) {
+          logger.info('🖼️ Image cleanup scheduled job disabled via configuration');
+        }
+      }
+    } catch (bullmqError) {
+      logger.warn(
+        '⚠️ BullMQ initialization failed - background jobs will not work:',
+        bullmqError.message
+      );
+      logger.warn('⚠️ Please ensure Redis is running for background job processing');
+    }
+
     // Start Express server
     const server = app.listen(config.server.port, () => {
       logger.info('🚀 ZettaNote API Server Started');
-      logger.info(`📍 Environment: ${config.server.nodeEnv}`);
+      logger.info(`� Environment: ${config.server.nodeEnv}`);
       logger.info(`🌐 Server running on port ${config.server.port}`);
-      logger.info(`🔗 API available at: http://localhost:${config.server.port}/api`);
+      logger.info(`� API available at: http://localhost:${config.server.port}/api`);
       logger.info(`💚 Health check: http://localhost:${config.server.port}/api/health`);
     });
-
-    // Start reminder cron job (if enabled)
-    let reminderTask = null;
-    if (config.cron.reminderJobEnabled) {
-      reminderTask = startReminderCronJob();
-      logger.info('⏰ Reminder cron job started');
-    } else {
-      logger.info('⏰ Reminder cron job disabled via configuration');
-    }
-
-    // Start image cleanup cron job (if enabled)
-    let imageCleanupTasks = null;
-    if (config.cron.imageCleanupJobEnabled) {
-      imageCleanupTasks = startImageCleanupCronJob();
-      logger.info('🖼️ Image cleanup cron job started');
-    } else {
-      logger.info('🖼️ Image cleanup cron job disabled via configuration');
-    }
 
     // Graceful shutdown
     const shutdown = async (signal) => {
       logger.info(`\n${signal} received. Starting graceful shutdown...`);
 
-      if (reminderTask) {
-        stopReminderCronJob(reminderTask);
-        logger.info('⏰ Reminder cron job stopped');
-      }
-      if (imageCleanupTasks) {
-        stopImageCleanupCronJob(imageCleanupTasks);
-        logger.info('🖼️ Image cleanup cron job stopped');
+      // Close BullMQ workers if they were started
+      if (workers) {
+        try {
+          await Promise.all([
+            workers.pageSave.close(),
+            workers.imageUpload.close(),
+            workers.imageCleanup.close(),
+            workers.taskReminder.close(),
+          ]);
+          logger.info('✅ All BullMQ workers closed');
+        } catch (err) {
+          logger.error('❌ Error closing workers:', err);
+        }
+
+        // Close BullMQ queues
+        try {
+          await closeQueues();
+        } catch (err) {
+          logger.error('❌ Error closing queues:', err);
+        }
       }
 
       server.close(async () => {

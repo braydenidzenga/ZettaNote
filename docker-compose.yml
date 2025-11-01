@@ -5,15 +5,14 @@ services:
     image: ghcr.io/braydenidzenga/zettanote-nginx:latest
     container_name: zettanote-nginx
     ports:
-      - '80:80'
-      - '443:443'
+      - "80:80"
+      - "443:443"
     volumes:
       - nginx_certbot:/etc/letsencrypt
       - nginx_certbot:/var/www/certbot
     depends_on:
       - frontend
       - backend
-      - motia
     restart: unless-stopped
     networks:
       - zettanote-network
@@ -22,7 +21,7 @@ services:
     image: ghcr.io/braydenidzenga/zettanote-backend:latest
     container_name: zettanote-backend
     expose:
-      - '4000'
+      - "4000"
     environment:
       - NODE_ENV=production
       - PORT=4000
@@ -43,38 +42,20 @@ services:
       - CLOUDINARY_SECRET=${CLOUDINARY_SECRET}
       - DISABLE_REMINDER_CRON=${DISABLE_REMINDER_CRON}
       - DISABLE_IMAGE_CLEANUP_CRON=${DISABLE_IMAGE_CLEANUP_CRON}
-      - USE_MOTIA=true
-      - MOTIA_URL=http://zettanote-motia:3001
     depends_on:
       - mongodb
       - redis
-      - motia
     restart: unless-stopped
     healthcheck:
       test:
-        ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:4000/api/health']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - zettanote-network
-
-  motia:
-    image: ghcr.io/braydenidzenga/zettanote-motia:latest
-    container_name: zettanote-motia
-    expose:
-      - '3001'
-    environment:
-      - NODE_ENV=production
-      - MOTIA_PORT=3001
-      - BACKEND_URL=http://zettanote-backend:4000
-      - REDIS_URL=redis://zettanote-redis:6379
-    depends_on:
-      - redis
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3001/health']
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4000/api/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -86,7 +67,7 @@ services:
     image: ghcr.io/braydenidzenga/zettanote-frontend:latest
     container_name: zettanote-frontend
     expose:
-      - '3000'
+      - "3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -95,7 +76,15 @@ services:
       - backend
     restart: unless-stopped
     healthcheck:
-      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/']
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -105,11 +94,11 @@ services:
   redis:
     image: redis:7.0-alpine
     container_name: zettanote-redis
-    expose:
-      - '6379'
+    ports:
+      - "6379:6379"
     restart: unless-stopped
     healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
+      test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -126,10 +115,10 @@ services:
     volumes:
       - mongodb_data:/data/db
     expose:
-      - '27017'
+      - "27017"
     restart: unless-stopped
     healthcheck:
-      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      test: ["CMD", "mongosh", "--eval", 'db.adminCommand("ping")']
       interval: 30s
       timeout: 10s
       retries: 3

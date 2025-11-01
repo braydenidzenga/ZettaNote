@@ -26,6 +26,7 @@ ZettaNote Backend is a robust Node.js/Express API server that powers the note-ta
 - **Repository Pattern**: Data access abstraction
 - **Service Layer**: Business logic encapsulation
 - **Error Handling**: Centralized error management
+- **Background Jobs**: BullMQ for asynchronous task processing
 
 ## Project Structure
 
@@ -37,7 +38,9 @@ backend/
 │   │   ├── database.js      # MongoDB connection setup
 │   │   ├── redis.js         # Redis connection setup
 │   │   ├── passport.js      # OAuth authentication setup
-│   │   └── cors.js          # CORS configuration
+│   │   ├── cors.js          # CORS configuration
+│   │   ├── queue.js         # BullMQ queue configuration
+│   │   └── schedulers.js    # BullMQ scheduled jobs
 │   │
 │   ├── controllers/         # Request handlers
 │   │   ├── auth.controller.js     # Authentication logic
@@ -78,8 +81,15 @@ backend/
 │   │   ├── messages.js            # Response messages
 │   │   └── statusCodes.js         # HTTP status codes
 │   │
-│   ├── jobs/                # Background jobs
-│   │   └── reminderJob.js         # Reminder notifications
+│   ├── jobs/                # Background jobs (legacy cron)
+│   │   ├── reminderJob.js         # Reminder notifications
+│   │   └── imageCleanupJob.js     # Image cleanup tasks
+│   │
+│   ├── workers/             # BullMQ workers
+│   │   ├── pageSave.worker.js     # Page save processing
+│   │   ├── imageUpload.worker.js  # Image upload processing
+│   │   ├── imageCleanup.worker.js # Image cleanup processing
+│   │   └── taskReminder.worker.js # Task reminder processing
 │   │
 │   ├── mailers/             # Email service clients
 │   │   └── resend.client.js       # Resend API client
@@ -345,12 +355,27 @@ const sendEmail = async (to, subject, html, text) => {
 
 ## Background Jobs
 
-### Reminder System
+ZettaNote uses **BullMQ** for reliable background job processing. See [BullMQ Documentation](./bullmq-jobs.md) for detailed information.
 
-- Cron-based task scheduling
-- Automated email reminders
-- Task completion notifications
-- Maintenance cleanup jobs
+### Job Types
+
+1. **Page Save Jobs**: Asynchronous page content updates
+2. **Image Upload Jobs**: Background image processing and Cloudinary uploads
+3. **Image Cleanup Jobs**: Orphaned image detection and deletion
+4. **Task Reminder Jobs**: Email notifications for upcoming/overdue tasks
+
+### Scheduled Tasks
+
+- **Image Cleanup**: Runs every 6 hours
+- **Task Reminders**: Runs every 5 minutes
+
+### Features
+
+- **Automatic Retries**: Failed jobs retry with exponential backoff
+- **Job Persistence**: Jobs survive application restarts
+- **Concurrency Control**: Process multiple jobs simultaneously
+- **Job Monitoring**: Track job status and metrics
+- **Graceful Shutdown**: Properly close workers on server shutdown
 
 ## Testing Strategy
 
