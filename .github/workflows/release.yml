@@ -1,0 +1,250 @@
+name: Release Management
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "package.json"
+            - "backend/package.json"
+            - "frontend/package.json"
+    workflow_dispatch:
+        inputs:
+            bump_type:
+                description: "Version bump type"
+                required: true
+                default: "patch"
+                type: choice
+                options:
+                    - patch
+                    - minor
+                    - major
+
+permissions:
+    contents: write
+    packages: write
+
+jobs:
+    check-version-change:
+        name: Check Version Change
+        runs-on: ubuntu-latest
+        if: github.repository == 'braydenidzenga/ZettaNote'
+        outputs:
+            version_changed: ${{ steps.check.outputs.changed }}
+            new_version: ${{ steps.check.outputs.version }}
+            should_bump: ${{ steps.check.outputs.should_bump }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+
+            - name: Check if version changed
+              id: check
+              run: |
+                  # Get current version from package.json
+                  CURRENT_VERSION=$(jq -r '.version' package.json)
+                  echo "Current version: $CURRENT_VERSION"
+
+                  # Check if this is a manual dispatch (bump request)
+                  if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+                    echo "Manual bump requested: ${{ inputs.bump_type }}"
+                    echo "should_bump=true" >> $GITHUB_OUTPUT
+                    echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                    exit 0
+                  fi
+
+                  # Check if package.json was actually modified in the last commit
+                  CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+                  if ! echo "$CHANGED_FILES" | grep -q "package.json"; then
+                    echo "package.json not changed in this commit"
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                    echo "should_bump=false" >> $GITHUB_OUTPUT
+                    exit 0
+                  fi
+
+                  # Get previous version
+                  git checkout HEAD^
+                  PREVIOUS_VERSION=$(jq -r '.version' package.json)
+                  git checkout -
+
+                  echo "Previous version: $PREVIOUS_VERSION"
+
+                  if [ "$CURRENT_VERSION" != "$PREVIOUS_VERSION" ]; then
+                    echo "Version changed from $PREVIOUS_VERSION to $CURRENT_VERSION"
+                    echo "changed=true" >> $GITHUB_OUTPUT
+                    echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+                    echo "should_bump=false" >> $GITHUB_OUTPUT
+                  else
+                    echo "Version not changed, will auto-bump patch version"
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                    echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+                    echo "should_bump=true" >> $GITHUB_OUTPUT
+                  fi
+
+    bump-version:
+        name: Auto Bump Version
+        runs-on: ubuntu-latest
+        needs: check-version-change
+        if: needs.check-version-change.outputs.should_bump == 'true'
+        outputs:
+            new_version: ${{ steps.bump.outputs.version }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Configure Git
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            - name: Bump version
+              id: bump
+              run: |
+                  CURRENT_VERSION=$(jq -r '.version' package.json)
+                  BUMP_TYPE="${{ inputs.bump_type || 'patch' }}"
+
+                  echo "Current version: $CURRENT_VERSION"
+                  echo "Bump type: $BUMP_TYPE"
+
+                  # Parse version
+                  IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+                  # Bump based on type
+                  case $BUMP_TYPE in
+                    major)
+                      MAJOR=$((MAJOR + 1))
+                      MINOR=0
+                      PATCH=0
+                      ;;
+                    minor)
+                      MINOR=$((MINOR + 1))
+                      PATCH=0
+                      ;;
+                    patch)
+                      PATCH=$((PATCH + 1))
+                      ;;
+                  esac
+
+                  NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+                  echo "New version: $NEW_VERSION"
+
+                  # Update package.json files
+                  jq --arg ver "$NEW_VERSION" '.version = $ver' package.json > package.json.tmp
+                  mv package.json.tmp package.json
+
+                  jq --arg ver "$NEW_VERSION" '.version = $ver' backend/package.json > backend/package.json.tmp
+                  mv backend/package.json.tmp backend/package.json
+
+                  jq --arg ver "$NEW_VERSION" '.version = $ver' frontend/package.json > frontend/package.json.tmp
+                  mv frontend/package.json.tmp frontend/package.json
+
+                  # Commit changes
+                  git add package.json backend/package.json frontend/package.json
+                  git commit -m "chore: bump version to $NEW_VERSION [skip ci]"
+                  git push
+
+                  echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+    create-release:
+        name: Create GitHub Release
+        runs-on: ubuntu-latest
+        needs: [check-version-change, bump-version]
+        if: |
+            always() && 
+            (needs.check-version-change.outputs.version_changed == 'true' || 
+             needs.bump-version.result == 'success')
+        outputs:
+            release_created: ${{ steps.create.outputs.created }}
+            version: ${{ steps.version.outputs.tag }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Determine version
+              id: version
+              run: |
+                  if [ "${{ needs.bump-version.result }}" == "success" ]; then
+                    VERSION="${{ needs.bump-version.outputs.new_version }}"
+                  else
+                    VERSION="${{ needs.check-version-change.outputs.new_version }}"
+                  fi
+                  echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+            - name: Check if release exists
+              id: check_release
+              run: |
+                  if gh release view ${{ steps.version.outputs.tag }} >/dev/null 2>&1; then
+                    echo "exists=true" >> $GITHUB_OUTPUT
+                    echo "Release ${{ steps.version.outputs.tag }} already exists"
+                  else
+                    echo "exists=false" >> $GITHUB_OUTPUT
+                    echo "Release ${{ steps.version.outputs.tag }} does not exist"
+                  fi
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Generate release notes
+              id: notes
+              if: steps.check_release.outputs.exists == 'false'
+              run: |
+                  VERSION="${{ steps.version.outputs.version }}"
+
+                  # Get the latest tag
+                  LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+                  # Generate release notes
+                  {
+                    echo "## Release v$VERSION"
+                    echo ""
+                    
+                    if [ -z "$LATEST_TAG" ]; then
+                      echo "### 🎉 First Release"
+                      echo ""
+                      echo "This is the first release of ZettaNote."
+                      echo ""
+                      echo "### Recent Changes"
+                      git log --pretty=format:"- %s (%h)" --no-merges | head -20
+                    else
+                      echo "### What's Changed"
+                      echo ""
+                      git log $LATEST_TAG..HEAD --pretty=format:"- %s (%h)" --no-merges
+                      echo ""
+                      echo ""
+                      echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/$LATEST_TAG...${{ steps.version.outputs.tag }}"
+                    fi
+                  } > release_notes.md
+
+                  echo "Release notes generated"
+
+            - name: Create Release
+              id: create
+              if: steps.check_release.outputs.exists == 'false'
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ steps.version.outputs.tag }}
+                  release_name: Release ${{ steps.version.outputs.tag }}
+                  body_path: release_notes.md
+                  draft: false
+                  prerelease: false
+
+            - name: Set output
+              run: |
+                  if [ "${{ steps.check_release.outputs.exists }}" == "false" ]; then
+                    echo "created=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "created=false" >> $GITHUB_OUTPUT
+                  fi
