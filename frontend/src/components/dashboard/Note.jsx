@@ -102,11 +102,21 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   } = useTableModal((text, moveCursor) => insertAtCursor(text, moveCursor));
 
   useEffect(() => {
-    if (content !== editorContent) {
+    // Only update editor content when switching to a different page
+    // Never update while on the same page to prevent interrupting user input
+    const currentPageId = editorRef.current?.dataset.pageId;
+    const newPageId = activePage?.id;
+
+    if (newPageId && currentPageId !== newPageId) {
+      // Switching to a different page - load the new content
       setEditorContent(content);
-      resetHistory(content, activePage?.id);
+      resetHistory(content, newPageId);
+      if (editorRef.current) {
+        editorRef.current.dataset.pageId = newPageId;
+      }
     }
-  }, [content, activePage?.id, editorContent, resetHistory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePage?.id]); // Only depend on page ID, not content or editorContent
 
   const handleContentChange = (e) => {
     const newContent = e.target.value;
