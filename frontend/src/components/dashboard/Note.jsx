@@ -102,9 +102,18 @@ const Note = ({ activePage, onContentChange, content = '', onSave }) => {
   } = useTableModal((text, moveCursor) => insertAtCursor(text, moveCursor));
 
   useEffect(() => {
-    if (content !== editorContent) {
-      setEditorContent(content);
-      resetHistory(content, activePage?.id);
+    // Only update editor content if the page changed, not on every content update
+    // This prevents the editor from resetting while user is typing
+    if (content !== editorContent && activePage?.id) {
+      // Only update if this is a different page or initial load
+      const isNewPage = editorRef.current?.dataset.pageId !== activePage?.id;
+      if (isNewPage) {
+        setEditorContent(content);
+        resetHistory(content, activePage?.id);
+        if (editorRef.current) {
+          editorRef.current.dataset.pageId = activePage?.id;
+        }
+      }
     }
   }, [content, activePage?.id, editorContent, resetHistory]);
 
